@@ -154,4 +154,14 @@
 
 .workbench .buyer-support .support-stream-part + .support-stream-part { margin-top:18px; }
 
-.workbench .buyer-support .support-message-list{max-width:900px;margin-inline:auto}.workbench .buyer-support .buyer-history-time{font-size:11px;color:var(--rf-muted);margin-top:5px}.workbench .buyer-support .support-chat-identity{min-width:0}.workbench .buyer-support .support-chat-identity p{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.workbench .buyer-support .support-context-toggle{flex-shrink:0}
+.workbench .buyer-support .support-message-list { width: 100%; max-width: none; margin: 0; }
+.workbench .buyer-support .buyer-history-time{font-size:11px;color:var(--rf-muted);margin-top:5px}.workbench .buyer-support .support-chat-identity{min-width:0}.workbench .buyer-support .support-chat-identity p{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.workbench .buyer-support .support-context-toggle{flex-shrink:0}
+
+/* Let the conversation use its pane; constrain each reply, not the entire thread. */
+.workbench .buyer-support .support-main { --chat-gutter: clamp(16px, 2.2vw, 40px); }
+.workbench .buyer-support :is(.support-chat-heading, .support-messages, .support-compose) { padding-inline: var(--chat-gutter); }
+.workbench .buyer-support .support-message-content { max-width: min(calc(100% - 46px), 880px); }
+.workbench .buyer-support .support-message.outgoing .support-message-content { max-width: min(calc(100% - 46px), 680px); }
+.workbench .buyer-support :is(.chat-refund, .support-handoff-card) { max-width: 880px; margin-left: 46px; }
+.workbench .buyer-support .support-agent-state { margin-left: 46px; }
+@media(max-width:760px) { .workbench .buyer-support :is(.chat-refund, .support-handoff-card) { margin-left: 0; } }

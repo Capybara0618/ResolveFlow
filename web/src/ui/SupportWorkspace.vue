@@ -298,7 +298,7 @@ defineExpose({ navigationBlocked: computed(() => busy.value || !!pending.value) 
 </script>
 
 <template>
-  <section ref="workspace" :class="['support-workspace', { 'merchant-support': merchant, 'buyer-support': !merchant }]">
+  <section ref="workspace" :data-page-loading="loading" :class="['support-workspace', { 'merchant-support': merchant, 'buyer-support': !merchant }]">
     <div v-if="error || notice || (pending && !busy)" class="support-alerts">
       <p v-if="error" role="alert" class="support-error">{{ error }} <button v-if="selected && !pending" @click="refresh()">刷新当前记录</button></p>
       <p v-if="notice" role="status" class="support-notice">{{ notice }}</p>

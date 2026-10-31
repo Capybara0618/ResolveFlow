@@ -133,7 +133,7 @@
 .product-review-anchor { scroll-margin-top: 100px; }
 
 /* Keep the catalogue footprint while requests settle; refreshes retain their rows. */
-.shop-view { min-height: 70dvh; animation: rf-content-enter 160ms var(--rf-motion-ease); }
+.shop-view { min-height: 70dvh; }
 .catalog-skeleton > div > i { display: block; aspect-ratio: 1; border-radius: 10px; }
 .catalog-skeleton span { display: block; height: 14px; width: 65%; border-radius: 4px; margin-top: 16px; }
 .catalog-skeleton span:last-child { width: 35%; margin-top: 10px; }

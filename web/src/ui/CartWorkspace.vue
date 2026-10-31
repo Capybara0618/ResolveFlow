@@ -115,7 +115,7 @@ defineExpose({ navigationBlocked: blocked, backWithin, viewScroll: () => quote.v
     <p v-if="error" class="shop-error" role="alert">{{ error }}</p>
     <div v-if="pending" class="cart-recovery" role="status"><p>上次{{ pending.kind === 'draft' ? '订单提交' : '购物车操作' }}结果待确认。</p><button class="shop-primary" :disabled="writing" @click="retry">{{ writing ? '正在确认…' : '用原请求确认结果' }}</button></div>
     <template v-if="quote">
-      <header class="checkout-heading"><h1>确认订单</h1><button class="shop-text" :disabled="blocked" @click="backWithin">返回购物车</button></header>
+      <header class="checkout-heading" data-page-reveal><h1>确认订单</h1><button class="shop-text" :disabled="blocked" @click="backWithin">返回购物车</button></header>
       <div class="purchase-layout"><div class="purchase-main-column">
         <AddressPicker v-model="shipping" :account="account" :disabled="blocked" @working="addressBusy = $event" @expired="emit('expired')" />
         <section class="checkout-panel"><h2>{{ quote.store_name }}</h2>
@@ -124,10 +124,10 @@ defineExpose({ navigationBlocked: blocked, backWithin, viewScroll: () => quote.v
       </div><OrderSummary :amount="quote.total_amount" :quantity="quote.lines.reduce((n,l) => n + l.quantity, 0)" :show-action="!pending" action-class="cart-submit" :disabled="blocked || !shipping" :busy="writing" @submit="submit" /></div>
     </template>
     <template v-else>
-      <div class="cart-heading"><h1>购物车</h1><button class="shop-text" :disabled="blocked || loading" @click="refresh">刷新购物车</button></div>
+      <div class="cart-heading" data-page-reveal><h1>购物车</h1><button class="shop-text" :disabled="blocked || loading" @click="refresh">刷新购物车</button></div>
       <div v-if="loading && slowLoading && !stores.length" class="cart-skeleton" role="status" aria-label="正在读取购物车"><div v-for="i in 2" :key="i" aria-hidden="true"><i /><span /></div></div>
       <div v-else-if="!loading && !stores.some(s => s.items.length) && !error" class="shop-empty"><p>购物车还没有商品。</p><button class="shop-primary" :disabled="blocked" @click="emit('navigate', '#/shop')">去逛商城</button></div>
-      <div v-if="cartStores.length" class="purchase-layout"><div class="cart-groups"><section v-for="s in cartStores" :key="s.store_id" class="cart-store">
+      <div v-if="cartStores.length" class="purchase-layout"><div class="cart-groups"><section v-for="s in cartStores" :key="s.store_id" class="cart-store" data-page-reveal>
         <header><Icon name="store" :size="20" /><h2>{{ s.store_name }}</h2></header>
         <div class="cart-columns" aria-hidden="true"><span></span><span>商品</span><span>数量</span><span>小计</span><span>操作</span></div>
         <div v-for="i in s.items" :key="i.sku_id" class="cart-row" :data-sku="i.sku_id">

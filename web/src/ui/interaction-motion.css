@@ -1,14 +1,31 @@
 /* Stable geometry and quiet feedback shared by all three workspaces. */
-:root { --rf-motion-quick: 120ms; --rf-motion-page: 160ms; --rf-motion-ease: cubic-bezier(.2,.7,.2,1); }
+:root { --rf-motion-quick: 120ms; --rf-motion-page: 240ms; --rf-motion-ease: cubic-bezier(.22,1,.36,1); }
 html { scrollbar-gutter: stable; }
 .workbench button,.workbench a { transition: background-color var(--rf-motion-quick) ease,border-color var(--rf-motion-quick) ease,color var(--rf-motion-quick) ease,box-shadow var(--rf-motion-quick) ease,opacity var(--rf-motion-quick) ease; }
 .workbench button:not(:disabled) { cursor: pointer; }
 .workbench :is(.shop-primary,.shop-secondary,.primary-button,.secondary-button,.rf-dialog-close):not(:disabled):active { filter: brightness(.94); }
-.workbench .app-shell > :is(.admin-workspace,.foundation-main,.customer-main),.workbench .marketplace > :is(.account-workspace,.personal-center,.cart-workspace) { animation: rf-content-enter var(--rf-motion-page) var(--rf-motion-ease); }
+.workbench .app-shell > :is(.admin-workspace,.foundation-main,.customer-main) { animation: rf-content-enter var(--rf-motion-page) var(--rf-motion-ease); }
+.buyer-route-frame { min-width: 0; }
+.workbench .shop-nav { view-transition-name: rf-navigation; }
 .workbench :is(.shop-account[open] > div,.notification-center:not(.expanded) .notification-panel) { animation: rf-popover-enter 140ms var(--rf-motion-ease); }
 @keyframes rf-content-enter { from { opacity: .3; } to { opacity: 1; } }
 @keyframes rf-popover-enter { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+/* Only the content surface changes. The live navigation stays available during transitions. */
+::view-transition { pointer-events: none; }
+:root[data-rf-navigation]::view-transition-old(root), :root[data-rf-navigation]::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-group(rf-page) { animation: none; z-index: 1; }
+::view-transition-group(rf-navigation) { animation: none; z-index: 3; }
+::view-transition-old(rf-navigation), ::view-transition-new(rf-navigation) { animation: none; mix-blend-mode: normal; }
+::view-transition-old(rf-page) { animation: rf-page-out 140ms ease-out both; mix-blend-mode: normal; }
+::view-transition-new(rf-page) { animation: rf-page-forward 240ms cubic-bezier(.22,1,.36,1) both; mix-blend-mode: normal; }
+:root[data-rf-navigation="back"]::view-transition-new(rf-page) { animation-name: rf-page-back; }
+::view-transition-group(rf-product) { z-index: 2; animation-duration: 280ms; animation-timing-function: cubic-bezier(.22,1,.36,1); overflow: clip; border-radius: 12px; }
+::view-transition-old(rf-product), ::view-transition-new(rf-product) { height: 100%; object-fit: contain; mix-blend-mode: normal; }
+@keyframes rf-page-out { to { opacity: 0; } }
+@keyframes rf-page-forward { from { opacity: 0; transform: translate(14px, 4px); } to { opacity: 1; transform: none; } }
+@keyframes rf-page-back { from { opacity: 0; transform: translate(-14px, 4px); } to { opacity: 1; transform: none; } }
 @media(prefers-reduced-motion:reduce) {
   .workbench button,.workbench a { transition: none; }
   .workbench .app-shell > :is(.admin-workspace,.foundation-main,.customer-main),.workbench .marketplace > :is(.account-workspace,.personal-center,.cart-workspace),.workbench :is(.shop-account[open] > div,.notification-center:not(.expanded) .notification-panel) { animation: none; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }

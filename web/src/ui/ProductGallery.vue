@@ -13,7 +13,7 @@ function selectVariant() { const image = props.variant && details.value?.variant
 watch([() => props.variant, details], selectVariant)
 watch(() => props.product, load, { immediate: true }); onBeforeUnmount(() => { generation++ })
 </script>
-<template><div class="product-gallery"><div class="gallery-media"><div class="gallery-main"><CatalogImage v-if="details?.images.length" :id="details.images[selected]" :name="name" /><ProductArt v-else :asset="asset" :name="name" :variant="variant" /></div>
+<template><div class="product-gallery" data-page-reveal><div class="gallery-media"><div class="gallery-main" :data-motion-product="product"><CatalogImage v-if="details?.images.length" :id="details.images[selected]" :name="name" /><ProductArt v-else :asset="asset" :name="name" :variant="variant" /></div>
   <div v-if="details && details.images.length > 1" class="gallery-thumbnails" aria-label="商品图片"><button v-for="(id, index) in details.images" :key="id" :aria-label="`查看第${index + 1}张商品图片`" :aria-pressed="selected === index" @click="selected = index"><CatalogImage :id="id" :name="`${name} ${index + 1}`" /></button></div>
   </div><div class="gallery-information"><p v-if="error" role="status">商品详细资料暂时无法读取。<button @click="load">重试</button></p>
   <section v-if="details?.specifications.length" class="gallery-info"><h2>商品参数</h2><dl><div v-for="(spec, index) in details.specifications" :key="index"><dt>{{ spec.name }}</dt><dd>{{ spec.value }}</dd></div></dl></section>
