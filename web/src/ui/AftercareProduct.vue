@@ -26,13 +26,13 @@ withDefaults(defineProps<{ line?: OrderLine | null; loading?: boolean; unavailab
 
 <style>
 .aftercare-product { display: flex; align-items: center; gap: 22px; min-width: 0; }
-.aftercare-product-image { width: 116px; height: 116px; flex: 0 0 116px; display: grid; place-items: center; background: #f1f4f8; border-radius: 12px; overflow: hidden; }
+.aftercare-product-image { width: 116px; height: 116px; flex: 0 0 116px; display: grid; place-items: center; background: var(--rf-subtle); border-radius: 12px; overflow: hidden; }
 .aftercare-product-image .product-art { width: 100%; height: 100%; }
-.aftercare-product-placeholder { display: grid; justify-items: center; gap: 8px; color: #61738c; font-size: 16px; }
+.aftercare-product-placeholder { display: grid; justify-items: center; gap: 8px; color: var(--rf-muted); font-size: 16px; }
 .aftercare-product-copy { display: grid; gap: 9px; min-width: 0; line-height: 1.5; }
-.aftercare-product-copy strong { font-size: 19px; color: #1b2b44; overflow-wrap: anywhere; }
-.aftercare-product-store { color: #355580; font-size: 16px; font-weight: 600; }
-.aftercare-product-variant { color: #61738c; font-size: 16px; overflow-wrap: anywhere; }
-.aftercare-product-amount { font-size: 16px; color: #61738c; }
-.aftercare-product-amount b { margin-left: 10px; color: #1b2b44; font-size: 22px; }
+.aftercare-product-copy strong { font-size: 19px; color: var(--rf-ink); overflow-wrap: anywhere; }
+.aftercare-product-store { color: var(--rf-accent); font-size: 16px; font-weight: 600; }
+.aftercare-product-variant { color: var(--rf-muted); font-size: 16px; overflow-wrap: anywhere; }
+.aftercare-product-amount { font-size: 16px; color: var(--rf-muted); }
+.aftercare-product-amount b { margin-left: 10px; color: var(--rf-ink); font-size: 22px; }
 </style>

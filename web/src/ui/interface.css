@@ -35,7 +35,7 @@
 .unified-interface .merchant-review-page .queue-filters select { margin-top: 8px; }
 .unified-interface .merchant-review-page :is(.secondary-button,.primary-button) { min-height: var(--rf-control-height); font-size: 14px; font-weight: 500; }
 .unified-interface .sidebar-note { display: none; }
-.unified-interface :is(.primary-button,.secondary-button) { min-height:var(--rf-control-height); font-size:14px; line-height:20px; font-weight:500; border-radius:var(--rf-radius); }
+.unified-interface :is(.primary-button,.secondary-button) { min-height:var(--rf-control-height); padding:8px 16px; font-size:14px; line-height:20px; font-weight:500; border-radius:var(--rf-radius); }
 .unified-interface .panel { border-color: var(--rf-line); box-shadow: none; }
 .unified-interface .secondary-button { background: var(--rf-surface); border-color: var(--rf-line); color: var(--rf-ink); }
 .unified-interface .secondary-button:hover:not(:disabled) { background: var(--rf-subtle); }

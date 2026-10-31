@@ -9,7 +9,7 @@
 .merchant-aftercare-page .queue-filters select { width: 100%; margin-top: 8px; padding: 12px; }
 .merchant-aftercare-page .queue-search { display: flex; align-items: center; gap: 14px; width: 470px; }
 .merchant-aftercare-page .queue-search input { margin-top: 0; padding: 12px; }
-.merchant-aftercare-page .queue-search button { flex-shrink: 0; padding: 12px 20px; }
+.merchant-aftercare-page .queue-search button { flex-shrink: 0; padding: 8px 16px; }
 .merchant-aftercare-page .merchant-case-list { display: grid; gap: 20px; }
 .merchant-aftercare-page .merchant-case-card { display: grid; grid-template-columns: minmax(0, 1fr) 205px 128px; gap: 24px; align-items: center; background: white; border: 1px solid var(--rf-line); padding: 26px; border-radius: 14px; }
 .merchant-aftercare-page .merchant-case-description { margin: 18px 0 0 138px; line-height: 1.7; color: var(--rf-muted); overflow-wrap: anywhere; }

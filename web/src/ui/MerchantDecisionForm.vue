@@ -23,9 +23,9 @@ const placeholders = { MANUAL_PROPOSAL: '例如：客户买错尺寸，订单尚
 .decision-reason { display: grid; gap: 10px; font-size: 18px; font-weight: 600; }
 .decision-reason textarea { width: 100%; box-sizing: border-box; padding: 14px 16px; font: inherit; font-weight: 400; min-height: 120px; resize: vertical; }
 .decision-note, .decision-warning { margin: 0; font-size: 18px; }
-.decision-note { color: #526681; }
+.decision-note { color: var(--rf-muted); }
 .decision-warning { color: #a74632; background: #fff4f1; padding: 14px 16px; border-radius: 10px; }
-.decision-preview { background: #f5f7fa; border-radius: 10px; padding: 16px; }
+.decision-preview { background: var(--rf-subtle); border-radius: 10px; padding: 16px; }
 .decision-preview p { margin: 6px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .merchant-decision-form :deep(.aftercare-product-store), .merchant-decision-form :deep(.aftercare-product-variant), .merchant-decision-form :deep(.aftercare-product-amount) { font-size: 18px; }
 .merchant-decision-form :deep(.aftercare-product-copy strong) { font-size: 22px; }

@@ -41,10 +41,43 @@
 
 第一轮类型检查发现新增断言误用 `get(...).exists()`，测试库类型不允许对 get 结果调用 exists；改为 find 后通过，原失败保存在 `tmp/visual-consistency-first-build.log`。没有删除业务断言。jsdom 原有 scrollTo 未实现提示保留。
 
-## 尚未完成的实机验收
+## 真实浏览器复验（2026-10-31）
 
-此批请求浏览器库存时明确返回 `Local browser use is disabled in Work settings`，已请求开启；当前无法进入真实页面读取 computed style 或保存本批新截图。此前截图仅证明旧版本，不能作为此批视觉通过证据。
+用户重启后浏览器已可访问。首次 `status.ps1` 显示基础依赖正常、五个应用进程停着；执行 `.\start.ps1 -SkipBuild -NoBrowser` 正常退出0，最终10项健康通过。原数据库与政策索引复用，未创建订单、退款、账号或新模型请求。
 
-开启后应集中核对：商家概览/订单/商品/评价/售后/咨询/规则切换前后顶部与侧栏几何及字体不变；买家商城/订单/消息/个人资料/售后/咨询导航保持同一规范；管理员三模块标题、边距、次级按钮一致；1280/1440/390的换行、工单详情与审批弹层操作区可达。保留各角色现有记录，只读切换与弹层打开/取消即可，不创建新订单或模型调用。
+使用真实 buyer01、admin01、platform 登录，检查实际页面和 computed style，而非预期稿。
 
-本批代码与自动化完成，视觉验收待浏览器访问恢复。未重启服务、未改 Java/Python、未新增模型/购买/退款/账号写入，四个原历史脏文件不在提交范围。
+| 范围 | 复验结果 |
+| --- | --- |
+| 商家概览→交易订单→商品管理→商品评价→售后工单/详情→咨询核查→退款规则 | 默认1280×720下顶栏76px、侧栏176px、导航14px/44px、品牌22px不随页面变化；同类管理页标题26px、内容起点x208（176+32）一致。咨询保留内部会话布局，外侧导航不换主题 |
+| 买家首页→商品→购物车→订单→售后列表/退款结果→咨询；个人中心/资料/地址/账号安全/消息 | 桌面商城导航76px、相同UI字体与配色；售后详情不再改变导航。结果、聊天及窄表单保留功能需要的宽度。商品参数可读，消息、资料和安全页正常展示 |
+| 管理员商家/买家/客服运行记录及既有运行详情 | 标题26px、32px内容边距、同一顶栏和侧栏；运行详情正常读取已有3次模型/1次业务工具的记录，未触发新运行 |
+| 390×720代表页 | 登录/注册/找回、买家资料/地址弹窗/聊天、商家售后列表/详情/咨询、管理员买家/运行/创建弹窗均无页面横向溢出；窄屏导航按原规则换行，长表格在自己的容器内横向滚动 |
+| 弹层可达性 | 打开既有待审工单的“拒绝申请”弹窗并取消；底部按钮bottom610.73<720。地址弹窗bottom673<720，创建买家bottom631.59<720；均取消，未提交决定或保存 |
+| 1024与1440补充 | 商家1024实际边距24px；1440实际几何无横溢、顶栏76/侧栏176。管理员1440×900完成实际截图，内容边距32px；以各标签实际innerWidth为准 |
+| 控制台 | 三个角色warn/error日志均为空；证据目录console.json |
+
+### 复验中补齐的两类差异
+
+1. 概览/规则的次级按钮实测42px、售后查询46px，订单40px；原来只共享了min-height，局部padding仍在撑高。统一主/次级按钮padding为8px 16px，并去掉售后查询的12px局部padding，最终概览及售后查询均40px。44px的业务主操作与弹窗专用操作保留自己的尺寸。
+2. 展开详细材料、打开审批弹窗时，基础workbench标签/边框、AftercareProduct规格/金额与MerchantDecisionForm预览仍残留旧蓝色。修改原始声明接共享token，保留错误、拒绝警告、核验结论等语义色。最终拒绝理由rgb(105,118,110)，输入边框rgb(223,229,220)，产品文字回到相同色系。
+
+这次收尾仅5个核心样式/组件文件：interface.css、aftercare.css、workbench.css、AftercareProduct.vue、MerchantDecisionForm.vue；不改变业务模板、授权或请求时序。
+
+### 本次实际命令与证据
+
+- `pnpm --dir web test -- tests/foundation.spec.ts tests/merchant-case-detail.spec.ts tests/merchant-decision-form.spec.ts tests/merchant-review.spec.ts tests/buyer-application-progress.spec.ts`：实际匹配3文件39项通过；其中merchant-decision-form.spec.ts与merchant-review.spec.ts不存在，不把两者当已运行测试。
+- 补跑实际存在的 `pnpm --dir web test -- tests/aftercare-products.spec.ts tests/review-dialog.spec.ts tests/review-preview.spec.ts`：3文件13项通过；本次共52项，不与前批403项叠加。
+- `pnpm --dir web build`：vue-tsc与Vite通过。日志tmp/visual-consistency-acceptance-{tests,components,build}.log。
+- 最终改动差异/换行审查及`git diff --check -- web`通过。全量403项为本报告前段代码批证据，未在这次纯样式收尾后重复宣称重跑。
+
+截图与布局采样位于忽略目录 `tmp/visual-consistency-20261031/`：
+
+- merchant-aftercare-1280-final.png、buyer-support-1280-final.png、platform-runs-1440-final.png：最终桌面截图。
+- merchant-review-dialog-390-final.png、buyer-address-dialog-390.png、platform-create-390.png：实际窄屏弹窗。
+- buyer-support-390.png、buyer-composer-390.png、merchant-support-390.png、merchant-aftercare-390.png、login-390.png：代表性窄屏。
+- layout-samples.json：逐页实际尺寸、字体、颜色、边距；console.json：控制台检查。
+
+浏览器截图工具在单独CDP改宽高后曾出现底部或右侧画面重复，merchant-aftercare-1440-final.png是工具采样异常，不作为页面视觉证据；早期merchant-dialog-390.png实际是内联材料区，不能当审批弹窗。最终通过原生管理员1440截图、1280商家截图及390×720直接捕获区分工具问题与页面布局。原错误截图保留，不据文件名推定尺寸。最初旧错误页reload/goto受到工具data URL限制，新建正常HTTP标签后恢复。
+
+本轮三端视觉一致性复验通过；仅使用已有记录检查界面，没有再次验收模型质量、实际审批执行或资金闭环。临时视口已清理，仍残留尺寸的管理员临时标签已关闭；保留默认1280的买家咨询与商家售后标签、应用服务，原四个历史脏文件保持。
