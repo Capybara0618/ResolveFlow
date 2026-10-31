@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import ListPagination from './ui/ListPagination.vue'
+import { usePageEntrance } from './ui/usePageEntrance'
+import PageLoading from './ui/PageLoading.vue'
 import { useCursorPages } from './cursor-pages'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { ApiError, coreApi, type CaseCollaboration, type CaseSnapshot, type LoginResponse, type OrderLine, type ReviewContext, type ReviewItem, type ReviewQueueCounts, type ReviewScope } from './client'
@@ -534,6 +536,13 @@ async function refreshWorkspace() {
   })
 }
 onUnmounted(() => { stopStream(); products.reset() })
+const loginSurface = ref<HTMLElement>(), merchantShell = ref<HTMLElement>()
+usePageEntrance(
+  () => loginSurface.value?.querySelector<HTMLElement>(':scope > :not(.login-intro)') ?? merchantShell.value?.querySelector<HTMLElement>(':scope > :not(.sidebar)'),
+  () => !account.value ? (shopVisitor.value ? null : `login:${enrollmentMode.value ?? 'signin'}`)
+    : !account.value.buyer_id && account.value.role !== 'PLATFORM_ADMIN' && !isCustomer.value
+      ? `merchant:${account.value.access_token}:${merchantPage.value}:${queryOpen.value}:${merchantCaseOpen.value}:${snapshot.value?.case.case_id ?? ''}:${reviewView.value}:${reviewScope.value}:${reviewPageIndex.value}` : null,
+)
 </script>
 
 <template>
@@ -546,23 +555,23 @@ onUnmounted(() => { stopStream(); products.reset() })
         <button type="button" class="text-button logout-button" @click="logout">退出</button></div>
     </header>
     <MarketplaceWorkspace v-if="!account && shopVisitor" :account="null" @login="shopLogin" />
-    <main v-else-if="!account" class="login-stage">
+    <main v-else-if="!account" ref="loginSurface" class="login-stage">
       <div class="login-intro"><h1>好物与服务，<br />都在这里。</h1><div class="login-still-life" aria-hidden="true"><img class="login-room" :src="'/identity/login-shopping.webp'" alt="" /></div></div>
       <EnrollmentForm v-if="enrollmentMode" :mode="enrollmentMode" @working="enrollmentBusy = $event" @close="finishEnrollment" />
       <form v-else class="panel login-panel" @submit.prevent="login">
-        <h2>欢迎回来</h2>
-        <label>用户名 <input v-model="username" name="username" autocomplete="username" placeholder="请输入用户名" /></label>
-        <label>密码 <input v-model="password" name="password" type="password" autocomplete="current-password" placeholder="请输入密码" /></label>
-        <button data-test="login" type="submit" :disabled="busy">{{ busy ? '正在登录…' : '登录工作台' }}</button>
+        <h2 data-page-reveal>欢迎回来</h2>
+        <label data-page-reveal>用户名 <input v-model="username" name="username" autocomplete="username" placeholder="请输入用户名" /></label>
+        <label data-page-reveal>密码 <input v-model="password" name="password" type="password" autocomplete="current-password" placeholder="请输入密码" /></label>
+        <button data-page-reveal data-test="login" type="submit" :disabled="busy">{{ busy ? '正在登录…' : '登录工作台' }}</button>
         <p v-if="error" class="message error" role="alert">{{ error }}</p>
         <p v-else-if="loginNotice" class="message success" role="status">{{ loginNotice }}</p>
-        <div class="login-account-links"><button type="button" :disabled="busy" @click="enrollmentMode = 'register'">注册账号</button><button type="button" :disabled="busy" @click="enrollmentMode = 'recover'">忘记密码</button></div>
+        <div class="login-account-links" data-page-reveal><button type="button" :disabled="busy" @click="enrollmentMode = 'register'">注册账号</button><button type="button" :disabled="busy" @click="enrollmentMode = 'recover'">忘记密码</button></div>
       </form>
     </main>
     <PlatformWorkspace v-else-if="account.role === 'PLATFORM_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
     <MarketplaceWorkspace v-else-if="account.buyer_id" :key="account.access_token" :account="account" @profile="updateProfile" @reauthenticate="loginNameChanged" @logout="logout" @expired="logout(); error = '登录已失效，请重新登录。'" />
     <CustomerWorkspace v-else-if="isCustomer" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
-    <div v-else class="app-shell" :class="{ 'support-shell': merchantPage === 'support' && account.role === 'MERCHANT_ADMIN' }">
+    <div v-else ref="merchantShell" class="app-shell" :class="{ 'support-shell': merchantPage === 'support' && account.role === 'MERCHANT_ADMIN' }">
       <nav class="sidebar" aria-label="工作台导航">
         <template v-if="!isSingleMerchant">
         <a v-if="isReviewer" href="#queue-panel" class="nav-link" :class="{ current: merchantPage === 'review' && !queryOpen && reviewScope === 'PUBLIC' && !['ATTENTION','CLOSED'].includes(reviewView) }" :aria-disabled="busy" @click.prevent="quickQueue('REVIEW','PUBLIC')"><Icon name="queue" />公共队列</a>
@@ -587,17 +596,19 @@ onUnmounted(() => { stopStream(); products.reset() })
       <AdminPeople v-else-if="merchantPage === 'people' && account.role === 'MERCHANT_ADMIN' && !isSingleMerchant" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '账号状态或权限已变化，请重新登录。'" @renamed="account.display_name = $event" />
       <AdminOverview v-else-if="merchantPage === 'overview' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" @queue="quickQueue" @open="overviewCase" @order="overviewOrder" @support="overviewSupport" @people="changeMerchantPage('people')" @navigate="changeMerchantPage($event)" />
       <AdminPolicies v-else-if="merchantPage === 'policies' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
-      <main v-else class="workspace" :class="{ 'reviewer-workspace': isReviewer }">
+      <main v-else class="workspace" :data-page-loading="busy" :class="{ 'reviewer-workspace': isReviewer }">
         <p v-if="error && !reviewDecision" class="message error workspace-message" role="alert">{{ error }}</p>
         <p v-if="notice" class="message success workspace-message" role="status"><Icon name="check" />{{ notice }}</p>
+        <PageLoading :loading="busy" :empty="isSingleMerchant && merchantCaseOpen && !snapshot" />
         <div class="columns" :class="{ 'customer-columns': isCustomer, 'reviewer-columns': isReviewer, 'merchant-aftercare': isSingleMerchant, 'merchant-case-view': isSingleMerchant && merchantCaseOpen }">
           <section v-if="isReviewer && (!isSingleMerchant || !merchantCaseOpen)" id="queue-panel" class="panel list-panel" aria-label="审核队列">
-            <div class="panel-heading"><h2>{{ isSingleMerchant ? '售后工单' : '审核队列' }} <span v-if="reviewCounts">（{{ reviewCounts.total }}）</span></h2><span class="queue-scope">当前商家</span></div>
+            <div class="panel-heading" data-page-reveal><h2>{{ isSingleMerchant ? '售后工单' : '审核队列' }} <span v-if="reviewCounts">（{{ reviewCounts.total }}）</span></h2><span class="queue-scope">当前商家</span></div>
             <p v-if="queueUpdate" class="queue-summary" role="status">{{ queueUpdate }}</p>
 
             <div v-if="!isSingleMerchant" class="queue-ownership" role="group" aria-label="工单归属范围"><button v-for="scope in queueScopes" :key="scope.key" type="button" :data-scope="scope.key" :aria-pressed="reviewScope === scope.key" :disabled="busy" @click="chooseScope(scope.key)">{{ scope.label }}<span v-if="reviewCounts">{{ reviewCounts[scope.count] }}</span></button></div>
+            <PageLoading :loading="busy" :empty="!reviewItems.length" />
             <form class="queue-filters" @submit.prevent="filterQueue"><label>处理阶段<select v-model="reviewView" :disabled="busy" @change="filterQueue"><option value="REVIEW">待审核</option><option value="WAITING">待客户补证</option><option value="PROCESSING">调查与退款处理中</option><option value="ATTENTION">结果待确认</option><option value="CLOSED">已结束</option><option value="ALL">全部工单</option></select></label><div class="queue-search"><input v-model="reviewQuery" aria-label="搜索工单" maxlength="100" placeholder="工单号、订单号或问题描述" :disabled="busy" /><button type="submit" class="secondary-button" :disabled="busy">查询</button></div></form>
-            <div v-if="reviewItems.length === 0" class="empty"><Icon name="queue" :size="30" /><strong>没有符合条件的工单</strong><p>可切换处理阶段或修改查询条件</p></div>
+            <div v-if="reviewItems.length === 0 && !busy" class="empty"><Icon name="queue" :size="30" /><strong>没有符合条件的工单</strong><p>可切换处理阶段或修改查询条件</p></div>
             <div v-if="isSingleMerchant" class="merchant-case-list" aria-label="工单列表">
               <article v-for="item in reviewItems" :key="item.case_id" class="merchant-case-card">
                 <div><AftercareProduct :line="productLines[item.line_id]" :loading="productStates[item.line_id] === 'loading'" :unavailable="productStates[item.line_id] === 'unavailable'" /><p class="merchant-case-description">{{ headline(item.description) }}</p><button v-if="productStates[item.line_id] === 'unavailable'" class="text-button" type="button" @click="products.read(item.line_id, true)">重试商品资料</button></div>
@@ -616,7 +627,7 @@ onUnmounted(() => { stopStream(); products.reset() })
             <p v-if="reviewCounts && !isSingleMerchant" class="queue-summary">已显示 {{ reviewItems.length }} / {{ reviewCounts.total }} 条 · 数量按已应用的筛选统计<template v-if="reviewSearch"><br />搜索：{{ reviewSearch }}</template></p>
             <div class="list-actions"><ListPagination :page="reviewPageIndex" :has-next="!!reviewCursor" :disabled="busy" label="售后工单分页" @change="index => act(async () => { await loadReviewQueue(reviewPageCursor(index), false, index) })" /><button type="button" class="text-button" :disabled="busy" @click="act(async () => { await loadReviewQueue() })">刷新队列</button></div>
           </section>
-          <MerchantCaseDetail v-if="isSingleMerchant && merchantCaseOpen && snapshot" :key="snapshot.case.case_id" :token="token()" :snapshot="snapshot" :line="selectedOrderLine" :busy="busy" :product-state="orderContextState" :trade-state="tradeReadState" :fulfillment="merchantTrade ? fulfillmentLabels[merchantTrade.fulfillment.lines.find(line => line.line_id === snapshot!.case.line_id)?.status ?? 'UNKNOWN'] : tradeReadState === 'loading' ? '正在读取…' : '暂未读取'" :context="reviewContext" :collaboration="collaboration" :context-loading="reviewContextLoading" :context-error="reviewContextError" :status-label="statusLabel(snapshot.case.status)" @back="backToList" @order="changeMerchantPage('orders')" @retry-product="loadOrderContext(snapshot, token())" @retry-trade="loadTrade(snapshot, token())" @review="beginReview" @refresh="refreshWorkspace" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'">
+          <MerchantCaseDetail data-page-reveal data-page-content v-if="isSingleMerchant && merchantCaseOpen && snapshot" :key="snapshot.case.case_id" :token="token()" :snapshot="snapshot" :line="selectedOrderLine" :busy="busy" :product-state="orderContextState" :trade-state="tradeReadState" :fulfillment="merchantTrade ? fulfillmentLabels[merchantTrade.fulfillment.lines.find(line => line.line_id === snapshot!.case.line_id)?.status ?? 'UNKNOWN'] : tradeReadState === 'loading' ? '正在读取…' : '暂未读取'" :context="reviewContext" :collaboration="collaboration" :context-loading="reviewContextLoading" :context-error="reviewContextError" :status-label="statusLabel(snapshot.case.status)" @back="backToList" @order="changeMerchantPage('orders')" @retry-product="loadOrderContext(snapshot, token())" @retry-trade="loadTrade(snapshot, token())" @review="beginReview" @refresh="refreshWorkspace" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'">
             <template #materials>
               <section class="detail-section evidence-section"><div class="section-heading"><h3>证据与材料 <span class="section-count">（{{ snapshot.evidence.length }}）</span></h3><span class="subtle">展开查看完整内容</span></div>
                 <p v-if="snapshot.evidence.length === 0" class="evidence-empty"><Icon name="file" />暂无材料。</p>
@@ -629,7 +640,7 @@ onUnmounted(() => { stopStream(); products.reset() })
               </section>
             </template>
           </MerchantCaseDetail>
-          <section v-if="!isSingleMerchant" id="case-panel" class="panel case-panel" aria-label="工单内容" :aria-busy="busy">
+          <section v-if="!isSingleMerchant" id="case-panel" class="panel case-panel" data-page-reveal data-page-content aria-label="工单内容" :aria-busy="busy">
             <div class="panel-heading case-heading"><h2>{{ isReviewer ? '退款工单' : '工单详情' }}</h2><span v-if="snapshot" class="status-tag" :class="{ waiting: snapshot.case.status === 'PENDING_REVIEW', success: snapshot.case.status === 'CLOSED_SUCCESS' }">{{ statusLabel(snapshot.case.status) }}</span></div>
             <details v-if="!isSingleMerchant" class="lookup-tools" :open="queryOpen"><summary @click.prevent="queryOpen = !queryOpen"><Icon name="search" :size="13" />按工单编号查询</summary><div class="lookup"><label>工单编号 <input v-model="lookupId" name="case-id" placeholder="输入已知工单编号" /></label><button type="button" class="secondary-button" :disabled="busy || !lookupId.trim()" @click="act(() => openCase(lookupId))">查看工单</button></div></details>
             <div v-if="!snapshot" class="case-empty"><Icon name="queue" :size="42" /><strong>{{ busy ? '正在读取工单…' : '选择一条工单，开始审核' }}</strong><p>订单、证据与调查建议将在这里汇集。</p></div>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PageLoading from './PageLoading.vue'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { fulfillmentApi, type MerchantTrade } from '../fulfillment-client'
 import { supportApi, type SupportConversation } from '../support-client'
@@ -62,17 +63,17 @@ onBeforeUnmount(() => { alive = false; ++generation; clearInterval(timer) })
 </script>
 
 <template>
-  <main v-if="account.single_operator" class="admin-workspace single-merchant-workspace" aria-label="商家工作台">
-    <header class="admin-heading"><div><span class="admin-eyebrow">{{ account.merchant_name }}</span><h1>商家概览</h1></div><button type="button" class="secondary-button" :disabled="loading" @click="load">刷新概览</button></header>
+  <main :data-page-loading="loading" v-if="account.single_operator" class="admin-workspace single-merchant-workspace" aria-label="商家工作台">
+    <header class="admin-heading" data-page-reveal><div><span class="admin-eyebrow">{{ account.merchant_name }}</span><h1>商家概览</h1></div><button type="button" class="secondary-button" :disabled="loading" @click="load">刷新概览</button></header>
     <p v-if="error" class="message error" role="alert">{{ error }}</p>
-    <p v-if="loading && !data" role="status">正在读取店铺待办…</p>
-    <div class="overview-metrics merchant-task-metrics">
+    <PageLoading :loading="loading" :empty="!data" layout="cards" />
+    <div v-show="data || !loading" class="overview-metrics merchant-task-metrics" data-page-reveal data-page-content>
       <button class="overview-metric" data-metric="review" @click="emit('queue', 'REVIEW', 'PUBLIC')"><span><small>待审核售后</small><strong>{{ reviewCount ?? '—' }}</strong></span></button>
       <button class="overview-metric" data-metric="support" @click="emit('support', consultations[0]?.ticket?.ticket_id)"><span><small>待回复咨询</small><strong>{{ supportCount ?? '—' }}</strong></span></button>
       <button class="overview-metric attention-metric" :disabled="!data" @click="focusAttention"><span><small>需要核实的售后</small><strong>{{ data?.attention ?? '—' }}</strong></span></button>
     </div>
     <p v-if="reviewError" class="message error" role="alert">{{ reviewError }}</p>
-    <div class="merchant-work-grid">
+    <div v-show="data || !loading" class="merchant-work-grid" data-page-reveal data-page-content>
       <section class="panel merchant-work-panel" aria-label="待发货订单"><header><h2>待发货订单</h2><button class="text-button" @click="emit('navigate','orders')">全部订单</button></header>
         <p v-if="orderError" role="alert">{{ orderError }}</p><p v-else-if="data && !orders.length">暂无待发货订单</p>
         <button v-for="trade in orders" :key="trade.purchase.order_id!" class="merchant-order-task" :data-overview-order="trade.purchase.order_id" @click="emit('order',trade.purchase.order_id!)"><ProductArt :asset="trade.purchase.lines[0]?.asset_key || ''" :name="trade.purchase.lines[0]?.product_name || '订单商品'" :variant="trade.purchase.lines[0]?.variant || ''" /><span><strong>{{ trade.purchase.lines[0]?.product_name || '订单商品' }}<template v-if="trade.purchase.lines.length > 1">等 {{ trade.purchase.lines.length }} 款</template></strong><small>{{ trade.purchase.lines[0]?.variant }} · {{ trade.purchase.lines.reduce((n,l) => n + l.quantity, 0) }} 件</small></span><span class="task-amount">{{ money(trade.purchase.total_amount) }}</span></button>
@@ -82,22 +83,22 @@ onBeforeUnmount(() => { alive = false; ++generation; clearInterval(timer) })
         <button v-for="item in consultations" :key="item.conversation_id" class="merchant-consultation-task" :data-overview-ticket="item.ticket?.ticket_id" @click="emit('support',item.ticket?.ticket_id)"><UserAvatar :token="account.access_token" :source="buyerAvatar(item)" :name="item.buyer?.display_name || '买家'" :size="40" /><span><strong>{{ item.buyer?.display_name || '买家' }}<small>{{ item.product.name }}</small></strong><span class="task-excerpt">{{ item.ticket?.summary }}</span></span></button>
       </section>
     </div>
-    <section id="merchant-attention-list" class="panel merchant-work-panel merchant-attention-panel"><header><h2>需要核实的售后</h2><button class="text-button" @click="emit('queue', 'ALL', 'PUBLIC')">全部售后</button></header>
+    <section id="merchant-attention-list" v-show="data || !loading" class="panel merchant-work-panel merchant-attention-panel" data-page-reveal data-page-content><header><h2>需要核实的售后</h2><button class="text-button" @click="emit('queue', 'ALL', 'PUBLIC')">全部售后</button></header>
       <button v-for="item in attentionItems" :key="item.case_id" class="merchant-attention-task" @click="emit('open',item.case_id)"><span><strong>{{ item.reasons.filter(r => r !== 'UNCLAIMED').map(r => reasons[r]).join(' · ') }}</strong><span class="task-excerpt">{{ item.description || '售后申请' }}</span></span><time>{{ date(item.updated_at) }}</time></button>
       <p v-if="data && !data.attention">暂无需要核实的售后</p>
     </section>
     <nav class="merchant-shortcuts" aria-label="店铺管理"><button @click="emit('navigate','products')">商品管理</button><button @click="emit('navigate','reviews')">商品评价</button><button @click="emit('navigate','policies')">退款规则</button></nav>
   </main>
-  <main v-else class="admin-workspace" aria-label="商家工单概览">
-    <header class="admin-heading"><div><span class="admin-eyebrow">{{ account.merchant_name ?? account.merchant_id }} · 商家管理</span><h1>商家工单概览</h1></div><button type="button" class="secondary-button" :disabled="loading" @click="load"><Icon name="clock" />{{ loading ? '更新中…' : '刷新概览' }}</button></header>
+  <main :data-page-loading="loading" v-else class="admin-workspace" aria-label="商家工单概览">
+    <header class="admin-heading" data-page-reveal><div><span class="admin-eyebrow">{{ account.merchant_name ?? account.merchant_id }} · 商家管理</span><h1>商家工单概览</h1></div><button type="button" class="secondary-button" :disabled="loading" @click="load"><Icon name="clock" />{{ loading ? '更新中…' : '刷新概览' }}</button></header>
     <p v-if="error" class="message error" role="alert">{{ error }}</p>
-    <p v-if="loading && !data" class="admin-loading" role="status">正在读取本商家工单…</p>
-    <div class="overview-metrics">
+    <PageLoading :loading="loading" :empty="!data" layout="cards" />
+    <div class="overview-metrics" data-page-reveal data-page-content>
       <button type="button" class="overview-metric" :disabled="!data" @click="emit('queue', 'ALL', 'UNCLAIMED')"><span class="metric-icon"><Icon name="queue" :size="22" /></span><span><small>未领取工单</small><strong>{{ data?.unclaimed ?? '—' }}</strong></span></button>
       <button type="button" class="overview-metric" :disabled="!data" @click="emit('queue', 'ALL', 'MINE')"><span class="metric-icon"><Icon name="user" :size="22" /></span><span><small>我的待办</small><strong>{{ data?.mine ?? '—' }}</strong></span></button>
       <button type="button" class="overview-metric attention-metric" :disabled="!data" @click="focusCoordination"><span class="metric-icon"><Icon name="shield" :size="22" /></span><span><small>需关注工单</small><strong>{{ data?.attention ?? '—' }}</strong></span></button>
     </div>
-    <div class="overview-body">
+    <div class="overview-body" data-page-reveal data-page-content>
       <section id="coordination-list" class="panel admin-card" aria-label="待协调工单"><div class="admin-card-heading"><div><h2>待协调工单 <span v-if="data">（{{ data.coordination_total }}）</span></h2></div><span class="admin-chip">当前商家</span></div>
         <div v-if="data?.items.length" class="admin-table-wrap"><table class="admin-table"><thead><tr><th>工单 / 情况说明</th><th>协调原因</th><th>负责人</th><th>操作</th></tr></thead><tbody><tr v-for="item in data.items" :key="item.case_id"><td><strong>{{ item.description || '退款申请' }}</strong><small class="admin-id">{{ item.case_id }}</small><small>{{ status[item.status] ?? item.status }} · {{ date(item.updated_at) }}</small></td><td><span v-for="reason in item.reasons" :key="reason" class="admin-reason" :class="{ warning: reason !== 'UNCLAIMED' }">{{ reasons[reason] }}</span></td><td>{{ item.owner_name ?? item.owner_username ?? '未领取' }}</td><td><button type="button" class="text-button" :aria-label="`查看工单 ${item.case_id}`" @click="emit('open', item.case_id)">查看与协调<Icon name="chevron" :size="13" /></button></td></tr></tbody></table></div>
         <div v-else-if="data" class="admin-empty"><Icon name="check" :size="32" /><h3>暂时没有待协调工单</h3><button type="button" class="secondary-button" @click="emit('queue', 'ALL', 'PUBLIC')">查看公共队列</button></div>

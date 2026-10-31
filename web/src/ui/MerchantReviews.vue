@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PageLoading from './PageLoading.vue'
 import { useCursorPages } from '../cursor-pages'
 import ListPagination from './ListPagination.vue'
 
@@ -65,10 +66,10 @@ watch(() => props.account.access_token, () => { ++generation; items.value = []; 
 onBeforeUnmount(() => { alive = false; ++generation; emit('working', false) })
 </script>
 <template>
-  <main class="merchant-reviews">
-    <h1>商品评价</h1>
-    <p v-if="loading" role="status">正在读取评价…</p><p v-if="error && !selected" class="review-error" role="alert">{{ error }}</p><p v-if="notice && !selected" class="review-notice" role="status">{{ notice }}</p>
-    <div class="review-columns">
+  <main :data-page-loading="loading" :data-page-key="pageIndex" class="merchant-reviews">
+    <h1 data-page-reveal>商品评价</h1>
+    <PageLoading :loading="loading" :empty="!items.length" /><p v-if="error && !selected" class="review-error" role="alert">{{ error }}</p><p v-if="notice && !selected" class="review-notice" role="status">{{ notice }}</p>
+    <div class="review-columns" data-page-reveal data-page-content>
       <section class="product-reviews"><h2>买家反馈</h2><p v-if="!loading && !items.length && !error" class="review-muted">本店暂无商品评价。</p>
         <article v-for="item in items" :key="item.review_id" class="review-entry"><button class="review-select" data-test="select-review" :aria-pressed="selected?.review_id === item.review_id" :disabled="writing || unknown || loading" @click="select(item)"><strong>{{ item.product_name }} · {{ item.variant }}</strong><p class="review-stars">{{ item.rating }} 星 · {{ item.reply ? '已回复' : '待回复' }}</p><p class="review-body">{{ item.body }}</p><span class="review-muted">已购用户 · {{ new Date(item.updated_at).toLocaleDateString('zh-CN') }}</span></button><div v-if="item.reply" class="review-reply"><strong>商家回复</strong><p>{{ item.reply }}</p></div></article>
         <ListPagination :page="pageIndex" :has-next="!!next" :disabled="loading || writing || unknown" label="商品评价分页" @change="load" /><button v-if="error && !selected" class="review-button" :disabled="loading" @click="load()">重新读取</button>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PageLoading from './PageLoading.vue'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import ListPagination from './ListPagination.vue'
 import { ApiError, coreApi, type AdminPolicy, type AdminPolicyDetail, type LoginResponse } from '../client'
@@ -49,12 +50,12 @@ onBeforeUnmount(() => { alive = false; ++listGeneration; ++detailGeneration })
 </script>
 
 <template>
-  <main class="admin-workspace" aria-label="政策只读页面">
-    <header class="admin-heading"><div><span class="admin-eyebrow">{{ account.merchant_name ?? account.merchant_id }}</span><h1>退款规则</h1></div><button type="button" class="secondary-button" :disabled="loading" @click="load"><Icon name="clock" />{{ loading ? '更新中…' : '刷新政策' }}</button></header>
+  <main :data-page-loading="loading || detailLoading" :data-page-key="selected" class="admin-workspace" aria-label="政策只读页面">
+    <header class="admin-heading" data-page-reveal><div><span class="admin-eyebrow">{{ account.merchant_name ?? account.merchant_id }}</span><h1>退款规则</h1></div><button type="button" class="secondary-button" :disabled="loading" @click="load"><Icon name="clock" />{{ loading ? '更新中…' : '刷新政策' }}</button></header>
 
     <p v-if="error" class="message error" role="alert">{{ error }}</p>
-    <p v-if="loading && !loaded" class="admin-loading" role="status">正在读取本商家政策…</p>
-    <div v-if="rows.length" class="policy-layout">
+    <PageLoading :loading="loading" :empty="!loaded" layout="cards" />
+    <div v-if="rows.length" class="policy-layout" data-page-reveal data-page-content>
       <section class="panel policy-version-list" aria-label="已导入政策版本"><div class="admin-card-heading"><h2>规则版本（{{ rows.length }}）</h2></div><button v-for="policy in visibleVersions" :key="policy.bundle_id" type="button" class="policy-version" :aria-pressed="selected === policy.bundle_id" @click="select(policy.bundle_id)"><span class="policy-version-top"><Icon name="file" /><strong>{{ policy.version }}</strong></span><small>生效起点 {{ date(policy.effective_from) }}</small><small>{{ policy.rule_count }} 条规则 · {{ coversNow(policy) ? '有效期内' : '历史版本' }}</small></button><ListPagination :page="versionPage" :has-next="(versionPage + 1) * 6 < rows.length" :disabled="loading || detailLoading" label="规则版本分页" @change="versionChange" /><p v-if="truncated" class="admin-note">最多显示最近100个版本，更早版本仍保留在历史工单依据中。</p></section>
       <section class="panel admin-card policy-detail" aria-label="政策原文">
         <p v-if="detailLoading" class="admin-loading" role="status">正在读取所选版本原文与索引…</p>

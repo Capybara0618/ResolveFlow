@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import ListPagination from './ListPagination.vue'
+import PageLoading from './PageLoading.vue'
+import { usePageEntrance } from './usePageEntrance'
 import { useCursorPages } from '../cursor-pages'
 import { onBeforeUnmount, ref, watch } from 'vue'
 import { ApiError } from '../client'
@@ -11,6 +13,7 @@ let applied={query:'',status:''}
 const props = defineProps<{ token: string }>()
 const emit = defineEmits<{ expired: [] }>()
 const runs = ref<OperationsRun[]>([]), detail = ref<OperationsDetail | null>(null)
+const detailSurface = ref<HTMLElement>()
 const selected = ref(''), loading = ref(false), reading = ref(false), error = ref('')
 let alive = true, listing = 0, opening = 0
 onBeforeUnmount(() => { alive = false; ++listing; ++opening })
@@ -45,16 +48,18 @@ async function load(index = pageIndex.value, search = applied) {
   finally { if (alive && request === listing) loading.value = false }
 }
 watch(() => props.token, () => { resetPages();next.value=null;query.value='';filter.value='';applied={query:'',status:''};++opening; selected.value = ''; detail.value = null; runs.value = []; void load() }, { immediate: true })
+usePageEntrance(() => detailSurface.value, () => selected.value || null)
 </script>
 
 <template>
-  <section class="support-operations">
-    <header class="foundation-heading"><div><h1>客服运行记录</h1></div><button :disabled="loading" @click="load()">{{ loading ? '读取中…' : '刷新' }}</button></header>
+  <section class="support-operations" :data-page-loading="loading">
+    <header class="foundation-heading" data-page-reveal><div><h1>客服运行记录</h1></div><button :disabled="loading" @click="load()">{{ loading ? '读取中…' : '刷新' }}</button></header>
     <p v-if="error" class="message error" role="alert">{{ error }}</p>
     <form class="operations-filters foundation-actions" @submit.prevent="load(0,{query:query.trim(),status:filter})"><input v-model="query" aria-label="搜索运行或店铺" placeholder="搜索店铺或运行编号" maxlength="100" :disabled="loading" /><select v-model="filter" aria-label="运行状态" :disabled="loading"><option value="">全部状态</option><option v-for="s in ['PENDING','RUNNING','SUCCEEDED','FAILED','STALE']" :key="s" :value="s">{{ status(s) }}</option></select><button :disabled="loading">查询</button></form>
-    <div class="operations-layout">
-      <div class="operations-list"><table class="foundation-table"><thead><tr><th>时间 / 运行</th><th>店铺</th><th>模式</th><th>结果</th></tr></thead><tbody><tr v-for="run in runs" :key="run.run_id" :class="{ selected: selected === run.run_id }"><td><button data-run :aria-pressed="selected === run.run_id" @click="open(run.run_id)">{{ stamp(run.created_at, true) }}<small>#{{ tail(run.run_id) }}</small></button></td><td>{{ run.merchant_id }}</td><td>{{ run.mode === 'mock' ? '脚本模型' : run.mode === 'live' ? '真实模型' : '未记录' }}</td><td>{{ status(run.status) }}</td></tr></tbody></table><ListPagination :page="pageIndex" :has-next="!!next" :disabled="loading" label="客服运行分页" @change="load" /><p v-if="!loading && !error && !runs.length" class="empty">暂无运行记录。</p></div>
-      <aside v-if="detail" data-run-detail class="operations-detail"><h2>{{ detail.run.merchant_id }} · {{ status(detail.run.status) }}</h2><p class="operations-id">{{ detail.run.run_id }}</p><dl><div><dt>模型请求</dt><dd>{{ metric(detail.run.model_requests) }}</dd></div><div><dt>业务工具尝试</dt><dd>{{ metric(detail.run.tool_attempts) }}</dd></div><div><dt>本地读取</dt><dd>{{ metric(detail.run.local_reads) }}</dd></div></dl>
+    <PageLoading :loading="loading" :empty="!runs.length" />
+    <div v-show="runs.length || !loading" class="operations-layout">
+      <div class="operations-list" data-page-reveal data-page-content><table class="foundation-table"><thead><tr><th>时间 / 运行</th><th>店铺</th><th>模式</th><th>结果</th></tr></thead><tbody><tr v-for="run in runs" :key="run.run_id" :class="{ selected: selected === run.run_id }"><td><button data-run :aria-pressed="selected === run.run_id" @click="open(run.run_id)">{{ stamp(run.created_at, true) }}<small>#{{ tail(run.run_id) }}</small></button></td><td>{{ run.merchant_id }}</td><td>{{ run.mode === 'mock' ? '脚本模型' : run.mode === 'live' ? '真实模型' : '未记录' }}</td><td>{{ status(run.status) }}</td></tr></tbody></table><ListPagination :page="pageIndex" :has-next="!!next" :disabled="loading" label="客服运行分页" @change="load" /><p v-if="!loading && !error && !runs.length" class="empty">暂无运行记录。</p></div>
+      <aside v-if="detail" ref="detailSurface" data-run-detail class="operations-detail"><h2>{{ detail.run.merchant_id }} · {{ status(detail.run.status) }}</h2><p class="operations-id">{{ detail.run.run_id }}</p><dl><div><dt>模型请求</dt><dd>{{ metric(detail.run.model_requests) }}</dd></div><div><dt>业务工具尝试</dt><dd>{{ metric(detail.run.tool_attempts) }}</dd></div><div><dt>本地读取</dt><dd>{{ metric(detail.run.local_reads) }}</dd></div></dl>
         <p v-if="detail.run.reason">停止原因：{{ detail.run.reason }}</p><p class="operations-sources">已发布答复的依据：<template v-if="Object.keys(detail.run.source_counts).length"><span v-for="(count, kind) in detail.run.source_counts" :key="kind">{{ sourceNames[kind] ?? '其他' }} {{ count }}</span></template><template v-else>未记录</template></p>
         <h3>处理过程</h3><ol><li v-for="(event, index) in detail.events" :key="index"><span>{{ eventLabel(event) }}</span><small>{{ stamp(event.created_at) }}</small></li></ol><p v-if="!detail.events.length">该次运行没有保存可展示的过程事件。</p><p v-if="detail.events_truncated">仅显示最近200条过程事件。</p>
       </aside><aside v-else class="operations-detail operations-empty">{{ reading ? '正在读取处理过程…' : '选择一次运行查看处理过程' }}</aside>

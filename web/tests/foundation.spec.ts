@@ -8,6 +8,65 @@ import App from '../src/App.vue'
 
 const platform: LoginResponse = { access_token: 't', role: 'PLATFORM_ADMIN', expires_in: 3600 }
 const merchant: LoginResponse = { access_token: 't', role: 'MERCHANT_ADMIN', merchant_id: 'M-1001', expires_in: 3600 }
+
+it('allows platform navigation during a read and ignores failure from the departed page', async () => {
+  let reject!: (reason:unknown)=>void
+  vi.spyOn(managementApi,'merchants').mockImplementationOnce(()=>new Promise((_resolve,fail)=>{reject=fail}))
+  vi.spyOn(managementApi,'buyers').mockResolvedValue({items:[{username:'current',display_name:'当前买家',enabled:true,version:1}]})
+  const w=mount(PlatformWorkspace,{props:{account:platform}})
+  try {
+    await flushPromises()
+    const buyers=w.findAll('.nav-link').find(b=>b.text()==='买家账号')!
+    expect(buyers.attributes('disabled')).toBeUndefined()
+    await buyers.trigger('click'); await flushPromises()
+    reject(new Error('旧页面读取失败')); await flushPromises()
+    expect(w.text()).toContain('当前买家')
+    expect(w.text()).not.toContain('旧页面读取失败')
+    expect(w.get('main').attributes('data-page-loading')).toBe('false')
+  } finally { w.unmount() }
+})
+
+it('does not mark a merchant product read as a blocking business write', async () => {
+  let resolve!: (value:{items:ManagedProduct[];next_after:null})=>void
+  vi.spyOn(managementApi,'products').mockImplementationOnce(()=>new Promise(done=>{resolve=done}))
+  const w=mount(AdminProducts,{props:{account:merchant}})
+  try {
+    await flushPromises()
+    expect(w.emitted('working')).toBeUndefined()
+    resolve({items:[],next_after:null}); await flushPromises()
+    expect(w.emitted('working')).toBeUndefined()
+  } finally { w.unmount() }
+})
+
+it('discards a departed listing error when navigating to run records without another listing read', async () => {
+  let reject!: (reason:unknown)=>void
+  vi.spyOn(managementApi,'merchants').mockImplementationOnce(()=>new Promise((_resolve,fail)=>{reject=fail}))
+  vi.stubGlobal('fetch',vi.fn().mockResolvedValue(new Response(JSON.stringify({items:[],next_before:null}))))
+  const w=mount(PlatformWorkspace,{props:{account:platform}})
+  try {
+    await flushPromises()
+    await w.findAll('.nav-link').find(b=>b.text()==='客服运行记录')!.trigger('click'); await flushPromises()
+    reject(new ApiError(401,'UNAUTHENTICATED','已经离开的商家列表错误')); await flushPromises()
+    expect(w.emitted('expired')).toBeUndefined()
+    await w.findAll('.nav-link').find(b=>b.text()==='买家账号')!.trigger('click'); await flushPromises()
+    expect(w.text()).not.toContain('已经离开的商家列表错误')
+  } finally { w.unmount() }
+})
+
+it('keeps navigation blocked while a platform write is being confirmed', async () => {
+  const row={merchant_id:'M-pending',name:'待同步店铺',description:'介绍',enabled:false,desired_enabled:true,version:1,sync_state:'PENDING' as const,policy_ready:false}
+  vi.spyOn(managementApi,'merchants').mockResolvedValue({items:[row]})
+  let release!: (value:typeof row)=>void
+  vi.spyOn(managementApi,'syncMerchant').mockImplementationOnce(()=>new Promise(resolve=>{release=resolve}))
+  const w=mount(PlatformWorkspace,{props:{account:platform}})
+  try {
+    await flushPromises()
+    await w.findAll('button').find(b=>b.text()==='重试同步')!.trigger('click'); await flushPromises()
+    expect(w.findAll('.nav-link').every(b=>b.attributes('disabled')!==undefined)).toBe(true)
+    release(row); await flushPromises()
+    expect(w.findAll('.nav-link').every(b=>b.attributes('disabled')===undefined)).toBe(true)
+  } finally { w.unmount() }
+})
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); sessionStorage.clear(); window.history.replaceState(null, '', '/') })
 
 describe('foundation management', () => {

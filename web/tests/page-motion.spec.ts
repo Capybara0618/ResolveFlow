@@ -155,3 +155,12 @@ it('does not replay an already visible heading when delayed content arrives', as
   expect(title.animate).toHaveBeenCalledTimes(1)
   expect(content.animate).toHaveBeenCalledTimes(1)
 })
+
+it('does not clear another surface native transition when a live entrance is reset', async () => {
+  const {transitions}=native()
+  const pending=motion.navigate(()=>{})
+  const other=createPageMotion(()=>document.createElement('main'))
+  other.reset(); other.dispose()
+  expect(document.documentElement.dataset.rfNavigation).toBe('forward')
+  await transitions[0].capture(); transitions[0].finish(); await pending
+})

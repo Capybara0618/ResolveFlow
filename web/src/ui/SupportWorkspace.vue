@@ -298,7 +298,7 @@ defineExpose({ navigationBlocked: computed(() => busy.value || !!pending.value) 
 </script>
 
 <template>
-  <section ref="workspace" :data-page-loading="loading" :class="['support-workspace', { 'merchant-support': merchant, 'buyer-support': !merchant }]">
+  <section ref="workspace" :data-page-key="merchant ? selected?.conversation_id : undefined" :data-page-loading="loading" :class="['support-workspace', { 'merchant-support': merchant, 'buyer-support': !merchant }]">
     <div v-if="error || notice || (pending && !busy)" class="support-alerts">
       <p v-if="error" role="alert" class="support-error">{{ error }} <button v-if="selected && !pending" @click="refresh()">刷新当前记录</button></p>
       <p v-if="notice" role="status" class="support-notice">{{ notice }}</p>
@@ -323,14 +323,14 @@ defineExpose({ navigationBlocked: computed(() => busy.value || !!pending.value) 
 
       <main class="support-main" :aria-busy="loading">
         <template v-if="selected">
-          <header class="support-chat-heading"><div class="support-chat-identity"><UserAvatar v-if="merchant" :token="token" :source="buyerAvatar(selected)" :name="buyerName(selected)" :size="36" /><UserAvatar v-else kind="ASSISTANT" name="售后助手" :size="34" /><div><h2 :title="merchant ? buyerName(selected) : '售后助手'">{{ merchant ? buyerName(selected) : '售后助手' }}</h2><p>{{ merchant ? `${selected.product.name} · ${selected.product.variant || '默认规格'} · 订单 ${tail(selected.order_id)}` : `${selected.store_name} · ${selected.product.name}` }}</p></div></div>
+          <header class="support-chat-heading" :data-page-reveal="merchant ? '' : undefined"><div class="support-chat-identity"><UserAvatar v-if="merchant" :token="token" :source="buyerAvatar(selected)" :name="buyerName(selected)" :size="36" /><UserAvatar v-else kind="ASSISTANT" name="售后助手" :size="34" /><div><h2 :title="merchant ? buyerName(selected) : '售后助手'">{{ merchant ? buyerName(selected) : '售后助手' }}</h2><p>{{ merchant ? `${selected.product.name} · ${selected.product.variant || '默认规格'} · 订单 ${tail(selected.order_id)}` : `${selected.store_name} · ${selected.product.name}` }}</p></div></div>
             <span v-if="selected.ticket" class="support-tag amber">{{ labels[selected.ticket.status] }}</span><button v-if="!merchant && !selected.ticket" data-action="handoff" class="support-heading-handoff" :disabled="busy || !!pending" @click="handoff"><Icon name="file" :size="16" />请商家核查</button>
             <button class="support-context-toggle" data-action="toggle-context" :aria-expanded="contextOpen" aria-controls="support-order-context" @click="contextOpen = true">{{ merchant ? '订单与资料' : '订单与物流' }}</button>
           </header>
           <div v-if="merchant" class="support-chat-tabs"><button :class="{ current: !historyTab }" @click="historyTab = false">客户沟通</button><button :class="{ current: historyTab }" @click="historyTab = true">消息记录</button></div>
 
           <div ref="messagePane" class="support-messages" tabindex="0" :role="historyTab ? undefined : 'log'" :aria-busy="revealing" aria-label="咨询消息记录" @scroll="reading" @wheel.passive="scrollIntent" @touchstart.passive="scrollIntent" @pointerdown="scrollIntent" @keydown="scrollIntent">
-            <div ref="messageContent" class="support-message-list">
+            <div ref="messageContent" class="support-message-list" :data-page-reveal="merchant ? '' : undefined" data-page-content>
             <button v-if="selected.next_before_sequence" class="support-older" :disabled="loading" @click="older">读取更早消息</button>
             <section v-if="selected.ticket" class="support-ticket"><Icon name="file" :size="22" /><div><h3>{{ merchant ? '客户已确认转交' : '已转交商家核查' }}</h3><p>{{ selected.ticket.summary }}</p></div></section>
             <template v-if="merchant && !historyTab"><div v-if="selected.ticket?.shared_messages.length" class="support-date-divider">客户共享原文</div><article v-for="m in selected.ticket?.shared_messages" :key="m.message_id" class="support-message shared-original"><MessageIdentity :token="token" :conversation="selected.conversation_id" :message="m.message_id" :author="m.author" /><div class="support-message-content"><div class="support-message-bubble"><p>{{ m.text }}</p></div><small class="support-message-meta">客户共享原文 · {{ stamp(m.created_at, true) }}</small></div></article></template>

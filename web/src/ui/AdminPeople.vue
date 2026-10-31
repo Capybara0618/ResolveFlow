@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PageLoading from './PageLoading.vue'
 import ListPagination from './ListPagination.vue'
 import { useCursorPages } from '../cursor-pages'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
@@ -105,15 +106,15 @@ onBeforeUnmount(() => { alive = false; ++listGeneration; ++historyGeneration; se
 </script>
 
 <template>
-  <main class="people-workspace" aria-label="人员管理">
-    <header class="people-heading"><div><p class="eyebrow">商家管理 · {{ account.merchant_name ?? account.merchant_id }}</p><h1>人员管理</h1></div><button type="button" :disabled="busy || loading" @click="openDialog('create')"><Icon name="user" :size="17" />新增工作人员</button></header>
+  <main :data-page-loading="loading" :data-page-key="pageIndex" class="people-workspace" aria-label="人员管理">
+    <header class="people-heading" data-page-reveal><div><p class="eyebrow">商家管理 · {{ account.merchant_name ?? account.merchant_id }}</p><h1>人员管理</h1></div><button type="button" :disabled="busy || loading" @click="openDialog('create')"><Icon name="user" :size="17" />新增工作人员</button></header>
     <p v-if="error && !dialog" class="message error" role="alert">{{ error }}</p><p v-if="notice" class="message success" role="status">{{ notice }}</p>
     <div class="people-columns" :class="{ 'with-details': selected }">
       <section class="panel people-list" aria-label="商家账号列表">
         <form class="people-filters" @submit.prevent="filter"><label class="people-search">搜索账号<input v-model="query" maxlength="100" placeholder="用户名或显示姓名" :disabled="busy || loading" /></label><label>角色<select v-model="role" aria-label="角色" :disabled="busy || loading"><option value="ALL">全部角色</option><option v-for="(label, value) in labels" :key="value" :value="value">{{ label }}</option></select></label><label>状态<select v-model="status" aria-label="状态" :disabled="busy || loading"><option value="ALL">全部状态</option><option value="ENABLED">已启用</option><option value="DISABLED">已停用</option></select></label><button class="secondary-button" type="submit" :disabled="busy || loading">查询</button></form>
         <div class="people-list-heading"><h2>账号列表 <span v-if="total !== null">（{{ total }}）</span></h2><span>已启用管理员 {{ total === null ? '—' : enabledAdmins }} 位 <button class="text-button" type="button" :disabled="busy || loading" @click="load()">刷新</button></span></div>
-        <p v-if="loading" class="muted" role="status">正在读取账号…</p>
-        <div class="people-table-wrap"><table><thead><tr><th>姓名 / 用户名</th><th>角色</th><th>状态</th><th>更新时间</th><th>操作</th></tr></thead><tbody><tr v-for="row in rows" :key="row.username" :class="{ selected: selected?.username === row.username }"><td><strong>{{ row.display_name }}</strong><small>{{ row.username }}<span v-if="row.username === currentUsername"> · 当前账号</span></small></td><td>{{ labels[row.role] }}</td><td><span class="status-tag" :class="{ enabled: row.enabled }">{{ row.enabled ? '已启用' : '已停用' }}</span></td><td class="people-time">{{ date(row.updated_at) }}</td><td><button class="text-button" type="button" :aria-label="`维护 ${row.username}`" :disabled="busy || loading" @click="select(row)">维护账号</button></td></tr></tbody></table></div>
+        <PageLoading :loading="loading" :empty="!rows.length" />
+        <div v-show="rows.length || !loading" class="people-table-wrap" data-page-reveal data-page-content><table><thead><tr><th>姓名 / 用户名</th><th>角色</th><th>状态</th><th>更新时间</th><th>操作</th></tr></thead><tbody><tr v-for="row in rows" :key="row.username" :class="{ selected: selected?.username === row.username }"><td><strong>{{ row.display_name }}</strong><small>{{ row.username }}<span v-if="row.username === currentUsername"> · 当前账号</span></small></td><td>{{ labels[row.role] }}</td><td><span class="status-tag" :class="{ enabled: row.enabled }">{{ row.enabled ? '已启用' : '已停用' }}</span></td><td class="people-time">{{ date(row.updated_at) }}</td><td><button class="text-button" type="button" :aria-label="`维护 ${row.username}`" :disabled="busy || loading" @click="select(row)">维护账号</button></td></tr></tbody></table></div>
         <div v-if="!loading && !rows.length" class="empty"><Icon name="user" :size="30" /><strong>没有符合条件的账号</strong><p>可调整角色、状态或查询条件。</p></div>
         <footer class="people-footer"><span>已显示 {{ rows.length }}<template v-if="total !== null"> / {{ total }}</template> 个账号</span><ListPagination :page="pageIndex" :has-next="!!cursor" :disabled="busy || loading" label="人员账号分页" @change="load" /></footer>
 

@@ -10,15 +10,17 @@ export function createPageMotion(surface: () => HTMLElement | null) {
   let generation = 0, disposed = false
   let transition: Transition | undefined
   let releaseNames = () => {}
+  let ownsNativeState = false
   let stopWaiting = () => {}
   const animations = new Set<Animation>()
   const reduced = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true
-  const busy = () => !!surface()?.querySelector('[data-page-loading="true"], [aria-busy="true"]:not(.support-messages)')
+  const loadingSelector = '[data-page-loading="true"], [aria-busy="true"]:not(.support-messages)'
+  const busy = () => { const root = surface(); return !!root && (root.matches(loadingSelector) || !!root.querySelector(loadingSelector)) }
 
   function cancel() {
     transition?.skipTransition(); transition = undefined
     releaseNames(); releaseNames = () => {}
-    delete document.documentElement.dataset.rfNavigation
+    if (ownsNativeState) { delete document.documentElement.dataset.rfNavigation; ownsNativeState = false }
     stopWaiting(); stopWaiting = () => {}
     animations.forEach(animation => animation.cancel()); animations.clear()
   }
@@ -28,7 +30,7 @@ export function createPageMotion(surface: () => HTMLElement | null) {
     // Animate a few visible regions, not every row in a long list or the chat composer.
     const visible = [...root.querySelectorAll<HTMLElement>('[data-page-reveal]')]
       .filter(element => { const box = element.getBoundingClientRect(); return box.height > 0 && box.bottom > 0 && box.top < window.innerHeight })
-    const regions = visible.filter(element => !seen.has(element))
+    const regions = visible.filter(element => !seen.has(element) && (!regionsOnly || !element.hasAttribute('data-page-content')))
       .slice(0, 6)
     if (!regions.length && (regionsOnly || visible.length || seen.has(root))) return
     for (const [index, element] of (regions.length ? regions : [root]).entries()) {
@@ -83,12 +85,13 @@ export function createPageMotion(surface: () => HTMLElement | null) {
       if (element && !names.some(([target]) => target === element)) { names.push([element, element.style.viewTransitionName]); element.style.viewTransitionName = value }
     }
     let cleaned = false
-    const clean = () => { if (cleaned) return; cleaned = true; names.forEach(([element, previous]) => { element.style.viewTransitionName = previous }); if (id === generation) delete document.documentElement.dataset.rfNavigation }
+    const clean = () => { if (cleaned) return; cleaned = true; names.forEach(([element, previous]) => { element.style.viewTransitionName = previous }); if (id === generation) { delete document.documentElement.dataset.rfNavigation; ownsNativeState = false } }
     releaseNames = clean
     name(surface(), 'rf-page')
     const sharedProduct = productElement(options.product)
     name(sharedProduct, 'rf-product')
     document.documentElement.dataset.rfNavigation = options.direction ?? 'forward'
+    ownsNativeState = true
     let capturedReady = false
     let content: Promise<boolean> | undefined
     let snapshotTimer: ReturnType<typeof setTimeout> | undefined
@@ -139,5 +142,6 @@ export function createPageMotion(surface: () => HTMLElement | null) {
     }
   }
   function dispose() { disposed = true; ++generation; cancel() }
-  return { navigate, dispose }
+  function reset() { ++generation; cancel() }
+  return { navigate, dispose, reset }
 }
