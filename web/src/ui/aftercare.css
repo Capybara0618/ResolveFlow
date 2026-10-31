@@ -1,85 +1,78 @@
-.aftercare-workbench { font-size: 16px; }
-.aftercare-workbench .topbar { height: 72px; }
-.aftercare-workbench .app-shell { grid-template-columns: 200px minmax(0, 1fr); min-height: calc(100vh - 72px); }
-.aftercare-workbench .sidebar { top: 72px; height: calc(100vh - 72px); }
-.aftercare-workbench .sidebar-note { display: none; }
-.aftercare-workbench :is(.nav-link, .demo-tag, .session-copy strong, .session-copy small, .text-button, .subtle, .muted, .message, .status-tag, .queue-summary, label, summary, small, time, p, span, dt, dd, pre, input, select, textarea, button) { font-size: 16px; }
-.aftercare-workbench .workspace { padding: 30px; }
-.aftercare-workbench .merchant-aftercare { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 1320px; min-height: 0; gap: 26px; margin: 0 auto; }
-.aftercare-workbench .merchant-case-view { grid-template-columns: minmax(0, 1fr) 300px; }
-.aftercare-workbench .merchant-aftercare > .list-panel { position: static; height: auto; overflow: visible; border: none; background: transparent; padding: 0; grid-row: auto; }
-.aftercare-workbench .list-panel .panel-heading { padding: 0; margin-bottom: 24px; }
-.aftercare-workbench .list-panel h2 { font-size: 28px; }
-.aftercare-workbench .queue-scope { display: none; }
-.aftercare-workbench .queue-filters { display: flex; align-items: end; gap: 22px; padding: 0; margin-bottom: 26px; }
-.aftercare-workbench .queue-filters label { width: 210px; margin-bottom: 0; }
-.aftercare-workbench .queue-filters select { width: 100%; margin-top: 8px; padding: 12px; }
-.aftercare-workbench .queue-search { display: flex; align-items: center; gap: 14px; width: 470px; }
-.aftercare-workbench .queue-search input { margin-top: 0; padding: 12px; }
-.aftercare-workbench .queue-search button { flex-shrink: 0; padding: 12px 20px; }
-.aftercare-workbench .merchant-case-list { display: grid; gap: 20px; }
-.aftercare-workbench .merchant-case-card { display: grid; grid-template-columns: minmax(0, 1fr) 205px 128px; gap: 24px; align-items: center; background: white; border: 1px solid #e3eaf3; padding: 26px; border-radius: 14px; }
-.aftercare-workbench .merchant-case-description { margin: 18px 0 0 138px; line-height: 1.7; color: #536780; overflow-wrap: anywhere; }
-.aftercare-workbench .merchant-case-status { display: grid; gap: 16px; justify-items: start; }
-.aftercare-workbench .merchant-case-status time { color: #61738c; }
-.aftercare-workbench .merchant-case-status .status-tag { padding: 7px 12px; white-space: normal; }
-.aftercare-workbench .merchant-aftercare > .case-panel { border: 1px solid #e3eaf3; border-radius: 14px; padding: 28px; min-height: 0; height: auto; overflow: visible; }
-.aftercare-workbench .case-heading { margin-bottom: 22px; }
-.aftercare-workbench .case-heading h2 { font-size: 26px; }
-.aftercare-workbench .case-heading .status-tag { padding: 7px 12px; }
-.aftercare-workbench .back-to-list { margin: 0 0 24px; }
-.aftercare-workbench .case-order { padding: 22px; border-radius: 12px; margin-bottom: 28px; }
-.aftercare-workbench .customer-issue { padding: 0; margin-bottom: 28px; background: transparent; border: none; }
-.aftercare-workbench .customer-issue h3, .aftercare-workbench .detail-section h3 { font-size: 22px; margin-bottom: 18px; }
-.aftercare-workbench .customer-issue p { padding: 20px; background: #f7f9fc; border-radius: 10px; line-height: 1.8; }
-.aftercare-workbench .section-heading { align-items: start; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
-.aftercare-workbench .section-heading .subtle { display: none; }
-.aftercare-workbench .detail-section { margin-bottom: 28px; }
-.aftercare-workbench .evidence-list { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-.aftercare-workbench .evidence { padding: 20px; border-radius: 10px; }
-.aftercare-workbench .evidence-meta strong { font-size: 18px; }
-.aftercare-workbench .evidence-meta span { font-size: 16px; }
-.aftercare-workbench .evidence-excerpt { line-height: 1.8; -webkit-line-clamp: 2; }
-.aftercare-workbench .evidence-id { margin-top: 18px; }
-.aftercare-workbench .evidence-id summary { font-size: 16px; }
-.aftercare-workbench .evidence-id div { font-size: 16px; overflow-wrap: anywhere; }
-.aftercare-workbench .verification-actions { gap: 12px; margin-top: 18px; }
-.aftercare-workbench .verification-actions button { font-size: 16px; padding: 10px 16px; }
-.aftercare-workbench .verification-reason { display: block; margin-top: 22px; }
-.aftercare-workbench .verification-reason input { margin-top: 12px; }
-.aftercare-workbench .analysis-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 24px; border-radius: 12px; margin-bottom: 28px; }
-.aftercare-workbench .analysis-grid h3 { font-size: 22px; }
-.aftercare-workbench .advice-label { display: block; margin: 12px 0 0; }
-.aftercare-workbench .recommendation strong { font-size: 22px; }
-.aftercare-workbench .proposal-summary { font-size: 16px; line-height: 1.8; }
-.aftercare-workbench .timeline-section { border-left: none; border-top: 1px solid #dce8fa; padding: 20px 0 0; max-height: none; overflow: visible; }
-.aftercare-workbench .timeline-section h3 { font-size: 22px; margin-top: 24px; }
-.aftercare-workbench .timeline strong, .aftercare-workbench .timeline p { font-size: 16px; }
-.aftercare-workbench .review-section { position: static; padding: 24px 0; background: white; border-top: 1px solid #e3eaf3; }
-.aftercare-workbench .review-section .actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-.aftercare-workbench .review-section .actions button { font-size: 16px; padding: 14px 10px; }
-.aftercare-workbench .merchant-case-aside { display: grid; gap: 24px; min-width: 0; }
-.aftercare-workbench .merchant-case-aside .panel { padding: 24px; border: 1px solid #e3eaf3; border-radius: 14px; }
-.aftercare-workbench .merchant-case-aside h2 { font-size: 22px; margin-bottom: 24px; }
-.aftercare-workbench .merchant-case-aside dl { display: grid; grid-template-columns: 86px minmax(0, 1fr); gap: 18px 12px; margin: 0 0 24px; }
-.aftercare-workbench .merchant-case-aside dt { color: #61738c; }.aftercare-workbench .merchant-case-aside dd { margin: 0; overflow-wrap: anywhere; }
-.aftercare-workbench .merchant-case-aside p { line-height: 1.8; color: #61738c; }
-.aftercare-workbench .merchant-refund-amount { padding: 20px 0; border-top: 1px solid #e3eaf3; }
-.aftercare-workbench .merchant-refund-amount strong { display: block; font-size: 26px; color: #165dff; margin-top: 12px; }
-.aftercare-workbench .merchant-identifiers dl { display: block; margin: 24px 0 0; }.aftercare-workbench .merchant-identifiers dt { margin: 20px 0 8px; }
-.aftercare-workbench .reviewer-workspace .revision-progress { padding: 20px; gap: 10px; margin: 22px 0; }
-.aftercare-workbench .reviewer-workspace .revision-progress span, .aftercare-workbench .reviewer-workspace .revision-progress strong { font-size: 16px; }
-.aftercare-workbench .reviewer-workspace .policy-layer-details, .aftercare-workbench .reviewer-workspace .bound-policies { margin-top: 24px; padding-top: 22px; border-top: 1px solid #e3eaf3; }
-.aftercare-workbench .reviewer-workspace .policy-layer h4, .aftercare-workbench .reviewer-workspace .policy-layer p, .aftercare-workbench .reviewer-workspace .policy-text h4, .aftercare-workbench .reviewer-workspace .policy-text small, .aftercare-workbench .reviewer-workspace .policy-note, .aftercare-workbench .reviewer-workspace .policy-cited { font-size: 16px; }
-.aftercare-workbench .reviewer-workspace .handoff-actions { gap: 14px; margin: 24px 0; }
-.aftercare-workbench .citation-block .citation-name, .aftercare-workbench .citation-block .citation-meta, .aftercare-workbench .citation-block .citation-group > strong, .aftercare-workbench .citation-block .citation-warning, .aftercare-workbench .citation-block .citation-hint { font-size: 16px; }
-.aftercare-workbench .citation-button { padding: 14px; }
-.aftercare-workbench .citation-group details { margin-top: 14px; }
-.aftercare-workbench .investigation-sources p, .aftercare-workbench .investigation-sources small, .aftercare-workbench .investigation-sources summary, .aftercare-workbench .investigation-sources pre, .aftercare-workbench .investigation-sources .source-facts { font-size: 16px; }
-.aftercare-workbench .investigation-sources .raw-investigation { margin: 22px 0; padding: 18px; }
-.aftercare-workbench .investigation-sources .saved-model-mode { margin-bottom: 22px; }
-.aftercare-workbench .investigation-sources :is(h3, h4) { font-size: 16px; }
-.aftercare-workbench .investigation-findings :is(p, span, strong, summary, dt, dd, small, label, button) { font-size: 16px; }
-.aftercare-workbench .rf-dialog :is(p, span, small, label, button, textarea, summary, legend) { font-size: 16px; }
-.aftercare-workbench .rf-dialog h2 { font-size: 24px; }
-@media (max-width: 1350px) { .aftercare-workbench .workspace { padding: 24px; }.aftercare-workbench .merchant-case-view { grid-template-columns: minmax(0, 1fr) 275px; gap: 20px; }.aftercare-workbench .merchant-case-card { gap: 18px; grid-template-columns: minmax(0, 1fr) 185px 120px; padding: 22px; }.aftercare-workbench .merchant-aftercare > .case-panel { padding: 24px; } }
+.merchant-aftercare-page .merchant-aftercare { display: grid; grid-template-columns: minmax(0, 1fr); max-width: none; min-height: 0; gap: 26px; margin: 0 auto; }
+.merchant-aftercare-page .merchant-case-view { grid-template-columns: minmax(0, 1fr) 300px; }
+.merchant-aftercare-page .merchant-aftercare > .list-panel { position: static; height: auto; overflow: visible; border: none; background: transparent; padding: 0; grid-row: auto; }
+.merchant-aftercare-page .list-panel .panel-heading { padding: 0; margin-bottom: 24px; }
+.merchant-aftercare-page .list-panel h2 { font-size: var(--rf-type-title); font-weight: 500; }
+.merchant-aftercare-page .queue-scope { display: none; }
+.merchant-aftercare-page .queue-filters { display: flex; align-items: end; gap: 22px; padding: 0; margin-bottom: 26px; }
+.merchant-aftercare-page .queue-filters label { width: 210px; margin-bottom: 0; }
+.merchant-aftercare-page .queue-filters select { width: 100%; margin-top: 8px; padding: 12px; }
+.merchant-aftercare-page .queue-search { display: flex; align-items: center; gap: 14px; width: 470px; }
+.merchant-aftercare-page .queue-search input { margin-top: 0; padding: 12px; }
+.merchant-aftercare-page .queue-search button { flex-shrink: 0; padding: 12px 20px; }
+.merchant-aftercare-page .merchant-case-list { display: grid; gap: 20px; }
+.merchant-aftercare-page .merchant-case-card { display: grid; grid-template-columns: minmax(0, 1fr) 205px 128px; gap: 24px; align-items: center; background: white; border: 1px solid var(--rf-line); padding: 26px; border-radius: 14px; }
+.merchant-aftercare-page .merchant-case-description { margin: 18px 0 0 138px; line-height: 1.7; color: var(--rf-muted); overflow-wrap: anywhere; }
+.merchant-aftercare-page .merchant-case-status { display: grid; gap: 16px; justify-items: start; }
+.merchant-aftercare-page .merchant-case-status time { color: var(--rf-muted); }
+.merchant-aftercare-page .merchant-case-status .status-tag { padding: 7px 12px; white-space: normal; }
+.merchant-aftercare-page .merchant-aftercare > .case-panel { border: 1px solid var(--rf-line); border-radius: 14px; padding: 28px; min-height: 0; height: auto; overflow: visible; }
+.merchant-aftercare-page .case-heading { margin-bottom: 22px; }
+.merchant-aftercare-page .case-heading h2 { font-size: 26px; }
+.merchant-aftercare-page .case-heading .status-tag { padding: 7px 12px; }
+.merchant-aftercare-page .back-to-list { margin: 0 0 24px; }
+.merchant-aftercare-page .case-order { padding: 22px; border-radius: 12px; margin-bottom: 28px; }
+.merchant-aftercare-page .customer-issue { padding: 0; margin-bottom: 28px; background: transparent; border: none; }
+.merchant-aftercare-page .customer-issue h3, .merchant-aftercare-page .detail-section h3 { font-size: 22px; margin-bottom: 18px; }
+.merchant-aftercare-page .customer-issue p { padding: 20px; background: var(--rf-subtle); border-radius: 10px; line-height: 1.8; }
+.merchant-aftercare-page .section-heading { align-items: start; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+.merchant-aftercare-page .section-heading .subtle { display: none; }
+.merchant-aftercare-page .detail-section { margin-bottom: 28px; }
+.merchant-aftercare-page .evidence-list { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.merchant-aftercare-page .evidence { padding: 20px; border-radius: 10px; }
+.merchant-aftercare-page .evidence-meta strong { font-size: 18px; }
+.merchant-aftercare-page .evidence-meta span { font-size: 16px; }
+.merchant-aftercare-page .evidence-excerpt { line-height: 1.8; -webkit-line-clamp: 2; }
+.merchant-aftercare-page .evidence-id { margin-top: 18px; }
+.merchant-aftercare-page .evidence-id summary { font-size: 16px; }
+.merchant-aftercare-page .evidence-id div { font-size: 16px; overflow-wrap: anywhere; }
+.merchant-aftercare-page .verification-actions { gap: 12px; margin-top: 18px; }
+.merchant-aftercare-page .verification-actions button { font-size: 16px; padding: 10px 16px; }
+.merchant-aftercare-page .verification-reason { display: block; margin-top: 22px; }
+.merchant-aftercare-page .verification-reason input { margin-top: 12px; }
+.merchant-aftercare-page .analysis-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 24px; border-radius: 12px; margin-bottom: 28px; }
+.merchant-aftercare-page .analysis-grid h3 { font-size: 22px; }
+.merchant-aftercare-page .advice-label { display: block; margin: 12px 0 0; }
+.merchant-aftercare-page .recommendation strong { font-size: 22px; }
+.merchant-aftercare-page .proposal-summary { font-size: 16px; line-height: 1.8; }
+.merchant-aftercare-page .timeline-section { border-left: none; border-top: 1px solid var(--rf-line); padding: 20px 0 0; max-height: none; overflow: visible; }
+.merchant-aftercare-page .timeline-section h3 { font-size: 22px; margin-top: 24px; }
+.merchant-aftercare-page .timeline strong, .merchant-aftercare-page .timeline p { font-size: 16px; }
+.merchant-aftercare-page .review-section { position: static; padding: 24px 0; background: white; border-top: 1px solid var(--rf-line); }
+.merchant-aftercare-page .review-section .actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.merchant-aftercare-page .review-section .actions button { font-size: 16px; padding: 14px 10px; }
+.merchant-aftercare-page .merchant-case-aside { display: grid; gap: 24px; min-width: 0; }
+.merchant-aftercare-page .merchant-case-aside .panel { padding: 24px; border: 1px solid var(--rf-line); border-radius: 14px; }
+.merchant-aftercare-page .merchant-case-aside h2 { font-size: 22px; margin-bottom: 24px; }
+.merchant-aftercare-page .merchant-case-aside dl { display: grid; grid-template-columns: 86px minmax(0, 1fr); gap: 18px 12px; margin: 0 0 24px; }
+.merchant-aftercare-page .merchant-case-aside dt { color: var(--rf-muted); }.merchant-aftercare-page .merchant-case-aside dd { margin: 0; overflow-wrap: anywhere; }
+.merchant-aftercare-page .merchant-case-aside p { line-height: 1.8; color: var(--rf-muted); }
+.merchant-aftercare-page .merchant-refund-amount { padding: 20px 0; border-top: 1px solid var(--rf-line); }
+.merchant-aftercare-page .merchant-refund-amount strong { display: block; font-size: 26px; color: var(--rf-accent); margin-top: 12px; }
+.merchant-aftercare-page .merchant-identifiers dl { display: block; margin: 24px 0 0; }.merchant-aftercare-page .merchant-identifiers dt { margin: 20px 0 8px; }
+.merchant-aftercare-page .reviewer-workspace .revision-progress { padding: 20px; gap: 10px; margin: 22px 0; }
+.merchant-aftercare-page .reviewer-workspace .revision-progress span, .merchant-aftercare-page .reviewer-workspace .revision-progress strong { font-size: 16px; }
+.merchant-aftercare-page .reviewer-workspace .policy-layer-details, .merchant-aftercare-page .reviewer-workspace .bound-policies { margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--rf-line); }
+.merchant-aftercare-page .reviewer-workspace .policy-layer h4, .merchant-aftercare-page .reviewer-workspace .policy-layer p, .merchant-aftercare-page .reviewer-workspace .policy-text h4, .merchant-aftercare-page .reviewer-workspace .policy-text small, .merchant-aftercare-page .reviewer-workspace .policy-note, .merchant-aftercare-page .reviewer-workspace .policy-cited { font-size: 16px; }
+.merchant-aftercare-page .reviewer-workspace .handoff-actions { gap: 14px; margin: 24px 0; }
+.merchant-aftercare-page .citation-block .citation-name, .merchant-aftercare-page .citation-block .citation-meta, .merchant-aftercare-page .citation-block .citation-group > strong, .merchant-aftercare-page .citation-block .citation-warning, .merchant-aftercare-page .citation-block .citation-hint { font-size: 16px; }
+.merchant-aftercare-page .citation-button { padding: 14px; }
+.merchant-aftercare-page .citation-group details { margin-top: 14px; }
+.merchant-aftercare-page .investigation-sources p, .merchant-aftercare-page .investigation-sources small, .merchant-aftercare-page .investigation-sources summary, .merchant-aftercare-page .investigation-sources pre, .merchant-aftercare-page .investigation-sources .source-facts { font-size: 16px; }
+.merchant-aftercare-page .investigation-sources .raw-investigation { margin: 22px 0; padding: 18px; }
+.merchant-aftercare-page .investigation-sources .saved-model-mode { margin-bottom: 22px; }
+.merchant-aftercare-page .investigation-sources :is(h3, h4) { font-size: 16px; }
+.merchant-aftercare-page .investigation-findings :is(p, span, strong, summary, dt, dd, small, label, button) { font-size: 16px; }
+.merchant-aftercare-page .rf-dialog :is(p, span, small, label, button, textarea, summary, legend) { font-size: 16px; }
+.merchant-aftercare-page .rf-dialog h2 { font-size: 24px; }
+@media (max-width: 1350px) { .merchant-aftercare-page .workspace { padding: 24px; }.merchant-aftercare-page .merchant-case-view { grid-template-columns: minmax(0, 1fr) 275px; gap: 20px; }.merchant-aftercare-page .merchant-case-card { gap: 18px; grid-template-columns: minmax(0, 1fr) 185px 120px; padding: 22px; }.merchant-aftercare-page .merchant-aftercare > .case-panel { padding: 24px; } }

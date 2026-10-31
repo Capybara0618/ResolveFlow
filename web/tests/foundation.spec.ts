@@ -82,16 +82,26 @@ describe('foundation management', () => {
     try {
       await wrapper.get('.login-panel').trigger('submit'); await flushPromises()
       expect(wrapper.find('[aria-label="商家工作台"]').exists()).toBe(true)
+      const shellClasses = wrapper.get('.workbench').classes()
+      const sidebar = wrapper.get('[aria-label="工作台导航"]').element
       expect(wrapper.findAll('.nav-link').map(link => link.text())).toEqual(['商家概览', '交易订单', '商品管理', '商品评价', '售后工单', '咨询核查', '退款规则'])
       await wrapper.findAll('.nav-link').find(link => link.text() === '商品评价')!.trigger('click'); await flushPromises()
       expect(wrapper.text()).toContain('本店暂无商品评价')
       expect(fetcher.mock.calls.some(([url]) => url.includes('/merchant/reviews'))).toBe(true)
       await wrapper.findAll('.nav-link').find(link => link.text() === '售后工单')!.trigger('click'); await flushPromises()
+      expect(wrapper.get('.workbench').classes()).toEqual(shellClasses)
+      expect(wrapper.get('[aria-label="工作台导航"]').element).toBe(sidebar)
+      expect(wrapper.find('main.merchant-review-page').exists()).toBe(true)
       expect(wrapper.find('#queue-panel').exists()).toBe(true)
       expect(wrapper.find('[aria-label="工单归属范围"]').exists()).toBe(false)
       expect((wrapper.get('.queue-filters select').element as HTMLSelectElement).value).toBe('ALL')
       expect(wrapper.text()).not.toContain('领取')
       expect(fetcher.mock.calls.some(([url]) => url.includes('/admin/accounts'))).toBe(false)
+      await wrapper.findAll('.nav-link').find(link => link.text() === '咨询核查')!.trigger('click'); await flushPromises()
+      expect(wrapper.get('.workbench').classes()).toEqual(shellClasses)
+      expect(wrapper.get('[aria-label="工作台导航"]').element).toBe(sidebar)
+      expect(wrapper.find('.app-shell.support-shell').exists()).toBe(false)
+
     } finally { wrapper.unmount() }
   })
   it('shows pending merchant sync and retries the original identity', async () => {

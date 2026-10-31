@@ -1,14 +1,12 @@
-/* Only the buyer's display-chain application detail adopts this theme. */
+/* Local application-result layout; storefront navigation stays unchanged. */
 .workbench .buyer-application-chain.buyer-application-chain {
-  --display-font-ui: "Resolve Sans", "Noto Sans SC", "Microsoft YaHei", sans-serif;
-  --display-font-reading: "Resolve Reading", "Noto Serif SC", "SimSun", serif;
+  --display-font-ui: var(--rf-font-ui);
+  --display-font-reading: var(--rf-font-reading);
   background: #fafaf7; color: #25322c; font-family: var(--display-font-ui); font-size: 14px;
 }
-.workbench .marketplace:has(.buyer-application-chain) nav.shop-nav { font-family: "Resolve Sans", "Microsoft YaHei", sans-serif; }
-.workbench .marketplace:has(.buyer-application-chain) nav.shop-nav a.shop-brand { font-size: 22px; font-weight: 500; letter-spacing: -.4px; }
 .workbench .buyer-application-chain .customer-main { max-width: 850px; padding: 28px 32px 44px; }
 .workbench .buyer-application-chain .customer-heading { margin-bottom: 12px; }
-.workbench .buyer-application-chain .customer-heading h1 { margin: 0; font-size: 22px; font-weight: 500; color: #25322c; }
+.workbench .buyer-application-chain .customer-heading h1 { margin: 0; font-size: var(--rf-type-title); font-weight: 500; color: #25322c; }
 .workbench .buyer-application-chain .customer-heading p { display: none; }
 .workbench .buyer-application-chain :is(button, input, select, textarea) { font-family: var(--display-font-ui); font-size: 14px; }
 .workbench .buyer-application-chain button { padding: 8px 13px; box-shadow: none; }

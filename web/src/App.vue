@@ -546,7 +546,7 @@ usePageEntrance(
 </script>
 
 <template>
-  <div class="workbench unified-interface" :class="{ 'shopping-workbench': account?.buyer_id || shopVisitor, 'aftercare-workbench': isSingleMerchant, 'merchant-review-workbench': isSingleMerchant && merchantPage === 'review' }">
+  <div class="workbench unified-interface" :class="{ 'shopping-workbench': account?.buyer_id || shopVisitor }">
     <header v-if="!((!account && shopVisitor) || account?.buyer_id)" class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>ResolveFlow</span></div>
       <a v-if="!account" class="login-shop-link" href="#/shop">逛逛商城</a>
@@ -571,7 +571,7 @@ usePageEntrance(
     <PlatformWorkspace v-else-if="account.role === 'PLATFORM_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
     <MarketplaceWorkspace v-else-if="account.buyer_id" :key="account.access_token" :account="account" @profile="updateProfile" @reauthenticate="loginNameChanged" @logout="logout" @expired="logout(); error = '登录已失效，请重新登录。'" />
     <CustomerWorkspace v-else-if="isCustomer" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
-    <div v-else ref="merchantShell" class="app-shell" :class="{ 'support-shell': merchantPage === 'support' && account.role === 'MERCHANT_ADMIN' }">
+    <div v-else ref="merchantShell" class="app-shell">
       <nav class="sidebar" aria-label="工作台导航">
         <template v-if="!isSingleMerchant">
         <a v-if="isReviewer" href="#queue-panel" class="nav-link" :class="{ current: merchantPage === 'review' && !queryOpen && reviewScope === 'PUBLIC' && !['ATTENTION','CLOSED'].includes(reviewView) }" :aria-disabled="busy" @click.prevent="quickQueue('REVIEW','PUBLIC')"><Icon name="queue" />公共队列</a>
@@ -596,7 +596,7 @@ usePageEntrance(
       <AdminPeople v-else-if="merchantPage === 'people' && account.role === 'MERCHANT_ADMIN' && !isSingleMerchant" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '账号状态或权限已变化，请重新登录。'" @renamed="account.display_name = $event" />
       <AdminOverview v-else-if="merchantPage === 'overview' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" @queue="quickQueue" @open="overviewCase" @order="overviewOrder" @support="overviewSupport" @people="changeMerchantPage('people')" @navigate="changeMerchantPage($event)" />
       <AdminPolicies v-else-if="merchantPage === 'policies' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
-      <main v-else class="workspace" :data-page-loading="busy" :class="{ 'reviewer-workspace': isReviewer }">
+      <main v-else class="workspace" :data-page-loading="busy" :class="{ 'reviewer-workspace': isReviewer, 'merchant-aftercare-page': isSingleMerchant, 'merchant-review-page': isSingleMerchant }">
         <p v-if="error && !reviewDecision" class="message error workspace-message" role="alert">{{ error }}</p>
         <p v-if="notice" class="message success workspace-message" role="status"><Icon name="check" />{{ notice }}</p>
         <PageLoading :loading="busy" :empty="isSingleMerchant && merchantCaseOpen && !snapshot" />
@@ -609,14 +609,14 @@ usePageEntrance(
             <PageLoading :loading="busy" :empty="!reviewItems.length" />
             <form class="queue-filters" @submit.prevent="filterQueue"><label>处理阶段<select v-model="reviewView" :disabled="busy" @change="filterQueue"><option value="REVIEW">待审核</option><option value="WAITING">待客户补证</option><option value="PROCESSING">调查与退款处理中</option><option value="ATTENTION">结果待确认</option><option value="CLOSED">已结束</option><option value="ALL">全部工单</option></select></label><div class="queue-search"><input v-model="reviewQuery" aria-label="搜索工单" maxlength="100" placeholder="工单号、订单号或问题描述" :disabled="busy" /><button type="submit" class="secondary-button" :disabled="busy">查询</button></div></form>
             <div v-if="reviewItems.length === 0 && !busy" class="empty"><Icon name="queue" :size="30" /><strong>没有符合条件的工单</strong><p>可切换处理阶段或修改查询条件</p></div>
-            <div v-if="isSingleMerchant" class="merchant-case-list" aria-label="工单列表">
+            <div v-if="isSingleMerchant" class="merchant-case-list" data-page-reveal data-page-content aria-label="工单列表">
               <article v-for="item in reviewItems" :key="item.case_id" class="merchant-case-card">
                 <div><AftercareProduct :line="productLines[item.line_id]" :loading="productStates[item.line_id] === 'loading'" :unavailable="productStates[item.line_id] === 'unavailable'" /><p class="merchant-case-description">{{ headline(item.description) }}</p><button v-if="productStates[item.line_id] === 'unavailable'" class="text-button" type="button" @click="products.read(item.line_id, true)">重试商品资料</button></div>
                 <div class="merchant-case-status"><span class="status-tag" :class="{ waiting: item.status === 'PENDING_REVIEW', success: item.status === 'CLOSED_SUCCESS' }">{{ statusLabel(item.status) }}</span><time>{{ formatTimestamp(item.updated_at) }}</time></div>
                 <button type="button" class="secondary-button queue-open" :disabled="busy" @click="act(() => openCase(item.case_id))">查看工单</button>
               </article>
             </div>
-            <div v-else class="scroll-list" aria-label="工单列表">
+            <div v-else class="scroll-list" data-page-reveal data-page-content aria-label="工单列表">
               <button v-for="item in reviewItems" :key="item.case_id" type="button" class="queue-row" :aria-pressed="snapshot?.case.case_id === item.case_id"
                 :class="{ selected: snapshot?.case.case_id === item.case_id }" :disabled="busy" @click="act(() => openCase(item.case_id))">
                 <span class="queue-top"><span class="queue-category"><Icon name="file" :size="14" />退款申请</span><span class="status-tag" :class="{ waiting: item.status === 'PENDING_REVIEW', success: item.status === 'CLOSED_SUCCESS' }">{{ statusLabel(item.status) }}</span></span>

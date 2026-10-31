@@ -1,5 +1,3 @@
-.shopping-workbench .demo-tag, .shopping-workbench .session-copy small, .shopping-workbench .session-copy strong { font-size: 16px; }
-.shopping-workbench .topbar { min-height: 72px; }
 .marketplace { --shop-ink: var(--rf-ink); --shop-muted: var(--rf-muted); --shop-accent: var(--rf-accent); background: #fafaf7; min-height: 100dvh; font-size: 16px; color: var(--shop-ink); }
 .shop-global-error { max-width: 1328px; margin: 20px auto; }
 .product-buy-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 28px; }

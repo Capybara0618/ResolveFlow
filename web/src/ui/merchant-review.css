@@ -1,150 +1,107 @@
-/* Only the display-chain merchant aftercare list, detail and its dialogs use this theme. */
-.workbench.merchant-review-workbench {
-  --rf-blue: #216b58;
-  --rf-ink: #25322c;
-  --rf-canvas: #fafaf7;
-  color: var(--rf-ink);
-  background: var(--rf-canvas);
-  font-family:var(--rf-font-ui);
-  font-size: 16px;
-}
-.merchant-review-workbench :is(button, input, textarea, select) { font-family: inherit; }
-.merchant-review-workbench .topbar { height:76px; background: #fff; border-color: #e3e8e0; }
-.merchant-review-workbench .app-shell { grid-template-columns: 176px minmax(0, 1fr); min-height: calc(100dvh - 76px); }
-.merchant-review-workbench .sidebar { top:76px; height: calc(100dvh - 76px); border-color: #e3e8e0; background: #fff; padding: 20px 10px; }
-.merchant-review-workbench .sidebar .nav-link { font-weight: 500; padding: 12px; color: #657369; border-radius: 7px; }
-.merchant-review-workbench .sidebar .nav-link.current { color: #216b58; background: #eaf3ec; border-color: transparent; }
-.merchant-review-workbench .workspace { padding: 24px; }
-.merchant-review-workbench .brand { color: #25322c; }
-.merchant-review-workbench .brand-mark i { background: #216b58; }
-.merchant-review-workbench .brand-mark i:last-child { background: #9ab7a1; }
-.merchant-review-workbench .avatar { background: #eaf3ec; color: #216b58; }
-.merchant-review-workbench .demo-tag { color: #6d786e; }
-.merchant-review-workbench button { font-size:14px;min-height:40px;font-weight:500;border-color: #216b58; background: #216b58; box-shadow: none; }
-.merchant-review-workbench button:hover:not(:disabled) { background: #185744; border-color: #185744; box-shadow: none; }
-.merchant-review-workbench .secondary-button { color: #315b49; background: #fff; border-color: #cbd9cb; }
-.merchant-review-workbench .secondary-button:hover:not(:disabled) { background: #eff5ed; border-color: #a9c1ac; }
-.merchant-review-workbench .text-button { color: #216b58; border-color: transparent; background: transparent; }
-.merchant-review-workbench .text-button:hover:not(:disabled) { background: #eff5ed; border-color: transparent; }
-.merchant-review-workbench .danger-button { color: #b54646; background: transparent; border-color: transparent; }
-.merchant-review-workbench .danger-button:hover:not(:disabled) { color: #a13030; background: #fff2ef; border-color: transparent; }
-.merchant-review-workbench :is(button, input, select, textarea, summary):focus-visible { outline: 2px solid #216b58; outline-offset: 3px; }
-.merchant-review-workbench :is(input, select, textarea) { color: #25322c; border-color: #d9e2d5; background: #fff; }
-.merchant-review-workbench .status-tag { background: #eff2eb; color: #52654f; border: 0; }
-.merchant-review-workbench .status-tag.waiting { background: #fff3dc; color: #906020; }
-.merchant-review-workbench .status-tag.success { background: #eaf3ec; color: #216b58; }
-.merchant-review-workbench .merchant-aftercare.merchant-case-view { display: block; max-width:var(--rf-page-max); }
-.merchant-review-workbench .merchant-detail-v4 { min-width: 0; }
-.merchant-review-workbench .merchant-detail-v4 :is(p, span, summary, input, select, textarea, dd, li) { font-size:15px; }.merchant-review-workbench .merchant-detail-v4 :is(button,label,dt,legend){font-size:14px}.merchant-review-workbench .merchant-detail-v4 :is(small,time,pre){font-size:13px}
-.merchant-review-workbench .merchant-detail-heading { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
-.merchant-review-workbench .merchant-detail-heading h2 { margin: 0; font-size:24px;font-weight:500; }
-.merchant-review-workbench .merchant-detail-heading .status-tag { padding: 5px 10px; font-size: 14px; }
-.merchant-review-workbench .merchant-detail-card { min-width: 0; padding: 20px; background: #fff; border: 1px solid #e3e8e0; border-radius:var(--rf-radius-surface); }
-.merchant-review-workbench .merchant-detail-card h3 { margin: 0 0 12px; color: #25322c; font-size:18px;font-weight:500; }
-.merchant-review-workbench .merchant-detail-v4 p { line-height: 1.65; margin: 10px 0; overflow-wrap: anywhere; }
-.merchant-review-workbench .merchant-detail-card > p:last-child { margin-bottom: 0; }
-.merchant-review-workbench .merchant-detail-v4 .muted { color: #69766b; }
-.merchant-review-workbench .merchant-product { margin-bottom: 14px; padding: 14px 20px; }
-.merchant-review-workbench .merchant-product-row { display: flex; align-items: center; gap: 16px; }
-.merchant-review-workbench .merchant-product-row .aftercare-product { flex: 1; gap: 16px; }
-.merchant-review-workbench .merchant-product .aftercare-product-image { width: 68px; height: 68px; flex: 0 0 68px; border-radius: 8px; background: #f3f4ee; }
-.merchant-review-workbench .merchant-product .aftercare-product-copy { gap: 3px; }
-.merchant-review-workbench .merchant-product .aftercare-product-copy strong { color: #25322c; font-size:18px;font-weight:500; }
-.merchant-review-workbench .merchant-product .aftercare-product-copy span { color: #69766b; font-size: 14px; }
-.merchant-review-workbench .merchant-product .aftercare-product-amount b { color: #25322c; font-size: 16px; font-weight: 600; }
-.merchant-review-workbench .merchant-product-links { display: flex; align-items: center; gap: 18px; flex-shrink: 0; }
-.merchant-review-workbench .merchant-product-links .status-tag { font-size: 14px; }
-.merchant-review-workbench .merchant-detail-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 18px; align-items: start; }
-.merchant-review-workbench .merchant-detail-main { display: grid; gap: 14px; min-width: 0; }
-.merchant-review-workbench .merchant-section-heading { display: flex; align-items: center; gap: 12px; justify-content: space-between; flex-wrap: wrap; margin-bottom: 10px; }
-.merchant-review-workbench .merchant-section-heading h3 { margin-bottom: 0; }
-.merchant-review-workbench .merchant-section-heading > .muted { font-size: 13px; }
-.merchant-review-workbench .merchant-request > p { margin: 0; padding: 12px 14px; border-left: 2px solid #9bb7a0; background: #f5f8f2; white-space: pre-wrap; }
-.merchant-review-workbench .merchant-advice-title { display: flex; color: #216b58; background: #eef5ec; padding: 4px 8px; border-radius: 6px; }
-.merchant-review-workbench .merchant-advice-title strong { font-size: 14px; font-weight: 500; }
-.merchant-review-workbench .merchant-advice-title.needs-attention { background: #fff3dc; color: #906020; }
-.merchant-review-workbench .merchant-full-advice { margin: 12px 0; }
-.merchant-review-workbench .merchant-full-advice summary { cursor: pointer; color: #216b58; }
-.merchant-review-workbench .merchant-advice-summary { white-space: pre-wrap; }
-.merchant-review-workbench .merchant-advice-reasons { padding-left: 20px; line-height: 1.65; }
-.merchant-review-workbench .merchant-warning { background: #fff6e7; border-radius: 6px; padding: 10px 12px; color: #805a27; }
-.merchant-review-workbench .merchant-advice .investigation-sources { padding: 0; border: 0; }
-.merchant-review-workbench .merchant-advice .investigation-sources p { font-size: 14px; color: #69766b; margin: 8px 0; }
-.merchant-review-workbench .merchant-advice .investigation-sources .source-unavailable { padding: 10px 12px; border-radius: 6px; color: #805a27; background: #fff6e7; }
-.merchant-review-workbench .merchant-next-step { font-size: 14px; color: #526659; line-height: 1.7; }
-.merchant-review-workbench .merchant-alternative-actions { margin-top: 18px; padding-top: 14px; border-top: 1px solid #e3e8e0; }
-.merchant-review-workbench .merchant-alternative-actions summary { color: #526659; font-size: 13px; cursor: pointer; }
-.merchant-review-workbench .merchant-alternative-actions .handoff-actions { margin-bottom: 0; }
-.merchant-review-workbench .merchant-source-entry { display: flex; width: 100%; justify-content: start; padding: 6px 0; gap: 10px; }
-.merchant-review-workbench .merchant-source-entry span { flex: 1; text-align: left; }
-.merchant-review-workbench .merchant-advice .citation-block { margin: 6px 0 0; }
-.merchant-review-workbench .merchant-advice .citation-group { margin: 0; }
-.merchant-review-workbench .merchant-advice .citation-group > strong { font-size: 14px; color: #69766b; font-weight: 400; }
-.merchant-review-workbench .merchant-advice .citation-rows { margin: 0; }
-.merchant-review-workbench .citation-name { color: #216b58; font-weight: 500; }
-.merchant-review-workbench .merchant-advice .citation-button { padding: 8px 10px; background: #f6f8f2; color: #216b58; border-color: #e0e7da; }
-.merchant-review-workbench .merchant-advice .citation-group details { margin-top: 6px; }
-.merchant-review-workbench .merchant-advice .citation-group :is(summary, .citation-meta, .citation-warning) { font-size: 14px; }
-.merchant-review-workbench .merchant-treatment { position: sticky; top: 82px; }
-.merchant-review-workbench .merchant-treatment-amount { display: block; font-size: 30px; font-weight: 600; margin: 4px 0 10px; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
-.merchant-review-workbench .merchant-treatment > [role="status"] { font-size: 14px; }
-.merchant-review-workbench .merchant-treatment > [data-test="verify-application"] { width: 100%; margin: 10px 0 0; min-height: 44px; }
-.merchant-review-workbench .merchant-treatment .review-section { padding: 0; border: 0; }
-.merchant-review-workbench .merchant-treatment :is(.review-section .actions, .handoff-actions) { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin: 10px 0 0; }
-.merchant-review-workbench .merchant-treatment .actions button { width: 100%; padding: 8px 12px; min-height: 44px; font-size: 16px; }
-.merchant-review-workbench .merchant-treatment .review-section > .muted { font-size: 14px; }
-.merchant-review-workbench .merchant-treatment .reviewer-workspace { margin: 0; padding: 0; }
-.merchant-review-workbench .merchant-treatment .reviewer-workspace > .muted { margin-bottom: 0; font-size: 14px; }
-.merchant-review-workbench .merchant-details-link { display: flex; width: 100%; justify-content: start; gap: 10px; padding: 14px 18px; margin: 18px 0 0; border: 1px solid #e3e8e0; background: #fff; border-radius: 8px; }
-.merchant-review-workbench .merchant-details-link span { flex: 1; text-align: left; }
-.merchant-review-workbench .merchant-detail-evidence { margin-top: 14px; scroll-margin-top: 84px; }
-.merchant-review-workbench .merchant-evidence-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.merchant-review-workbench .merchant-detail-evidence pre { white-space: pre-wrap; overflow-wrap: anywhere; }
-.merchant-review-workbench .merchant-detail-evidence details { margin: 14px 0; }
-.merchant-review-workbench .merchant-detail-evidence :is(h3, h4, legend) { font-size: 18px; }
-.merchant-review-workbench .merchant-full-timeline { padding-left: 20px; }
-.merchant-review-workbench .rf-dialog { font-family: inherit; color: #25322c; border-color: #e3e8e0; }
-.merchant-review-workbench .merchant-dialog header h2 { font-size: 22px; }
-.merchant-review-workbench .merchant-dialog .dialog-actions button { font-size: 16px; min-height: 44px; }
-.merchant-review-workbench .merchant-dialog .dialog-refund-amount { background: #f1f6ed; }
-.merchant-review-workbench .merchant-dialog .rf-dialog-close { background: #f1f4ed; color: #52654f; }
-.merchant-review-workbench .merchant-dialog .merchant-decision-form { gap: 16px; font-size: 16px; }
-.merchant-review-workbench .merchant-dialog :is(.decision-note, .decision-warning, .decision-reason, .decision-reason textarea) { font-size: 16px; }
-.merchant-review-workbench .merchant-dialog .decision-note { color: #69766b; }
-.merchant-review-workbench .merchant-dialog .aftercare-product { gap: 16px; }
-.merchant-review-workbench .merchant-dialog .aftercare-product-image { width: 68px; height: 68px; flex-basis: 68px; border-radius: 8px; }
-.merchant-review-workbench .merchant-dialog .aftercare-product-copy { gap: 3px; }
-.merchant-review-workbench .merchant-dialog .aftercare-product-copy strong { color: #25322c; font-size: 18px; }
-.merchant-review-workbench .merchant-dialog .aftercare-product-copy span { font-size: 14px; }
-.merchant-review-workbench .merchant-dialog .aftercare-product-amount b { color: #25322c; font-size: 16px; }
-.merchant-review-workbench .list-panel h2 { font-size: 24px; }
-.merchant-review-workbench .queue-filters { margin-bottom: 18px; gap: 16px; flex-wrap: wrap; }
-.merchant-review-workbench .merchant-case-list { gap: 12px; }
-.merchant-review-workbench .merchant-case-card { border-color: #e3e8e0; padding: 18px; gap: 18px; border-radius:var(--rf-radius-surface); }
-.merchant-review-workbench .merchant-case-card .aftercare-product { gap: 16px; }
-.merchant-review-workbench .merchant-case-card .aftercare-product-image { width: 64px; height:76px; flex: 0 0 64px; background: #f3f4ee; }
-.merchant-review-workbench .merchant-case-card .aftercare-product-copy { gap: 3px; }
-.merchant-review-workbench .merchant-case-card .aftercare-product-copy strong { color: #25322c; font-size: 18px; }
-.merchant-review-workbench .merchant-case-card .aftercare-product-amount b { font-size: 18px; color: #25322c; }
-.merchant-review-workbench .merchant-case-description { margin: 8px 0 0 80px; line-height: 1.6; }
+/* Aftercare content only; workspace chrome and controls use interface.css. */
+.merchant-review-page .merchant-aftercare.merchant-case-view { display: block; max-width:none; }
+.merchant-review-page .merchant-detail-v4 { min-width: 0; }
+.merchant-review-page .merchant-detail-v4 :is(p, span, summary, input, select, textarea, dd, li) { font-size:15px; }.merchant-review-page .merchant-detail-v4 :is(button,label,dt,legend){font-size:14px}.merchant-review-page .merchant-detail-v4 :is(small,time,pre){font-size:13px}
+.merchant-review-page .merchant-detail-heading { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+.merchant-review-page .merchant-detail-heading h2 { margin: 0; font-size:24px;font-weight:500; }
+.merchant-review-page .merchant-detail-heading .status-tag { padding: 5px 10px; font-size: 14px; }
+.merchant-review-page .merchant-detail-card { min-width: 0; padding: 20px; background: var(--rf-surface); border: 1px solid var(--rf-line); border-radius:var(--rf-radius-surface); }
+.merchant-review-page .merchant-detail-card h3 { margin: 0 0 12px; color: var(--rf-ink); font-size:16px;font-weight:500; }
+.merchant-review-page .merchant-detail-v4 p { line-height: 1.65; margin: 10px 0; overflow-wrap: anywhere; }
+.merchant-review-page .merchant-detail-card > p:last-child { margin-bottom: 0; }
+.merchant-review-page .merchant-detail-v4 .muted { color: var(--rf-muted); }
+.merchant-review-page .merchant-product { margin-bottom: 14px; padding: 14px 20px; }
+.merchant-review-page .merchant-product-row { display: flex; align-items: center; gap: 16px; }
+.merchant-review-page .merchant-product-row .aftercare-product { flex: 1; gap: 16px; }
+.merchant-review-page .merchant-product .aftercare-product-image { width: 68px; height: 68px; flex: 0 0 68px; border-radius: 8px; background: var(--rf-subtle); }
+.merchant-review-page .merchant-product .aftercare-product-copy { gap: 3px; }
+.merchant-review-page .merchant-product .aftercare-product-copy strong { color: var(--rf-ink); font-size:16px;font-weight:500; }
+.merchant-review-page .merchant-product .aftercare-product-copy span { color: var(--rf-muted); font-size: 14px; }
+.merchant-review-page .merchant-product .aftercare-product-amount b { color: var(--rf-ink); font-size: 16px; font-weight: 600; }
+.merchant-review-page .merchant-product-links { display: flex; align-items: center; gap: 18px; flex-shrink: 0; }
+.merchant-review-page .merchant-product-links .status-tag { font-size: 14px; }
+.merchant-review-page .merchant-detail-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 18px; align-items: start; }
+.merchant-review-page .merchant-detail-main { display: grid; gap: 14px; min-width: 0; }
+.merchant-review-page .merchant-section-heading { display: flex; align-items: center; gap: 12px; justify-content: space-between; flex-wrap: wrap; margin-bottom: 10px; }
+.merchant-review-page .merchant-section-heading h3 { margin-bottom: 0; }
+.merchant-review-page .merchant-section-heading > .muted { font-size: 13px; }
+.merchant-review-page .merchant-request > p { margin: 0; padding: 12px 14px; border-left: 2px solid #9bb7a0; background: var(--rf-subtle); white-space: pre-wrap; }
+.merchant-review-page .merchant-advice-title { display: flex; color: var(--rf-accent); background: var(--rf-accent-soft); padding: 4px 8px; border-radius: 6px; }
+.merchant-review-page .merchant-advice-title strong { font-size: 14px; font-weight: 500; }
+.merchant-review-page .merchant-advice-title.needs-attention { background: #fff3dc; color: #906020; }
+.merchant-review-page .merchant-full-advice { margin: 12px 0; }
+.merchant-review-page .merchant-full-advice summary { cursor: pointer; color: var(--rf-accent); }
+.merchant-review-page .merchant-advice-summary { white-space: pre-wrap; }
+.merchant-review-page .merchant-advice-reasons { padding-left: 20px; line-height: 1.65; }
+.merchant-review-page .merchant-warning { background: #fff6e7; border-radius: 6px; padding: 10px 12px; color: #805a27; }
+.merchant-review-page .merchant-advice .investigation-sources { padding: 0; border: 0; }
+.merchant-review-page .merchant-advice .investigation-sources p { font-size: 14px; color: var(--rf-muted); margin: 8px 0; }
+.merchant-review-page .merchant-advice .investigation-sources .source-unavailable { padding: 10px 12px; border-radius: 6px; color: #805a27; background: #fff6e7; }
+.merchant-review-page .merchant-next-step { font-size: 14px; color: var(--rf-muted); line-height: 1.7; }
+.merchant-review-page .merchant-alternative-actions { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--rf-line); }
+.merchant-review-page .merchant-alternative-actions summary { color: var(--rf-muted); font-size: 13px; cursor: pointer; }
+.merchant-review-page .merchant-alternative-actions .handoff-actions { margin-bottom: 0; }
+.merchant-review-page .merchant-source-entry { display: flex; width: 100%; justify-content: start; padding: 6px 0; gap: 10px; }
+.merchant-review-page .merchant-source-entry span { flex: 1; text-align: left; }
+.merchant-review-page .merchant-advice .citation-block { margin: 6px 0 0; }
+.merchant-review-page .merchant-advice .citation-group { margin: 0; }
+.merchant-review-page .merchant-advice .citation-group > strong { font-size: 14px; color: var(--rf-muted); font-weight: 400; }
+.merchant-review-page .merchant-advice .citation-rows { margin: 0; }
+.merchant-review-page .citation-name { color: var(--rf-accent); font-weight: 500; }
+.merchant-review-page .merchant-advice .citation-button { padding: 8px 10px; background: var(--rf-subtle); color: var(--rf-accent); border-color: var(--rf-line); }
+.merchant-review-page .merchant-advice .citation-group details { margin-top: 6px; }
+.merchant-review-page .merchant-advice .citation-group :is(summary, .citation-meta, .citation-warning) { font-size: 14px; }
+.merchant-review-page .merchant-treatment { position: sticky; top: 82px; }
+.merchant-review-page .merchant-treatment-amount { display: block; font-size: 30px; font-weight: 600; margin: 4px 0 10px; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.merchant-review-page .merchant-treatment > [role="status"] { font-size: 14px; }
+.merchant-review-page .merchant-treatment > [data-test="verify-application"] { width: 100%; margin: 10px 0 0; min-height: 44px; }
+.merchant-review-page .merchant-treatment .review-section { padding: 0; border: 0; }
+.merchant-review-page .merchant-treatment :is(.review-section .actions, .handoff-actions) { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin: 10px 0 0; }
+.merchant-review-page .merchant-treatment .actions button { width: 100%; padding: 8px 12px; min-height: 44px; font-size: 16px; }
+.merchant-review-page .merchant-treatment .review-section > .muted { font-size: 14px; }
+.merchant-review-page .merchant-treatment .reviewer-workspace { margin: 0; padding: 0; }
+.merchant-review-page .merchant-treatment .reviewer-workspace > .muted { margin-bottom: 0; font-size: 14px; }
+.merchant-review-page .merchant-details-link { display: flex; width: 100%; justify-content: start; gap: 10px; padding: 14px 18px; margin: 18px 0 0; border: 1px solid var(--rf-line); background: var(--rf-surface); border-radius: 8px; }
+.merchant-review-page .merchant-details-link span { flex: 1; text-align: left; }
+.merchant-review-page .merchant-detail-evidence { margin-top: 14px; scroll-margin-top: 84px; }
+.merchant-review-page .merchant-evidence-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.merchant-review-page .merchant-detail-evidence pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.merchant-review-page .merchant-detail-evidence details { margin: 14px 0; }
+.merchant-review-page .merchant-detail-evidence :is(h3, h4, legend) { font-size: 16px; }
+.merchant-review-page .merchant-full-timeline { padding-left: 20px; }
+.merchant-review-page .merchant-dialog .dialog-refund-amount { background: var(--rf-subtle); }
+.merchant-review-page .merchant-dialog .merchant-decision-form { gap: 16px; font-size: 16px; }
+.merchant-review-page .merchant-dialog :is(.decision-note, .decision-warning, .decision-reason, .decision-reason textarea) { font-size: 16px; }
+.merchant-review-page .merchant-dialog .decision-note { color: var(--rf-muted); }
+.merchant-review-page .merchant-dialog .aftercare-product { gap: 16px; }
+.merchant-review-page .merchant-dialog .aftercare-product-image { width: 68px; height: 68px; flex-basis: 68px; border-radius: 8px; }
+.merchant-review-page .merchant-dialog .aftercare-product-copy { gap: 3px; }
+.merchant-review-page .merchant-dialog .aftercare-product-copy strong { color: var(--rf-ink); font-size: 16px; }
+.merchant-review-page .merchant-dialog .aftercare-product-copy span { font-size: 14px; }
+.merchant-review-page .merchant-dialog .aftercare-product-amount b { color: var(--rf-ink); font-size: 16px; }
+.merchant-review-page .list-panel h2 { font-size: var(--rf-type-title); font-weight: 500; }
+.merchant-review-page .queue-filters { margin-bottom: 18px; gap: 16px; flex-wrap: wrap; }
+.merchant-review-page .merchant-case-list { gap: 12px; }
+.merchant-review-page .merchant-case-card { border-color: var(--rf-line); padding: 22px; gap: 18px; border-radius:var(--rf-radius-surface); }
+.merchant-review-page .merchant-case-card .aftercare-product { gap: 16px; }
+.merchant-review-page .merchant-case-card .aftercare-product-image { width: 72px; height:72px; flex: 0 0 72px; background: var(--rf-subtle); }
+.merchant-review-page .merchant-case-card .aftercare-product-copy { gap: 3px; }
+.merchant-review-page .merchant-case-card .aftercare-product-copy strong { color: var(--rf-ink); font-size: 16px; }
+.merchant-review-page .merchant-case-card .aftercare-product-amount b { font-size: 16px; color: var(--rf-ink); }
+.merchant-review-page .merchant-case-description { margin: 8px 0 0 88px; line-height: 1.6; }
 @media (max-width: 1100px) {
-  .merchant-review-workbench .app-shell { grid-template-columns: 160px minmax(0, 1fr); }
-  .merchant-review-workbench .workspace { padding: 18px; }
-  .merchant-review-workbench .merchant-detail-grid { grid-template-columns: minmax(0, 1fr) 260px; gap: 14px; }
-  .merchant-review-workbench .merchant-detail-card { padding: 16px; }
-  .merchant-review-workbench .merchant-product-links { flex-direction: column; gap: 6px; }
+  .merchant-review-page .merchant-detail-grid { grid-template-columns: minmax(0, 1fr) 260px; gap: 14px; }
+  .merchant-review-page .merchant-detail-card { padding: 16px; }
+  .merchant-review-page .merchant-product-links { flex-direction: column; gap: 6px; }
 }
 @media (max-width: 800px) {
-  .merchant-review-workbench .merchant-detail-grid { grid-template-columns: minmax(0, 1fr); }
-  .merchant-review-workbench .merchant-treatment { position: static; }
-  .merchant-review-workbench .merchant-product-row { flex-wrap: wrap; }
-  .merchant-review-workbench .merchant-product-links { flex-direction: row; }
-  .merchant-review-workbench .merchant-case-card { grid-template-columns: minmax(0, 1fr); gap: 12px; }
-  .merchant-review-workbench .merchant-case-status { gap: 8px; }
+  .merchant-review-page .merchant-detail-grid { grid-template-columns: minmax(0, 1fr); }
+  .merchant-review-page .merchant-treatment { position: static; }
+  .merchant-review-page .merchant-product-row { flex-wrap: wrap; }
+  .merchant-review-page .merchant-product-links { flex-direction: row; }
+  .merchant-review-page .merchant-case-card { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .merchant-review-page .merchant-case-status { gap: 8px; }
 }
 @media (max-width: 850px) {
-  .merchant-review-workbench .app-shell { grid-template-columns: minmax(0, 1fr); }
-  .merchant-review-workbench .sidebar { position: static; height: auto; flex-direction: row; padding: 8px 12px; overflow-x: auto; border-right: 0; border-bottom: 1px solid #e3e8e0; }
-  .merchant-review-workbench .sidebar .nav-link { flex: 0 0 auto; white-space: nowrap; padding: 8px 12px; }
-  .merchant-review-workbench .queue-filters label, .merchant-review-workbench .queue-search { width: 100%; }
+  .merchant-review-page .queue-filters label, .merchant-review-page .queue-search { width: 100%; }
 }

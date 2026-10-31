@@ -1,27 +1,13 @@
 @import './display-font-faces.css';
 
-/* Shared by the approved display-chain screens, not the full administration UI. */
-.workbench .display-chain-marketplace,
-.workbench .buyer-support,
-.workbench.merchant-review-workbench {
-  --display-font-ui: "Resolve Sans", "Noto Sans SC", "Microsoft YaHei", sans-serif;
-  --display-font-reading: "Resolve Reading", "Noto Serif SC", "Songti SC", "SimSun", serif;
-}
-.workbench .marketplace.display-chain-marketplace,
-.workbench .support-workspace.buyer-support.buyer-support,
-.workbench.merchant-review-workbench.merchant-review-workbench {
-  font-family: var(--display-font-ui);
-  font-weight: 400;
-}
-.workbench .display-chain-marketplace :is(button, input, select, textarea),
-.workbench .buyer-support :is(button, input, select, textarea),
-.workbench.merchant-review-workbench :is(button, input, select, textarea) { font-family: var(--display-font-ui); }
+/* The same font tokens apply across every role; reading typography stays local. */
+.workbench { --display-font-ui: var(--rf-font-ui); --display-font-reading: var(--rf-font-reading); }
 
 /* Storefront chrome and short product labels stay in the UI face. */
-.workbench .display-chain-marketplace .shop-hero h1 { font-weight: 500; }
-.workbench .display-chain-marketplace .shop-section-title :is(h1, h2) { font-size: 22px; font-weight: 500; }
-.workbench .display-chain-marketplace .product-name { font-size: 16px; font-weight: 500; }
-.workbench .display-chain-marketplace .product-price { font-weight: 500; }
+.workbench .marketplace .shop-hero h1 { font-weight: 500; }
+.workbench .marketplace .shop-section-title :is(h1, h2) { font-size: 22px; font-weight: 500; }
+.workbench .marketplace .product-name { font-size: 16px; font-weight: 500; }
+.workbench .marketplace .product-price { font-weight: 500; }
 
 /* The conversation is a reading surface; operational controls remain compact. */
 .workbench .buyer-support.buyer-support .support-message.assistant .support-message-bubble {
@@ -40,36 +26,30 @@
 .workbench .buyer-support.buyer-support .refund-amount strong { font-size: 22px; }
 
 /* Merchant request and full rationale use the same reading face at 16px. */
-.workbench.merchant-review-workbench .sidebar .nav-link { font-size: 15px; font-weight: 400; }
-.workbench.merchant-review-workbench .brand { font-weight: 500; letter-spacing: 0; }
-.workbench.merchant-review-workbench .session-copy strong { font-size: 14px; font-weight: 500; }
-.workbench.merchant-review-workbench .session-copy small { font-size: 13px; }
-.workbench.merchant-review-workbench .demo-tag { font-size: 12px; }
-.workbench.merchant-review-workbench .logout-button > svg { display: none; }
-.workbench.merchant-review-workbench .merchant-detail-heading h2,
-.workbench.merchant-review-workbench .list-panel h2 { font-size: 22px; font-weight: 500; }
-.workbench.merchant-review-workbench .merchant-detail-card h3 { font-size: 17px; font-weight: 500; }
-.workbench.merchant-review-workbench .merchant-product .aftercare-product-copy strong { font-size: 17px; font-weight: 500; }
-.workbench.merchant-review-workbench .merchant-detail-v4 :is(.merchant-request > p, .merchant-advice-summary, .merchant-advice-reasons li),
-.workbench.merchant-review-workbench .merchant-detail-evidence .evidence-excerpt {
+.workbench .merchant-review-page .merchant-detail-heading h2,
+.workbench .merchant-review-page .list-panel h2 { font-size: var(--rf-type-title); font-weight: 500; }
+.workbench .merchant-review-page .merchant-detail-card h3 { font-size: 17px; font-weight: 500; }
+.workbench .merchant-review-page .merchant-product .aftercare-product-copy strong { font-size: 17px; font-weight: 500; }
+.workbench .merchant-review-page .merchant-detail-v4 :is(.merchant-request > p, .merchant-advice-summary, .merchant-advice-reasons li),
+.workbench .merchant-review-page .merchant-detail-evidence .evidence-excerpt {
   font-family: var(--display-font-reading);
   font-size: 16px;
   font-weight: 400;
   line-height: 1.85;
 }
-.workbench.merchant-review-workbench .merchant-request > p { border-left: 0; background: #f7f8f3; }
-.workbench.merchant-review-workbench .merchant-treatment-amount { font-size: 28px; font-weight: 500; }
-.workbench.merchant-review-workbench .merchant-treatment button { font-size: 15px; font-weight: 400; }
-.workbench.merchant-review-workbench .merchant-advice-title strong { font-size: 13px; font-weight: 400; }
-.workbench.merchant-review-workbench .citation-name { font-size: 15px; font-weight: 400; }
-.workbench.merchant-review-workbench .merchant-details-link small { font-size: 12px; font-weight: 400; color: #7c847b; }
-.workbench.merchant-review-workbench .merchant-dialog header h2 { font-size: 20px; font-weight: 500; }
-.workbench.merchant-review-workbench .merchant-dialog .aftercare-product-copy strong { font-size: 16px; font-weight: 500; }
+.workbench .merchant-review-page .merchant-request > p { border-left: 0; background: #f7f8f3; }
+.workbench .merchant-review-page .merchant-treatment-amount { font-size: 28px; font-weight: 500; }
+.workbench .merchant-review-page .merchant-treatment button { font-size: 15px; font-weight: 400; }
+.workbench .merchant-review-page .merchant-advice-title strong { font-size: 13px; font-weight: 400; }
+.workbench .merchant-review-page .citation-name { font-size: 15px; font-weight: 400; }
+.workbench .merchant-review-page .merchant-details-link small { font-size: 12px; font-weight: 400; color: #7c847b; }
+.workbench .merchant-review-page .merchant-dialog header h2 { font-size: 20px; font-weight: 500; }
+.workbench .merchant-review-page .merchant-dialog .aftercare-product-copy strong { font-size: 16px; font-weight: 500; }
 
 /* Keep native details semantics and keyboard behavior while replacing the marker. */
-.workbench .display-chain-marketplace details:not(.shop-account) > summary,
+.workbench .marketplace details:not(.shop-account) > summary,
 .workbench .buyer-support details > summary,
-.workbench.merchant-review-workbench details > summary {
+.workbench .merchant-review-page details > summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -78,15 +58,15 @@
   font-family: var(--display-font-ui);
   font-weight: 400;
 }
-.workbench .display-chain-marketplace details:not(.shop-account) > summary::-webkit-details-marker,
+.workbench .marketplace details:not(.shop-account) > summary::-webkit-details-marker,
 .workbench .buyer-support summary::-webkit-details-marker,
-.workbench.merchant-review-workbench summary::-webkit-details-marker { display: none; }
-.workbench .display-chain-marketplace details:not(.shop-account) > summary::marker,
+.workbench .merchant-review-page summary::-webkit-details-marker { display: none; }
+.workbench .marketplace details:not(.shop-account) > summary::marker,
 .workbench .buyer-support summary::marker,
-.workbench.merchant-review-workbench summary::marker { content: ""; }
-.workbench .display-chain-marketplace details:not(.shop-account) > summary::after,
+.workbench .merchant-review-page summary::marker { content: ""; }
+.workbench .marketplace details:not(.shop-account) > summary::after,
 .workbench .buyer-support details > summary::after,
-.workbench.merchant-review-workbench details > summary::after { content: "展开"; font-size: 12px; color: #7c847b; flex-shrink: 0; }
-.workbench .display-chain-marketplace details:not(.shop-account)[open] > summary::after,
+.workbench .merchant-review-page details > summary::after { content: "展开"; font-size: 12px; color: #7c847b; flex-shrink: 0; }
+.workbench .marketplace details:not(.shop-account)[open] > summary::after,
 .workbench .buyer-support details[open] > summary::after,
-.workbench.merchant-review-workbench details[open] > summary::after { content: "收起"; }
+.workbench .merchant-review-page details[open] > summary::after { content: "收起"; }

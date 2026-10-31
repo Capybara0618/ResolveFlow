@@ -21,13 +21,21 @@
 .unified-interface .session-copy strong { font-size: 14px; font-weight: 500; }
 .unified-interface .session-copy small { font-size: 12px; }
 .unified-interface .logout-button { color: var(--rf-muted); font-size: 14px; }
-.unified-interface:not(.merchant-review-workbench) > .app-shell { min-height: calc(100dvh - 76px); grid-template-columns:176px minmax(0,1fr); }
-.unified-interface:not(.merchant-review-workbench) .sidebar { top:76px; height: calc(100dvh - 76px); padding: 20px 12px; background: var(--rf-canvas); gap: 4px; }
-.unified-interface:not(.merchant-review-workbench) .sidebar .nav-link { min-height: 44px; padding: 10px 12px; margin: 0; border: 0; border-radius: 7px; background: transparent; color: var(--rf-muted); font-size: 14px; font-weight: 400; }
-.unified-interface:not(.merchant-review-workbench) .sidebar .nav-link.current { background: var(--rf-accent-soft); color: var(--rf-accent); }
-.unified-interface:not(.merchant-review-workbench) .sidebar .nav-link:hover { background: var(--rf-subtle); color: var(--rf-accent); }
-.unified-interface:not(.merchant-review-workbench) .sidebar .nav-link::before { display: none; }
+.unified-interface > .app-shell { min-height: calc(100dvh - 76px); grid-template-columns:176px minmax(0,1fr); }
+.unified-interface .sidebar { top:76px; height: calc(100dvh - 76px); padding: 20px 12px; background: var(--rf-canvas); gap: 4px; }
+.unified-interface .sidebar .nav-link { min-height: 44px; padding: 10px 12px; margin: 0; border: 0; border-radius: 7px; background: transparent; color: var(--rf-muted); font-size: 14px; font-weight: 400; }
+.unified-interface .sidebar .nav-link.current { background: var(--rf-accent-soft); color: var(--rf-accent); }
+.unified-interface .sidebar .nav-link:hover { background: var(--rf-subtle); color: var(--rf-accent); }
+.unified-interface .sidebar .nav-link::before { display: none; }
+.unified-interface .merchant-review-page { padding: var(--rf-workspace-gutter); background: var(--rf-canvas); }
+.unified-interface .merchant-review-page .merchant-detail-heading h2 { font-size: var(--rf-type-title); font-weight: 500; }
+.unified-interface .merchant-review-page .panel-heading { margin-bottom: 24px; }
+.unified-interface .merchant-review-page .queue-filters { gap: 16px; margin-bottom: 24px; }
+.unified-interface .merchant-review-page .queue-filters :is(input,select) { min-height: var(--rf-control-height); margin: 0; padding: 9px 12px; border: 1px solid var(--rf-line); border-radius: var(--rf-radius); font: inherit; font-size: 14px; color: var(--rf-ink); background: var(--rf-surface); }
+.unified-interface .merchant-review-page .queue-filters select { margin-top: 8px; }
+.unified-interface .merchant-review-page :is(.secondary-button,.primary-button) { min-height: var(--rf-control-height); font-size: 14px; font-weight: 500; }
 .unified-interface .sidebar-note { display: none; }
+.unified-interface :is(.primary-button,.secondary-button) { min-height:var(--rf-control-height); font-size:14px; line-height:20px; font-weight:500; border-radius:var(--rf-radius); }
 .unified-interface .panel { border-color: var(--rf-line); box-shadow: none; }
 .unified-interface .secondary-button { background: var(--rf-surface); border-color: var(--rf-line); color: var(--rf-ink); }
 .unified-interface .secondary-button:hover:not(:disabled) { background: var(--rf-subtle); }
@@ -52,8 +60,9 @@
 .unified-interface details:not(.shop-account) > summary:not(:has(.summary-state))::after { content: '展开'; margin-left: 12px; font: 12px var(--rf-font-ui); color: var(--rf-muted); }
 .unified-interface details:not(.shop-account)[open] > summary:not(:has(.summary-state))::after { content: '收起'; }
 @media (max-width: 850px) {
-  .unified-interface:not(.merchant-review-workbench) > .app-shell { grid-template-columns: minmax(0, 1fr); }
-  .unified-interface:not(.merchant-review-workbench) .sidebar { position: static; height: auto; flex-direction: row; flex-wrap: wrap; padding: 10px 16px; }
+  .unified-interface > .app-shell { grid-template-columns: minmax(0, 1fr); }
+  .unified-interface .sidebar { position: static; height: auto; flex-direction: row; flex-wrap: wrap; padding: 10px 16px; }
+
   .unified-interface .login-stage { grid-template-columns: minmax(0, 420px); padding: 32px 20px; gap: 0; align-content: center; }
   .unified-interface .login-panel { padding: 28px; }
 }

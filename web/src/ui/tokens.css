@@ -32,6 +32,7 @@
   --rf-page-max: 1280px;
   --rf-page-gutter: 32px;
   --rf-space-section: 28px;
+  --rf-workspace-gutter: 32px;
 }
 body { margin: 0; }
 button, input, select, textarea { font: inherit; }
@@ -44,3 +45,6 @@ svg { flex-shrink: 0; vertical-align: middle; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
 }
+
+@media(max-width:1100px) { :root { --rf-workspace-gutter:24px; } }
+@media(max-width:650px) { :root { --rf-workspace-gutter:16px; } }
