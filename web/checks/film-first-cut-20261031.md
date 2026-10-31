@@ -79,3 +79,14 @@
 - 原无声版与配乐版视频流`-c:v copy -f hash -hash sha256`相同：`55c01df746700947618beb203f3074d12ec0cba4a98d9da4337fb1d6ec994880`，证明画面未重新压缩；7段原片文件SHA256全部不变。
 - 审片页默认配乐版；此前60fps入口另存`index-silent-60fps.html`、30fps入口不变，两个无声媒体和副本保持。Python/httpx核对主页及两个旧页200、起始/中段Range206及字节相符、moov在文件头。未进行浏览器实际播放或扬声器试听，不宣称已完成这些检查。
 - 首次来源HTML打印遇Windows GBK无法编码作者名，改stdout为UTF-8后成功，不影响下载文件。随后混音、解码、码流核对、交付及HTTP检查均通过。无业务/模型请求，不重跑业务测试；git diff --check检查本批文档，四个历史脏文件保持。
+
+## 同日追加：作者提供bgm.mp3
+
+用户指定`C:/Users/hjn/Videos/bgm.mp3`，本轮只将指定文件同步到原60fps无声成片，不重新选曲。原MP3为192kbps、44.1kHz双声道，估算111.96秒，与111.90秒成片接近，无需循环或变速。来源文件SHA256 `377a47b0a1bccd3a10f8f05372a229be7ad32fc77ab6641395448f443c78e134`，处理前后不变；不沿用旧曲目的作者或许可信息。
+
+执行`agent/.venv/Scripts/python.exe tmp/film-edit-v4-user-bgm-20261031/mix.py`：取前111.90秒，0.6秒淡入、109.4秒起2.5秒淡出，双遍loudnorm目标-19 LUFS/峰值上限-2 dBTP，AAC192kbps/48kHz双声道，视频`-c:v copy`、保留章节及faststart。输出`tmp/film-edit-v4-user-bgm-20261031/resolveflow-user-bgm-2560x1600-60fps.mp4`，副本Videos目录“ResolveFlow-自选配乐-v4-60fps.mp4”。
+
+- 111.90秒、2560×1600、60fps、6714帧，15,323,610字节；成片SHA256 `8f35fd19991336c95ae608b9b7ff1dc7b49b2968155747922afff4d0f3350a31`，交付副本相同。
+- 最终音视频完整解码退出0，AAC参数读回正确，实测-19.01 LUFS/真峰值-7.99 dBTP，无削波。视频流SHA256仍`55c01df746700947618beb203f3074d12ec0cba4a98d9da4337fb1d6ec994880`，与原无声版一致；7原片SHA256均不变。
+- 审片页切换为作者自选配乐，保留两无声入口；HTTP主页200、起始及中段范围206、字节匹配和moov头部通过。未浏览器实播或人工听感验收。
+- mix.py、日志及verification.json留忽略目录；不提交原音乐或视频，不修改正式README发布入口。无业务/模型请求，不重复业务测试。四历史脏文件保持，本批文档diff检查通过。
