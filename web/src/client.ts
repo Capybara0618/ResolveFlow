@@ -210,7 +210,12 @@ export async function apiRequest<T>(path: string, token: string | null, init: Re
   const headers = new Headers(init.headers)
   headers.set('Accept', 'application/json')
   if (token) headers.set('Authorization', `Bearer ${token}`)
-  const response = await fetch(path, { ...init, headers })
+  let response: Response
+  try { response = await fetch(path, { ...init, headers }) }
+  catch (cause) {
+    if (cause instanceof TypeError) throw new TypeError('暂时无法连接，请检查网络后重试。', { cause })
+    throw cause
+  }
   const body: unknown = await response.json().catch(() => null)
   if (!response.ok) {
     const error = body && typeof body === 'object' ? body as Record<string, unknown> : {}

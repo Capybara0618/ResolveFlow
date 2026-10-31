@@ -148,3 +148,16 @@
 - 最终商品资料1280和390实机：按钮横排、关闭去重、固定footer可见、无横向溢出；保存未实际提交，不改原商品/政策。截图product-media-final-1280.jpg、product-media-final-390.jpg。
 - 商家商品8→2、编辑取消/刷新保留第2页、焦点还给编辑按钮；交易订单第2页详情返回原页；评价未发布草稿关闭重开保留；咨询标题为真实买家/双方只显示头像，1440与390无横溢；退款规则完整保留1版6条原文。未发布测试回复，没有更改账号权限/密码。
 - 尺寸控制最初只作用于当前标签页，误将一张1280截图命名1440；不以该文件名证明尺寸。后续单标签页尺寸以实际innerWidth/innerHeight核对，当前还有平台、买家1440/1920/390及读取失败恢复待验。中断前未落盘的临时检查数组不冒充独立机器报告；可复核截图/80样本和正式业务结果保持。
+
+
+## M8 平台读取失败恢复与中文连接提示（2026-10-31）
+
+平台真实登录后，买家账号8→7替换为第2页，普通刷新保留第2页；搜索buyer10由服务端返回唯一账号并重开第1页。仅当前验收标签页用CDP断网读取，页面保留第2页与7条原数据，恢复网络后刷新成功。没有更改账号启停、密码或创建新账号。
+
+断网初始直接显示浏览器TypeError消息“Failed to fetch”；这是公共apiRequest未转换网络异常，影响多个模块。先新增回归确认新预期失败，再在fetch边界把TypeError转换为中文“暂时无法连接，请检查网络后重试。”，保留TypeError类型及原cause，不伪装成ApiError服务端明确拒绝、不重试写入。原AbortError继续原样抛出，付款/购物车/评价未知处理仍按既有路径。最后实机再次断网，已显示中文提示且保留原页；随后恢复网络、刷新与搜索buyer10均成功。截图tmp/modern-commerce-live-20261030/platform-read-failure-before.jpg和platform-read-failure-final.jpg。
+
+- `pnpm --dir web test -- tests/client.spec.ts`新用例先红，日志tmp/modern-commerce-network-red.log；随后指定5路径实际匹配4文件45项过（platform-workspace.spec.ts不存在，不计运行）。测试新加断言初次build因error unknown类型失败，补显式TypeError缩窄后最终build通过：tmp/modern-commerce-network-tests.log、modern-commerce-network-build.log（失败）、modern-commerce-network-final-build.log。
+- 最终全量前端46文件381项通过：tmp/modern-commerce-m8-network-full-tests.log；不与此前380/19/45相加。
+- 实际工单调查接口读回COMPLETED、deepseek/deepseek-flash，run_id=7ced3c4f-79bd-518f-ba88-dfe8a9b31a29；咨询两个live run的7请求另计，未取得本工单模型请求数不作总次数主张。无本段新增模型调用，证据live-refund-summary.json。
+
+本段操作后浏览器再次返回“Local browser use is disabled in Work settings”。网络模拟已在中断前明确恢复online；临时视口在最后一次可用时为1440×900，工具关闭后无法reset，后续恢复先清除覆盖。M8仍待：平台客服运行页/创建表单取消、买家评价与回复实际展示、买家1440/1920/390布局和最终控制台；商家窄屏截图无横溢，但不声称整个项目的移动端逐页验收。不得以本轮闭环成功代替这些未运行项。服务保留，README素材未更新。

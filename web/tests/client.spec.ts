@@ -54,3 +54,14 @@ describe('authenticated API client', () => {
     } satisfies Partial<ApiError>)
   })
 })
+
+it('explains connection failure without classifying an unknown write as a server refusal', async () => {
+  const cause = new TypeError('Failed to fetch')
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(cause))
+  const error = await apiRequest('/api/v1/cases', 'token', { method: 'POST' }).catch(e => e)
+  expect(error).toBeInstanceOf(TypeError)
+  expect(error).not.toBeInstanceOf(ApiError)
+  if (!(error instanceof TypeError)) throw new Error('expected connection failure')
+  expect(error.message).toContain('暂时无法连接')
+  expect(error.cause).toBe(cause)
+})
