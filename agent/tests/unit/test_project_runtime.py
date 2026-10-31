@@ -12,6 +12,13 @@ import project_runtime as project
 import reviewer_demo as runtime
 
 
+@pytest.fixture(autouse=True)
+def no_machine_recording_selection(tmp_path, monkeypatch):
+    # Lifecycle tests must not depend on a user's selected filming environment.
+    import recording_stage
+    monkeypatch.setattr(recording_stage, "ACTIVE", tmp_path / "no-active-recording.json")
+
+
 def application(tmp_path):
     (tmp_path / "foundation.json").write_text(
         json.dumps(

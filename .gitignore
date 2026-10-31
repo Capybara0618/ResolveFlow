@@ -93,6 +93,8 @@ tmp/
 !/scripts/policy_search_eval.py
 !/scripts/project.ps1
 !/scripts/project_runtime.py
+!/scripts/recording_stage.py
+!/scripts/recording_reviews.py
 !/scripts/replay_strict.ps1
 !/scripts/reviewer_demo.py
 !/scripts/verify.ps1

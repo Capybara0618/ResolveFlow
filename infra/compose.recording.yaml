@@ -1,0 +1,17 @@
+# Recording uses the same pinned services and ports, with separate containers/volumes.
+# Stop the acceptance applications/containers before selecting this stage.
+name: resolveflow-recording-v1
+services:
+  mysql:
+    extends: { file: compose.reviewer-demo.yaml, service: mysql }
+  postgres:
+    extends: { file: compose.reviewer-demo.yaml, service: postgres }
+  redis:
+    extends: { file: compose.reviewer-demo.yaml, service: redis }
+  rocketmq-namesrv:
+    extends: { file: compose.reviewer-demo.yaml, service: rocketmq-namesrv }
+  rocketmq-broker:
+    extends: { file: compose.reviewer-demo.yaml, service: rocketmq-broker }
+volumes:
+  demo-mysql-data:
+  demo-postgres-data:

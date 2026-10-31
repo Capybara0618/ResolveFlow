@@ -43,6 +43,9 @@ class ProjectLog(runtime.Log):
 
 
 def settings() -> runtime.Settings:
+    import recording_stage
+    if recording_stage.ACTIVE.is_file():
+        return recording_stage.activate()
     current = runtime.settings_from_environ()
     if (
         current.project != runtime.PROJECT
@@ -117,7 +120,11 @@ def start(
             "前后端依赖与 Java 服务已运行，复用现有进程", True, current.gateway_url
         )
     else:
-        runtime.command_prepare(current, log, build=build, preserve_ready_index=True)
+        if current.environment == "recording-stage-v1":
+            # Recording was copied explicitly. Do not run historical scenario/witness setup.
+            runtime.start_stage(current, log, build=build, preserve_ready_index=True)
+        else:
+            runtime.command_prepare(current, log, build=build, preserve_ready_index=True)
     if not policies_ready(current):
         raise runtime.DemoRefused(
             "基础政策与精确版本索引尚未就绪，不能将启动报告为完成"

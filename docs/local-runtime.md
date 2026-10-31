@@ -54,6 +54,31 @@ $env:RESOLVEFLOW_MODEL_API_KEY = '你的模型密钥'
 
 PostgreSQL 使用 `127.0.0.1:55533`，避开 Windows 保留的旧端口55433；普通启动沿用原 `demo-postgres-data` 卷，现有记录与政策索引保持。
 
+## 独立拍摄数据
+
+2026-10-31已准备 `resolveflow-recording-v1`：独立MySQL、PostgreSQL、Redis、RocketMQ、图片目录及退款provider文件，沿用相同应用与端口。选择记录在忽略文件 `tmp/active-recording-stage.json`；存在时，正常start/status/stop以及物流模拟器均使用拍摄环境。两套环境轮流占用这些端口，原验收卷完整保留。
+
+拍摄账号为 `display01`（卡皮巴拉），商家admin01–admin03、平台platform，口令按作者指定为123456。初始买家购物车/订单/咨询/售后/消息为空；商家仅三笔已签收背景订单，商品有三条评价、两条回复；平台没有客服运行记录。正常启停保留拍摄中新增的订单，不自动重置。
+
+```powershell
+.\status.ps1
+.\start.ps1 -SkipBuild -NoBrowser
+# 仅在第一笔拍摄交易之前检查初始状态；已经拍摄后不再要求零订单：
+agent/.venv/Scripts/python.exe scripts/recording_reviews.py --verify
+```
+
+需要切回原验收数据时：
+
+```powershell
+agent/.venv/Scripts/python.exe scripts/recording_stage.py select-original
+.\start.ps1 -SkipBuild -NoBrowser
+# 再切回现有拍摄数据，保留拍摄进度：
+agent/.venv/Scripts/python.exe scripts/recording_stage.py select-recording
+.\start.ps1 -SkipBuild -NoBrowser
+```
+
+首次准备另有显式 `recording_stage.py prepare` 与 `recording_reviews.py`，本机已经完成，不重复运行。初始化仅复制结构、目录、身份、默认地址、图片及精确政策索引；背景订单和评价由正常业务接口生成。不使用旧reset命令清理拍摄数据，不在原数据库删除历史。准备中断会保留目录并拒绝覆盖，需先检查错误，不以重建卷处理。
+
 ## 体验
 
 本机初始演示口令123456：买家buyer01–buyer10、商家admin01–admin03、平台platform。

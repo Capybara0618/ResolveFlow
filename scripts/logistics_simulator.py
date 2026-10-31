@@ -49,7 +49,8 @@ def sql_text(value: str | None) -> str:
 
 class LocalMysql:
     def __init__(self) -> None:
-        settings = demo.settings_from_environ()
+        import project_runtime
+        settings = project_runtime.settings()
         demo.guard(settings)
         self.container = demo.live_container("mysql", settings)
 
