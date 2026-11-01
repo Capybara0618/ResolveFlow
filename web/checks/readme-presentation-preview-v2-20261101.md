@@ -32,3 +32,14 @@
 - 二倍PNG导出用于版式可移植性。它们及审核媒体均留忽略目录，尚未放入正式README或对公网发布。
 
 GitHub最终视频接入将采用其上传附件生成的媒体地址；本次审核播放器指向现有文件，不把本稿当作已验证的GitHub线上播放器。[GitHub官方视频说明](https://github.blog/changelog/2021-05-13-video-uploads-now-generally-available/)及[附件文档](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files)已核对；自定义页面CSS不是正式README的依赖。正式接入及其实际渲染待作者审核后执行。
+
+## 同日调整：三张大图与25fps动图
+
+作者要求三端体验直接展示三张图片、图下标角色，并希望提高动图帧率。本轮按一张一行的完整大图处理：图片与图注分离，取消三列小卡片；只有“买家/商家/平台”居中置于各图下方，无额外描述。三张图均保持16:10原图比例，点击仍可查看原图。`#gallery`可直接定位。
+
+运行`agent/.venv/Scripts/python.exe tmp/film-edit-v1-20261031/readme-preview-v2/build-gif-25fps.py`，从原生60fps无声成片重新取同四段（49–51、58–65、74–80、89–94秒），以25fps采样500帧，不对旧8fps GIF重复帧升帧。复用相同内容的全局调色板，逐帧RGB量化；Pillow合并完全相同的静止帧，最终421有效帧、最短40ms、总20秒，960×600、1,925,170字节。旧8fps文件保留，新的`assets/experience-25fps.gif`成为预览默认；源码/日志/gif-25fps-verification.json与四个原尺寸检查帧留同目录。
+
+- GIF SHA256 `cd85005f1d2db5032f601da3b8feba2804647716ffda5989d8496eb808d3d251`；60fps输入SHA256前后仍为`f8daa55ead8a9724fa81bfeed25989e98d0510c6fd0985ae1954af6846a51430`，自选配乐定稿视频不变。
+- 运行更新后的verify-preview.py：桌面1160/手机430无横溢、图片加载正常；三张图宽分别958/400px，接近各自正文宽960/402px，保持1.6宽高比，角色标签均位于图下且UTF-8内容核实一致。截图已查看。首次控制台打印中文编码不正确，验证JSON和页面文字正常，打印改UTF-8；未修改角色内容。
+- GIF逐帧读取421帧、累计20000ms、最短40ms，实际页面加载通过；最终预览和新GIF HTTP200。视频在静音条件下继续实播并成功跳到74秒，原完整视频入口保持。
+- 同步更新审核稿README.expected.md：三张原图独立展示、图下角色，不再引用三列合成图；动图改为25fps文件。正式README尚未替换，仍等待作者审核。
