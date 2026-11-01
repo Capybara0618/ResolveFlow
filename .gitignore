@@ -71,6 +71,16 @@ tmp/
 !/docs/assets/readme/nav-guide.svg
 !/docs/assets/readme/nav-design.svg
 !/docs/assets/readme/nav-eval.svg
+!/docs/assets/readme/readme-hero.png
+!/docs/assets/readme/walkthrough-25fps.gif
+!/docs/assets/readme/buyer.png
+!/docs/assets/readme/merchant.png
+!/docs/assets/readme/platform.png
+!/docs/assets/readme/tech-stack.png
+!/docs/assets/readme/tech-stack-mobile.png
+!/docs/assets/readme/architecture-rounded.png
+!/docs/assets/readme/core-design.png
+!/docs/assets/readme/core-design-mobile.png
 /scripts/*
 !/scripts/agent_eval.py
 !/scripts/c11_core_smoke.py
