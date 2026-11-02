@@ -8,7 +8,12 @@ import java.util.List;
 public final class IdentityAccessWire {
     private IdentityAccessWire() {}
 
-    public record Resolve(String user_authorization, ShippingWire.Selection shipping) {}
+    public record Resolve(String user_authorization, ShippingWire.Selection shipping) {
+        @Override
+        public String toString() {
+            return "Resolve[redacted]";
+        }
+    }
 
     public record Binding(
             @JsonProperty("merchant_id") String merchantId,

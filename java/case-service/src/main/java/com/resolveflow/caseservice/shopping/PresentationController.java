@@ -53,16 +53,6 @@ public class PresentationController {
                 != 1) throw new CommerceShoppingClient.Refused(404, "NOT_FOUND", "本店图片不存在");
     }
 
-    @GetMapping("/api/v1/shop/products/{id}/presentation")
-    public Product product(@PathVariable String id) {
-        return commerce.presentationProduct(id, null);
-    }
-
-    @GetMapping("/api/v1/shop/stores/{id}/presentation")
-    public Store store(@PathVariable String id) {
-        return commerce.presentationStore(id, false);
-    }
-
     @GetMapping("/api/v1/merchant/products/{id}/presentation")
     public Product managed(
             @RequestHeader(name = "Authorization", required = false) String auth, @PathVariable String id) {

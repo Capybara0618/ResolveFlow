@@ -12,6 +12,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
 
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(
+        name = "resolveflow.compat.commerce-facade-enabled",
+        havingValue = "true")
 @Component
 public class ReviewWriteLimiter {
     public enum Action {

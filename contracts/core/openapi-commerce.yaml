@@ -3993,6 +3993,17 @@ components:
         maximum: 100
         default: 20
   responses:
+    InvalidArgument:
+      description: A query parameter or header the route cannot use (400)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: INVALID_ARGUMENT
+            message: cursor is not a page this service issued
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     Unauthenticated:
       description: Missing or invalid user token (401)
       content:

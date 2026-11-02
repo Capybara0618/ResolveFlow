@@ -42,6 +42,9 @@ mybatis:
     arg-name-based-constructor-auto-mapping: true
 
 resolveflow:
+  compat:
+    # Historical facade tests may opt in; Gateway routes trading requests directly to Commerce.
+    commerce-facade-enabled: false
   user-media-dir: ${RESOLVEFLOW_USER_MEDIA_DIR:tmp/user-media}
   product-reviews:
     rate-limit-enabled: ${PRODUCT_REVIEW_RATE_LIMIT_ENABLED:false}

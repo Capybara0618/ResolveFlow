@@ -1,14 +1,14 @@
-# 系统架构 · v1.3 AgentScope目标版
+# 系统架构 · v1.3
 
-按[核心范围](core-scope.md)保留v1.2部署与业务；仅Agent框架按迁移规格（本地历史资料）替换，其他T00实测版本不重选。本页是目标架构，不代表AgentScope代码已实现。
+按[核心范围](core-scope.md)保留三个Java进程与Python Agent；唯一生产循环由AgentScope驱动。2026-11-02按[服务边界调整](service-boundary-plan.md)拆分商城与售后公共入口，现有依赖锁与退款约束保持。实际验证见[本批报告](../web/checks/service-boundary-20261102.md)，当前进度只看任务账本。
 
 ## 1. 部署单元
 
 | 单元 | 所有数据/责任 |
 | --- | --- |
-| gateway :8080 | 入口路由、JWT验证、入口限流；无业务库 |
-| case-service :8083 | case_db：工单、材料、政策、方案、审批、授权、进度、Java→Python任务outbox |
-| commerce-service :8081 | commerce_db：订单、支付账、退款操作/预留、模拟物流快照、退款provider适配 |
+| gateway :8080 | 按方法/路径路由、清除客户端伪造身份头；无业务库，业务服务拥有认证/资源授权 |
+| case-service :8083 | case_db：工单、材料、政策、方案、审批、授权、进度、Java→Python任务outbox；暂部署账户与媒体能力 |
+| commerce-service :8081 | commerce_db：商品、购物车、结算、订单、评价、支付账、退款操作/预留、模拟物流、退款provider适配 |
 | agent-service :8090 | AgentScope单Agent；agent_db：run、领域运行快照、模型/工具调用账、上下文、政策索引 |
 | provider-stub | 独立持久模拟退款通道，用于丢响应/重启实验；非核心业务微服务 |
 
@@ -18,7 +18,8 @@ fulfillment-service原骨架保留但不在核心启动图中。物流模块是�
 
 ## 2. 调用
 
-- 用户经gateway访问Case；订单公共视图由Case调用Commerce，不跨库查询。
+- 用户经Gateway按业务直达Commerce或Case。Commerce提供购物/交易/评价/商家商品管理与订单公共接口，自行按资源归属查询；Case提供咨询/售后/账户及媒体接口，按需查询Commerce事实，不跨库读取。
+- Commerce通过独立service JWT与identity:resolve scope向暂在Case的账户模块复核用户会话、身份版本、可信绑定及可选本人地址；实时检查失败不回退离线JWT。Case停机时公共目录可读，受保护交易503。旧Case商城门面默认关闭，旧测试显式开启兼容开关。
 - Java内部保留OpenFeign/HTTP受控调用；默认核心profile通过显式地址/Compose DNS寻址。Nacos可选，不是门槛。
 - Case→Agent用持久HTTP outbox提交，PG落库后才返回202。
 - Agent通过官方MCP SDK stdio适配器访问受scope保护的Java读接口，本地调用政策检索。

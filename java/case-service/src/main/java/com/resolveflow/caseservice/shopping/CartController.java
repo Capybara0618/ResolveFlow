@@ -8,6 +8,9 @@ import com.resolveflow.shared.shopping.CartWire.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(
+        name = "resolveflow.compat.commerce-facade-enabled",
+        havingValue = "true")
 @RestController
 @RequestMapping("/api/v1/shop/cart")
 public class CartController {

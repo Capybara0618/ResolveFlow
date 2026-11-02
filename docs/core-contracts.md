@@ -24,6 +24,8 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 
 ## 3. 核心路由
 
+2026-11-02 服务边界调整：商品、购物车、结算、订单、履约、评价与商家商品管理的公共入口归 Commerce，Gateway 按方法/路径直达。下表及 Case OpenAPI 中同名旧商城声明保留为兼容资产，默认 Case 不再装配这些控制器；旧测试显式使用 `resolveflow.compat.commerce-facade-enabled=true`。账户/咨询/售后，以及尚在 Case 存储的图片与依赖媒体归属的展示资料写入口保持 Case。Commerce 的内部接口仍要求服务凭证，公共受保护接口使用用户凭证并实时复核账户。见[边界方案](service-boundary-plan.md)。
+
 用户角色来自Case持久账号。REVIEWER/MERCHANT_ADMIN/原OPERATOR读取本商家工单；人工写入必须是当前负责人并携带原业务及协作版本，管理员须显式接管。CUSTOMER分旧商家客户和平台买家两种互斥身份，后者只携带buyer_id，经可信(merchant,customer)映射汇总本人订单/申请及限定实际资源的售后操作；客户不能修改映射、扩大工作人员或Agent范围。仅MERCHANT_ADMIN可维护本商家账号，平台买家不属于商家管理员维护范围。内部订单keyset由共享v2游标保留微秒，兼容旧毫秒编码；平台外层游标绑定买家和启用归属。见平台买家（本地历史资料）、持久身份（本地历史资料）、协作（本地历史资料）及人员管理（本地历史资料）。
 
 | 所属 | 方法与路由 | 行为 |

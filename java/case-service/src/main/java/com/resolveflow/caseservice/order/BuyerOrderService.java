@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 
 /** Bounded per-store reads followed by a global keyset merge. An outage fails the whole page. */
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(
+        name = "resolveflow.compat.commerce-facade-enabled",
+        havingValue = "true")
 @Service
 public class BuyerOrderService {
     private final BuyerScopes scopes;

@@ -26,6 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
  * 403: whether another tenant's order exists is not something this surface discloses
  * (docs/core-contracts.md:27).
  */
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(
+        name = "resolveflow.compat.commerce-facade-enabled",
+        havingValue = "true")
 @RestController
 @RequestMapping("/api/v1/orders")
 public class OrderController {

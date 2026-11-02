@@ -25,7 +25,9 @@ import org.testcontainers.mysql.MySQLContainer;
  * application context now genuinely needs case_db: a datasource that cannot connect is a startup
  * failure, not something to paper over in a test.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "resolveflow.compat.commerce-facade-enabled=true")
 public abstract class CaseDatabaseTest {
 
     @Autowired

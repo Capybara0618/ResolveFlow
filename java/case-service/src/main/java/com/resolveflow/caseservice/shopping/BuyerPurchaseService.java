@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 
 /** Merge complete scoped shard pages; outages never masquerade as a partial personal list. */
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(
+        name = "resolveflow.compat.commerce-facade-enabled",
+        havingValue = "true")
 @Service
 public class BuyerPurchaseService {
     private final BuyerScopes scopes;

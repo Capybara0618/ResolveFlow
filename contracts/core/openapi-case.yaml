@@ -1,5 +1,9 @@
 openapi: 3.1.0
 info:
+  x-commerce-facade-compatibility: >-
+    docs/service-boundary-plan.md: public trading declarations retained for explicit compatibility
+    only. Normal Case runtime disables commerce facades; Gateway routes public trading to Commerce.
+    Account/media/consultation/aftersale and internal identity resolution remain active in Case.
   title: ResolveFlow case-service core API
   version: core-v1.2
   x-core-profile: core-v1.2

@@ -9,6 +9,9 @@ import com.resolveflow.shared.shopping.FulfillmentWire.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(
+        name = "resolveflow.compat.commerce-facade-enabled",
+        havingValue = "true")
 @RestController
 public class MerchantTradeController {
     private final RequestPrincipalResolver principals;

@@ -68,3 +68,38 @@
 - 日志 `tmp/service-boundary-orders-red.log`、`orders-green.log`、`orders-final.log`、`orders-contract-red.log` 与 `orders-contracts.log`，均保留先红和实际通过。未改已有数据库、旧评测或用户数据。
 
 本步仅切换3个订单公共读取操作；Case内部订单客户端继续用于售后事实复核，属于必要领域协作。旧公开门面的生产停用与集中验收另行记录。
+
+## 旧门面退出默认运行与集中验收
+
+Case 的7个已迁移商城/订单控制器及3个仅供其使用的聚合/限流组件以 `resolveflow.compat.commerce-facade-enabled` 显式兼容开关装配，默认关闭。公共展示资料两个纯转发方法移入同样默认关闭的 `LegacyPublicPresentationController`；媒体与商家展示保存仍保留原控制器。旧测试基类显式启用兼容，不删除旧测试或断言。新增默认关闭测试明确断言所有旧控制器不存在、对应HTTP404，必要的账户、售后订单客户端与媒体控制器仍存在。
+
+身份请求记录增加 `toString` 脱敏，避免记录类的默认字符串输出内嵌用户凭证。旧门面默认关闭测试先红，再与旧兼容HTTP、身份接口运行：Case34/共享脱敏1通过。新增展示拆分再运行默认关闭及原媒体HTTP组2项通过，生产默认关闭与历史兼容都保留。
+
+### 三进程真实HTTP验收
+
+`scripts/verify_service_boundaries.py` 启动3个真实JVM、带唯一label的临时MySQL/Redis，Case/Commerce分别使用独立库及最低权限账号；不启动Agent或模型/MQ worker，不调用现有项目服务。凭证仅在内存，运行目录在忽略tmp。脚本每次操作和停止容器前核对本轮label，结束停止本人启动的JVM与临时容器，未操作现有数据卷。
+
+实际命令：设置JDK21后 `java/mvnw.cmd -f java/pom.xml -B -pl gateway,case-service,commerce-service -am -DskipTests package` 构建成功；`agent/.venv/Scripts/python.exe scripts/verify_service_boundaries.py` 最终8组全部通过，证据 `tmp/service-boundary-live/95e1e45beee14d6bae4f8068bfdd59ea/result.json`。断言包括：
+
+- 默认Case旧目录404、Commerce与Gateway目录200，Gateway不公开internal路径。
+- 正式注册/登录、本人地址、草稿原键复用、付款原键复用，仅新增一笔订单。
+- 本人订单/订单行可读，其他买家及其他商家404，买家访问商家交易403；Case客户申请/咨询读取继续可用。
+- 正式商家模拟发货与买家履约/原收货快照可读。
+- 临时数据库内停用账号后受保护交易401；正式找回密码后旧token401，新登录可读原订单。
+- 只停止本轮Case：Gateway商品及展示资料200，持原token的购物车503，不回退离线认证。
+- 重启本轮Case：原当前会话与订单仍可读，未重复发布订单；最终本轮进程/容器均停止。
+
+首次独立运行在订单数断言失败：Flyway自带历史种子订单，脚本误把总数当本轮新增数。保留失败目录 `tmp/service-boundary-live/2e1a27c29e9c41a3b1891e37709dd108`，改为本轮前后增量严格等于1；未改应用、删除种子或清库。
+
+### 售后与契约收尾
+
+- `-pl case-service,commerce-service -am -Dtest=AuthorizationConsumptionApiTest,ReviewDecisionApiTest,AgentCallbackApiTest,SupportRefundApiTest,RefundDispatchApiTest,MultiLineRefundDatabaseTest -Dsurefire.failIfNoSpecifiedTests=false test`：Commerce15、Case89过，无跳过；覆盖授权消费/审批、迟到回调、聊天退款与金额/多行退款。日志 `tmp/service-boundary-aftercare-regression.log`。未调用真实模型，也不是新跑完整Agent/MQ/provider链。
+- 核心契约扩大检查发现本次迁移公共订单时漏带 `InvalidArgument` 响应组件；已补齐，所有Commerce文档内部引用检查通过。修补脚本最初将组件插到操作内，扩大检查继续失败后按完整行定位修正；两次错误保留，不将局部YAML可解析视为语义正确。
+- 最终核心路由＋新增订单契约检查78过/7失败，失败集合与迁移前独立基线完全相同；无新失败。旧7项仍在，本批不称全部契约全绿。
+- README与系统设计图改为Gateway并列路由Commerce/Case，明确暂部署于Case的账户模块与媒体边界；SVG源和2560px PNG同步、渲染审看，保留退款消息与Agent职责。
+
+未运行浏览器完整点击、真实模型问答或新付费评测；前端未改接口URL。账户及媒体仍与Case同进程，未宣称全面故障隔离或物理身份服务拆分。
+
+最后展示兼容控制器拆分后重新构建三个jar（`tmp/service-boundary-package-final.log`），同一驱动对最新二进制再次8组通过，最终证据 `tmp/service-boundary-live/461a4cbad03e4d56b947a6f971474fe3/result.json`，日志 `tmp/service-boundary-live-current.log`；随后核对无本轮临时容器、无三Java业务进程残留。中间两次成功验证分别保留，不累加成16个独立场景。
+
+集中订单/购物/目录/身份/评价/平台买家/驱动契约72过；新增脚本与测试Ruff通过。`pnpm.cmd --dir web build` 含类型检查与Vite构建通过。SVG与PNG第二次审看修正箭头穿过文字，README与系统设计同步；未改变页面或依赖。工作区只保留开工前四个历史改动，本批精确提交排除它们。

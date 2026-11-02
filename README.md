@@ -33,7 +33,7 @@ https://github.com/user-attachments/assets/34304069-e2da-4552-ac25-2443e1b759d3
 
 ## 微服务架构
 
-![Gateway 统一接入，Case 管理工单与审批，Commerce 管理订单与退款，Python Agent 查询事实与政策并生成建议；HTTP 与 RocketMQ 衔接服务。](docs/assets/readme/architecture-rounded.png)
+![Gateway 按业务分流到 Commerce 与 Case；Commerce 管购物交易与退款，Case 管咨询工单与审批，账户模块暂部署于 Case；Python Agent 调查建议，HTTP 与 RocketMQ 衔接服务。](docs/assets/readme/architecture-rounded.png)
 
 ## 核心设计
 
