@@ -1,0 +1,34 @@
+Use case: infographic-diagram. Create a premium final Chinese software architecture illustration for ResolveFlow, using the provided image as the STYLE REFERENCE ONLY. The reference is the old blue 3D architecture graphic that the user strongly approves; preserve that illustration quality, not its obsolete topology. This is a NEW updated composition, not a flat box diagram.
+
+ART DIRECTION: Match the reference's exquisite blue-white softly dimensional clay/glass illustrations, pale ice-blue airy background, navy crisp typography, floating rounded translucent platforms, fine layered shadows, luminous cobalt flow arrows, teal event envelopes, restrained mint foliage, tiny faded commerce/city islands at far outer corners. Highly polished modern editorial 3D infographic, visually lively with subtle flow trails and floating detail, very clear hierarchy. Spacious landscape, about 1.6:1 aspect ratio, high resolution, all text large and correctly spelled. Beautiful bespoke isometric storefront with parcels for Commerce; a document server plus a teal approval shield for Case; an arched portal for Gateway; a charming intelligent robot with magnifier and documents for Python Agent. NOT flat SVG boxes, NOT generic dashboard UI, NOT wireframes. Keep decoration subordinate to the actual service topology.
+
+TITLE at top, exact: "商城与售后，并列协作"
+Subtitle exact: "Gateway 按业务分流，Agent 调查建议，Java 掌握权限与资金"
+
+COMPOSITION:
+Upper center: a compact Vue 3 floating laptop platform labeled "Vue 3" and "买家 · 商家 · 平台".
+Directly below: a compact Gateway portal platform labeled "Gateway" and "API 路由".
+One blue arrow Vue 3 -> Gateway.
+From Gateway draw a VERY CLEAR BLUE Y-SPLIT: one branch goes directly to Commerce at middle-left, the other branch directly to Case at middle-right. Commerce and Case must be equally important, similar-size platforms on EXACTLY THE SAME HORIZONTAL LEVEL, no service between gateway and commerce. Label Commerce branch "购物 · 交易", Case branch "咨询 · 售后".
+Commerce middle-left at about 26% width / 52% height; Case middle-right at about 73% width / 52% height.
+Commerce icon storefront + parcel/order. Exact labels:
+"Commerce"
+"商品 · 订单 · 评价 · 退款"
+small database row with cylinder: "MySQL · commerce_db".
+Case icon documents + shield. Exact labels:
+"Case"
+"咨询 · 工单 · 审批授权"
+small tidy inset badge INSIDE the Case platform, NOT a separate service: "账户模块 · 会话 / 主体绑定 / 地址"
+database row: "MySQL · case_db".
+Below the two platforms in their central whitespace, one separate blue bidirectional curved horizontal connector Commerce <-> Case, labeled "HTTP · 订单事实 / 身份复核". This means Case reads authoritative Commerce facts and Commerce consults the account module temporarily hosted in Case. Do not draw Case as Commerce's public API parent.
+
+Lower portion: a compact RocketMQ teal-envelope platform around 28% width / 79% height, and a Python Agent robot platform around 76% width / 79% height.
+RocketMQ exact labels: "RocketMQ", "退款命令 / 结果", "Outbox / Inbox".
+GREEN connectors Case <-> RocketMQ and RocketMQ <-> Commerce. Clearly separate this event route from the blue HTTP connector. Route the Case-RocketMQ connector through reserved whitespace, no line crosses any service title or database label.
+Python Agent exact labels: "Python Agent", "AgentScope · Harness · RAG", database row "PostgreSQL / pgvector".
+Blue bidirectional connector Case <-> Python Agent labeled "调查 / 事实 / 回调". Python Agent is a separate service, no Gateway-to-Agent arrow, no Agent payment/approval authority.
+
+Bottom full-width subtle shared infrastructure platform, like the reference: Redis red stacked icon and exact text "Redis · 缓存 / 限流 / 热点协调".
+Very small but readable final line: "账户与媒体暂部署在 Case · 各服务独立持有业务数据"
+
+EXACT TOPOLOGY constraints: The key of this redesigned image is Gateway branches to BOTH Commerce AND Case in parallel. Case-Commerce HTTP and MQ are two distinct types of collaboration, blue and green. No complete flow forced through Case. No new services, no inventory/fulfillment service, no external payment claims. Four backend service platforms exactly: Gateway, Commerce, Case, Python Agent; Vue3, RocketMQ and Redis are supporting nodes. All arrows must be visible and unambiguous with clean spacing; never cross through type or icons. Include only the specified short labels, no paragraphs, no tiny endpoint strings, no fake metrics, no extra legend, no watermarks or browser chrome. Preserve the original's premium illustrated blue 3D quality while upgrading structure and balanced composition.

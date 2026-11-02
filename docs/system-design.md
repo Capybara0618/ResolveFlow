@@ -2,7 +2,7 @@
 
 多商家商城与智能售后个人项目，支付、发货和退款均为本地模拟。
 
-![四服务架构与通信边界](assets/readme/architecture.svg)
+![Gateway并列分流Commerce与Case，Agent调查建议，HTTP与MQ连接业务协作](assets/readme/architecture-rounded.png)
 
 Gateway 将商品、购物车、结算付款、订单、履约、评价及商家商品管理请求直接路由到 Commerce；账户、咨询与售后请求进入 Case。Commerce 通过受限身份协议向账户模块实时复核账号、会话版本与可信绑定，再独立校验交易资源归属。账户模块暂部署在 Case，因此受保护交易仍依赖该进程的可用性；公共目录无需调用账户模块。商品媒体文件及其归属暂在 Case，图片上传/读取和依赖图片归属的商家展示资料写入保留原入口。旧 Case 商城门面默认关闭，仅显式兼容测试启用。
 
