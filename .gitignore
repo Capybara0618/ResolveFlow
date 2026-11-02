@@ -254,6 +254,7 @@ tmp/
 # Curated catalog maintenance and regression checks
 !/scripts/catalog_collection.py
 !/scripts/jev_check.py
+!/scripts/jev_compare.py
 !/scripts/configure_showcase.py
 !/agent/tests/unit/test_configure_showcase.py
 !/agent/tests/unit/test_catalog_collection.py
