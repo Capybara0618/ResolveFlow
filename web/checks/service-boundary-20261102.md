@@ -58,3 +58,13 @@
 - 直接购物/商家契约、原履约/基础管理与运行驱动69过；新Ruff、定向格式、diff-check通过。原评价契约专题纳入集中收尾。日志 `tmp/service-boundary-merchant-red.log`、`merchant-green.log`、`merchant-final.log`、`merchant-contracts.log` 均在相同前缀目录。
 
 商家展示资料写入与图片上传/读取仍在Case：实际文件与媒体归属库属于该进程，不能仅按商品URL把它切给没有文件的Commerce。普通商品管理已直连；原订单行API及旧门面默认停用仍待下一小步。
+
+## 公共订单行查询直连
+
+`PublicOrderController`/`PublicOrderReads`/`PublicOrderWire` 直接调用 Commerce 行查询，保留平台买家跨店标签、普通商家/旧商家客户范围、原分页默认值与字段可空语义；不通过账户接口代理订单。新 HTTP 场景先红，已有8场景保持；最终9场景过，覆盖订单/订单行跨买家和跨店404、商家读本店、旧客户响应不增加商家标签、跨店游标不能换买家、查询参数不能扩大客户范围。
+
+- 最终 `-pl gateway,commerce-service -am -Dtest=CoreRoutesTest,PublicShoppingApiTest,PublicOrderReadsTest,OrderLineReadServiceDatabaseTest,AftercareProductReadDatabaseTest -Dsurefire.failIfNoSpecifiedTests=false test`：Gateway39、Commerce25过，原查询/售后商品读取未退化。新归并单测验证相同微秒时间下数据库原生顺序，不能改用Java字符串重排，绑定变化拒绝旧游标。
+- 契约核对发现同名 `Cursor`/`OrderId` 在两服务含义不同：公共游标16384与内部200、订单ID路径与内部查询。新增语义对照先2红，再用 `PublicOrderCursor`/`PublicOrderId` 保留公共协议，不修改内部定义。新订单、原评价与平台买家契约14过；Ruff/定向格式/diff过。
+- 日志 `tmp/service-boundary-orders-red.log`、`orders-green.log`、`orders-final.log`、`orders-contract-red.log` 与 `orders-contracts.log`，均保留先红和实际通过。未改已有数据库、旧评测或用户数据。
+
+本步仅切换3个订单公共读取操作；Case内部订单客户端继续用于售后事实复核，属于必要领域协作。旧公开门面的生产停用与集中验收另行记录。

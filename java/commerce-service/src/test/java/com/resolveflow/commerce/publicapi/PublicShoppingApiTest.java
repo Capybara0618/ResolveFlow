@@ -469,4 +469,88 @@ class PublicShoppingApiTest extends CommerceDatabaseTest {
                 .expectStatus()
                 .isBadRequest();
     }
+
+    @Test
+    void publicOrderViewsKeepBuyerAndMerchantScopeAndBoundCursors() {
+        var one = paid();
+        String second = created("SKU-2001-CREAM", UUID.randomUUID().toString())
+                .path("draft_id")
+                .asString();
+        post(
+                        "/api/v1/shop/drafts/" + second + "/payment",
+                        buyer,
+                        UUID.randomUUID().toString(),
+                        "{}")
+                .expectStatus()
+                .isOk();
+        String line = one.path("line_id").asString(),
+                order = one.path("order_id").asString();
+        rest.get()
+                .uri("/api/v1/orders/lines/" + line)
+                .header("Authorization", token(buyer))
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$.merchant_id")
+                .isEqualTo("M-1001");
+        rest.get()
+                .uri("/api/v1/orders/" + order)
+                .header("Authorization", token("other-" + buyer))
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+        rest.get()
+                .uri("/api/v1/orders/lines/" + line)
+                .header("Authorization", merchantToken("M-1002"))
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+        rest.get()
+                .uri("/api/v1/orders/lines/" + line)
+                .header("Authorization", merchantToken("M-1001"))
+                .exchange()
+                .expectStatus()
+                .isOk();
+        var page = JSON.readTree(rest.get()
+                .uri("/api/v1/orders?limit=1&customer_id=other")
+                .header("Authorization", token(buyer))
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .returnResult()
+                .getResponseBody());
+        String cursor = page.path("page").path("next_cursor").asString();
+        assertThat(cursor).isNotBlank();
+        rest.get()
+                .uri("/api/v1/orders?limit=1&cursor=" + cursor)
+                .header("Authorization", token("other-" + buyer))
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+        var next = JSON.readTree(rest.get()
+                .uri("/api/v1/orders?limit=1&cursor=" + cursor)
+                .header("Authorization", token(buyer))
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .returnResult()
+                .getResponseBody());
+        assertThat(next.path("items").get(0).path("line_id").asString())
+                .isNotEqualTo(page.path("items").get(0).path("line_id").asString());
+        String legacy = "Bearer "
+                + TOKENS.issue(new AuthenticatedPrincipal("legacy", "M-1001", Role.CUSTOMER, buyer), 1, Instant.now());
+        rest.get()
+                .uri("/api/v1/orders/lines/" + line)
+                .header("Authorization", legacy)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$.merchant_id")
+                .doesNotExist();
+        rest.get().uri("/api/v1/orders").exchange().expectStatus().isUnauthorized();
+    }
 }

@@ -145,7 +145,10 @@ class CoreRoutesTest {
                 "/api/v1/shop/orders/lines/l-1/review",
                 "/api/v1/merchant/reviews",
                 "/api/v1/merchant/products",
-                "/api/v1/merchant/products/P-1001"
+                "/api/v1/merchant/products/P-1001",
+                "/api/v1/orders?limit=1",
+                "/api/v1/orders/o-1",
+                "/api/v1/orders/lines/l-1"
             })
     void authenticatedShoppingReadsGoToCommerce(String path) {
         webTestClient

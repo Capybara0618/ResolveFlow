@@ -161,7 +161,7 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Commerce | POST /internal/v1/merchant/orders/{order_id}/simulated-shipment | 第五批本商家/本人范围、首次模拟发货及原键版本保护 |
 | Commerce | GET /internal/v1/shop/orders/{order_id}/fulfillment | 第五批本商家/本人范围、首次模拟发货及原键版本保护 |
 
-核心不开放旧entitlements、packing、cancel-before-start或补发端点。政策由受控脚本导入校验，不做管理HTTP全集。版本按订单行**支付时间**选择：取生效起点最晚且未被显式结束的版本，因此无结束日期的版本会被后继版本取代，而历史订单不会被新政策套用；选中的版本与hash在开单事务中钉在工单上，之后导入新版本不改变已开工单。Order API的公共归属仍为Case，以复用现有协议模式；不暗改网关到数据库。
+核心不开放旧entitlements、packing、cancel-before-start或补发端点。政策由受控脚本导入校验，不做管理HTTP全集。版本按订单行**支付时间**选择：取生效起点最晚且未被显式结束的版本，因此无结束日期的版本会被后继版本取代，而历史订单不会被新政策套用；选中的版本与hash在开单事务中钉在工单上，之后导入新版本不改变已开工单。Order API当前公共入口归Commerce，Case同名契约仅保留兼容；仍由账户权威复核身份，Commerce执行资源归属查询，不跨库读取。
 
 政策路由同时发布每条规则的`chunk_id`与`content_hash`，因为方案引用的`PolicyRef`要求这两个成员：只有这条路由发布规则，run能引用的hash只能从这里抄。两者都由**已存正文派生**（chunk按规则在bundle中的位置编号，hash取bundle_id/chunk_id/title/text的规范JSON），不存库、不读导入文件，与bundle自身manifest hash同一构造；跨语言固定值在`contracts/fixtures`中冻结，Java与Python各自重算同一digest，否则引用核对不可验证。
 
@@ -201,6 +201,10 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Commerce | GET /api/v1/merchant/products/{id} | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
 | Commerce | POST /api/v1/merchant/products/{id} | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
 | Commerce | GET /api/v1/merchant/orders/{order_id}/shipping | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
+
+| Commerce | GET /api/v1/orders | docs/service-boundary-plan.md；可信绑定下本地订单行读取与跨店游标 |
+| Commerce | GET /api/v1/orders/{order_id} | docs/service-boundary-plan.md；可信绑定下本地订单行读取与跨店游标 |
+| Commerce | GET /api/v1/orders/lines/{line_id} | docs/service-boundary-plan.md；可信绑定下本地订单行读取与跨店游标 |
 
 ## 4. 运行与回调
 

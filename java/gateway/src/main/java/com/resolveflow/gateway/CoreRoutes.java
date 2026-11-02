@@ -85,6 +85,12 @@ public class CoreRoutes {
                                         "/api/v1/merchant/products",
                                         "/api/v1/merchant/products/{id}")
                                 .uri(commerceBaseUrl))
+                .route(
+                        "commerce-orders",
+                        route -> route.method(HttpMethod.GET)
+                                .and()
+                                .path("/api/v1/orders", "/api/v1/orders/{id}", "/api/v1/orders/lines/{id}")
+                                .uri(commerceBaseUrl))
                 .route("case-core-api", route -> route.path("/api/v1/**").uri(caseBaseUrl))
                 .build();
     }

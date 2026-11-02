@@ -31,6 +31,164 @@ tags:
   - name: refund
     description: Refund operation state and the reconciliation answer.
 paths:
+  /api/v1/orders:
+    get:
+      tags:
+      - orders
+      operationId: commerceDirectListOrders
+      summary: Order lines visible to the authenticated principal
+      description: 'Authority: docs/service-boundary-plan.md. Current account context
+        with local resource-scoped Commerce reads. A customer sees only their own
+        lines, a merchant only its own; the scope comes
+
+        from the token, so a crafted query cannot widen it (docs/core-contracts.md:15).
+
+        The cursor is opaque and owned by Commerce, which is the only party that can
+
+        tell whether it issued that page: this service passes it through, and a cursor
+
+        Commerce refuses is a 400 (INVALID_ARGUMENT), not an outage.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/PublicOrderCursor'
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: One page of order lines
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/OrderLinePage'
+                - $ref: '#/components/schemas/BuyerOrderLinePage'
+              examples:
+                legacy:
+                  value:
+                    items:
+                    - order_id: 00000000-0000-4000-8000-0000000000aa
+                      line_id: '7001'
+                      sku: SKU-RED-M
+                      category: apparel
+                      quantity: 2
+                      line_paid_amount: 2599
+                      currency: CNY
+                      paid_at: '2026-09-10T08:15:00Z'
+                      status: PAID
+                      version: 3
+                    page:
+                      limit: 20
+                      next_cursor: null
+                platformBuyer:
+                  value:
+                    items:
+                    - order_id: 00000000-0000-4000-8000-000000003001
+                      line_id: BUYER-3001-A
+                      sku: M1-HEADPHONE
+                      category: electronics
+                      quantity: 1
+                      line_paid_amount: 32900
+                      currency: CNY
+                      paid_at: '2026-09-20T08:00:00.123456Z'
+                      status: PAID
+                      version: 1
+                      merchant_id: M-1001
+                      merchant_name: ResolveFlow 演示商家一
+                    page:
+                      limit: 20
+        '400':
+          $ref: '#/components/responses/InvalidArgument'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+      security:
+      - bearerAuth: []
+  /api/v1/orders/{order_id}:
+    get:
+      tags:
+      - orders
+      operationId: commerceDirectReadOrder
+      summary: One authorised order and its lines
+      description: 'Authority: docs/service-boundary-plan.md. Current account context
+        with local resource-scoped Commerce reads. The customer''s own order, or a
+        merchant''s order for a line it owns
+
+        (docs/core-contracts.md:27). A line the principal cannot see is 404, not 403:
+        the
+
+        existence of another tenant''s order is not disclosed.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/PublicOrderId'
+      responses:
+        '200':
+          description: Order lines the principal may see
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/OrderLinePage'
+                - $ref: '#/components/schemas/BuyerOrderLinePage'
+              example:
+                items:
+                - order_id: 00000000-0000-4000-8000-0000000000aa
+                  line_id: '7001'
+                  sku: SKU-RED-M
+                  category: apparel
+                  quantity: 2
+                  line_paid_amount: 2599
+                  currency: CNY
+                  paid_at: '2026-09-10T08:15:00Z'
+                  status: PAID
+                  version: 3
+                page:
+                  limit: 20
+                  next_cursor: null
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+      security:
+      - bearerAuth: []
+  /api/v1/orders/lines/{line_id}:
+    get:
+      operationId: commerceDirectReadOrderLine
+      summary: Read a scoped product line with optional immutable art
+      description: 'Authority: docs/service-boundary-plan.md. Current account context
+        with local resource-scoped Commerce reads. docs/ui-aftercare-v3/README.md
+        and docs/core-contracts.md. Read one visible product line. Identity and store/customer
+        scope come from the authenticated principal, never query parameters.'
+      parameters:
+      - name: line_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+      responses:
+        '200':
+          description: Product line with optional paid-snapshot art
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/PublicOrderLineSummary'
+                - $ref: '#/components/schemas/BuyerOrderLineSummary'
+        '400':
+          $ref: '#/components/responses/InvalidArgument'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+      security:
+      - bearerAuth: []
   /api/v1/merchant/orders:
     get:
       operationId: commerceDirectCaseMerchantMerchantTradesget
@@ -3763,6 +3921,16 @@ components:
         Internal aud/scope token. X-User, X-Role and X-Merchant headers are stripped at
         the gateway and never trusted here (docs/core-contracts.md:15).
   parameters:
+    PublicOrderCursor:
+      name: cursor
+      in: query
+      required: false
+      schema: {type: string, minLength: 1, maxLength: 16384}
+    PublicOrderId:
+      name: order_id
+      in: path
+      required: true
+      schema: {$ref: '#/components/schemas/Uuid'}
     LineId:
       name: line_id
       in: path
@@ -3871,6 +4039,157 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    BuyerOrderLinePage:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BuyerOrderLineSummary'
+        page:
+          $ref: '#/components/schemas/PageMeta'
+    BuyerOrderLineSummary:
+      type: object
+      additionalProperties: false
+      required:
+      - order_id
+      - line_id
+      - sku
+      - category
+      - quantity
+      - line_paid_amount
+      - currency
+      - paid_at
+      - status
+      - version
+      - merchant_id
+      - merchant_name
+      properties:
+        merchant_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        merchant_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        order_id:
+          $ref: '#/components/schemas/Uuid'
+        line_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        sku:
+          type: string
+          minLength: 1
+          maxLength: 64
+        product_name:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+        variant_text:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+        asset_key:
+          type:
+          - string
+          - 'null'
+          maxLength: 32
+          description: Optional product art from the exact paid checkout snapshot; never
+            inferred from the current catalog.
+        category:
+          type: string
+          minLength: 1
+          maxLength: 64
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 1000
+        line_paid_amount:
+          $ref: '#/components/schemas/AmountMinor'
+        currency:
+          type: string
+          const: CNY
+        paid_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          minLength: 1
+          maxLength: 64
+        version:
+          $ref: '#/components/schemas/Version'
+    PublicOrderLineSummary:
+      type: object
+      additionalProperties: false
+      required:
+      - order_id
+      - line_id
+      - sku
+      - category
+      - quantity
+      - line_paid_amount
+      - currency
+      - paid_at
+      - status
+      - version
+      properties:
+        order_id:
+          $ref: '#/components/schemas/Uuid'
+        line_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        sku:
+          type: string
+          minLength: 1
+          maxLength: 64
+        product_name:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+        variant_text:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+        asset_key:
+          type:
+          - string
+          - 'null'
+          maxLength: 32
+          description: Optional product art from the exact paid checkout snapshot; never
+            inferred from the current catalog.
+        category:
+          type: string
+          minLength: 1
+          maxLength: 64
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 1000
+        line_paid_amount:
+          $ref: '#/components/schemas/AmountMinor'
+        currency:
+          type: string
+          const: CNY
+        paid_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          minLength: 1
+          maxLength: 64
+        version:
+          $ref: '#/components/schemas/Version'
     ShippingView:
       type: object
       additionalProperties: false
