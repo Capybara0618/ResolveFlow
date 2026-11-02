@@ -1,0 +1,4983 @@
+{
+  "version": "jev-intent-fifty-v1",
+  "minimum_confidence": 0.7,
+  "results_sha256": "7bf8f7053e35456c44007db2a7727bd22f77c3aa18fd86ea322d2865267cf5ac",
+  "manifest": {
+    "version": "jev-intent-fifty-v1",
+    "cases": 50,
+    "maximum_calls": 100,
+    "maximum_calls_per_provider": 50,
+    "repeats": 1,
+    "automatic_retries": 0,
+    "reserved_usd_limit": 1,
+    "minimum_confidence": 0.7,
+    "fallback_on_unclear": true,
+    "fallback_whole_batch": true,
+    "synthetic": true,
+    "independent_holdout": false,
+    "labels": "Codex source-aware authored before this experiment; no independent human review",
+    "input_policy": "All 50 old customer turns. Only prior CUSTOMER utterances; no historical assistant, facts, proposed goals or Gold in requests. Candidate quote splitting fixed offline, not evaluating the planner.",
+    "boundary_policy": "Q23-T1 primary gold UNCLEAR fixed before inference; also report predeclared 49-case sensitivity excluding this ambiguous item, never replace the main 50-case denominator.",
+    "cost_policy": "USD estimates at uniform peak cache-miss .3 input/1.2 output per M for Flash; Jev .042 input per M/output free. Not an invoice. Preserve vendor cache usage separately.",
+    "pricing_sources": [
+      "https://docs.typesafe.ai/models",
+      "https://api-docs.deepseek.com/quick_start/pricing/"
+    ],
+    "files": {
+      "agent/tests/fixtures/jev-intent-fifty-v1.json": "14bf761f9777c7c8eef18773befbf1db8af45eb95da2fda1140e9c7ea149c152",
+      "scripts/jev_intent_fifty.py": "e46949b8160908bb1addfb83bb56b0cb4ac07966ee669b78b69fb2b95b3c4acc",
+      "scripts/jev_intent_eval.py": "fe14c1d2979d55eb34654a95a426b7648c45d8ee55af3e64df1e7b6eff19b45d",
+      "scripts/jev_compare.py": "9d60762e0f181258656834bf25b8dbafce857b8f590638e86afc0fb4e3fa0f0d",
+      "agent/src/resolveflow/support/jev.py": "7a3832559127880a0aa16565555c7a903435d147ff52df3e5de49f4dcc116951",
+      "agent/src/resolveflow/support/jev_intent.py": "3ed83675d8457547e344d65a64d8961e22764804da222cd3dc31d6d9d1dee4ed",
+      "agent/src/resolveflow/support/request_check.py": "51019e0dc47a2bdc638da8707dd26361d9fd8e79d337028c013dfe3d36ded36d",
+      "agent/src/resolveflow/support/orchestration_prompts.py": "d78acdd7a2ba350f8a227d19b7e318b8c38916a82b4b8c597162dd02e2972f02",
+      "agent/src/resolveflow/harness/live_model.py": "2666f3c25743c1117cb287ed531b90e468d21cf9ee88c2f6260ef97d7fb81215",
+      "agent/src/resolveflow/harness/sdk_adapter.py": "2f9386963b2e9b1b22f7b791fc04d369089d953f5a806c657c854ab8ae9fe997",
+      "agent/src/resolveflow/harness/context.py": "eac88ba213dc8da3e7314dd3eb916f995dfa074d70aefa73d65273486cabaf33",
+      "agent/uv.lock": "0fedd60f93948c7c4a4e9ac9d434133348dc88a9bae3ffd888c6c97b4dbbccf2",
+      "evals/customer-workflow-comparison-v2/cases.json": "cc434e38c52c11b539e34d3e4bba2cf6ccec321288fc017edea6282e22cc3800",
+      "reports/customer-workflow-comparison-v2/agent-runtime-complete.json": "47e3e543aeb24797f2c4bad0c9b9a210fa31e1d8139ffb0e65bb96509565f9f6"
+    }
+  },
+  "rows": [
+    {
+      "id": "Q01-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "我这副耳机现在送到哪里了？先查物流就好。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "我这副耳机现在送到哪里了？先查物流就好。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 1.0,
+            "probabilities": {
+              "INFORMATION": 1.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1156,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 1.0,
+              "probabilities": {
+                "INFORMATION": 1.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1156,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 859.0
+      }
+    },
+    {
+      "id": "Q02-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "台灯运输有没有异常？帮我确认承运商记录。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "台灯运输有没有异常？帮我确认承运商记录。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "INFORMATION"
+      },
+      "fallback": true,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 0.5,
+            "probabilities": {
+              "INFORMATION": 0.6,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.38,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.02
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1156,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 0.5,
+              "probabilities": {
+                "INFORMATION": 0.6,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.38,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.02
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1156,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 563.0
+      }
+    },
+    {
+      "id": "Q03-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "请告诉我这件商品的实付金额，先不处理售后。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "请告诉我这件商品的实付金额"
+              },
+              {
+                "task_id": "t2",
+                "quote": "先不处理售后"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION",
+        "t2": "DECLINED"
+      },
+      "baseline": {
+        "t1": "INFORMATION",
+        "t2": "DECLINED"
+      },
+      "jev": {
+        "t1": "INFORMATION",
+        "t2": "DECLINED"
+      },
+      "hybrid": {
+        "t1": "INFORMATION",
+        "t2": "DECLINED"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 0.98,
+            "probabilities": {
+              "INFORMATION": 0.98,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.02
+            }
+          },
+          "purpose_1": {
+            "type": "choice",
+            "choice": "DECLINED",
+            "confidence": 0.99,
+            "probabilities": {
+              "INFORMATION": 0.01,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.99,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1969,
+          "output_tokens": 138
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 0.98,
+              "probabilities": {
+                "INFORMATION": 0.98,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.02
+              }
+            },
+            "purpose_1": {
+              "type": "choice",
+              "choice": "DECLINED",
+              "confidence": 0.99,
+              "probabilities": {
+                "INFORMATION": 0.01,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.99,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1969,
+            "output_tokens": 138
+          }
+        },
+        "elapsed_ms": 438.0
+      }
+    },
+    {
+      "id": "Q04-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "如果只需要商家帮忙核查，也一定要填退款金额吗？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "如果只需要商家帮忙核查，也一定要填退款金额吗？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 0.99,
+            "probabilities": {
+              "INFORMATION": 0.99,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.01,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1162,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 0.99,
+              "probabilities": {
+                "INFORMATION": 0.99,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.01,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1162,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 625.0
+      }
+    },
+    {
+      "id": "Q05-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "给商家发核查材料之前，我能选哪些聊天记录给他看吗？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "给商家发核查材料之前，我能选哪些聊天记录给他看吗？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 0.87,
+            "probabilities": {
+              "INFORMATION": 0.9,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.09,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.01
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1166,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 0.87,
+              "probabilities": {
+                "INFORMATION": 0.9,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.09,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.01
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1166,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 469.0
+      }
+    },
+    {
+      "id": "Q06-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "我只想看给商家的说明草稿：耳机按键按了没反应。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "我只想看给商家的说明草稿：耳机按键按了没反应。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "baseline": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "jev": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "hybrid": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "MERCHANT_REVIEW",
+            "confidence": 1.0,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 1.0,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1162,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "MERCHANT_REVIEW",
+              "confidence": 1.0,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 1.0,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1162,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 453.0
+      }
+    },
+    {
+      "id": "Q07-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "假如签收记录存在，客户说没收到，店里的处理原则是什么？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "假如签收记录存在，客户说没收到，店里的处理原则是什么？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 1.0,
+            "probabilities": {
+              "INFORMATION": 1.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1170,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 1.0,
+              "probabilities": {
+                "INFORMATION": 1.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1170,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 468.0
+      }
+    },
+    {
+      "id": "Q08-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "承运商已经判丢又没有有效签收时，本店退款有什么前提？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "承运商已经判丢又没有有效签收时，本店退款有什么前提？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 1.0,
+            "probabilities": {
+              "INFORMATION": 1.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1170,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 1.0,
+              "probabilities": {
+                "INFORMATION": 1.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1170,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 484.0
+      }
+    },
+    {
+      "id": "Q09-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机没拿到，我已经问过门口代收点，说没有。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机没拿到，我已经问过门口代收点，说没有。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "UNCLEAR"
+      },
+      "hybrid": {
+        "t1": "INFORMATION"
+      },
+      "fallback": true,
+      "scores": {
+        "baseline": true,
+        "jev_raw": false,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "UNCLEAR",
+            "confidence": 0.61,
+            "probabilities": {
+              "INFORMATION": 0.3,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.01,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.69
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1158,
+          "output_tokens": 70
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "UNCLEAR",
+              "confidence": 0.61,
+              "probabilities": {
+                "INFORMATION": 0.3,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.01,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.69
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1158,
+            "output_tokens": 70
+          }
+        },
+        "elapsed_ms": 407.0
+      }
+    },
+    {
+      "id": "Q09-T2",
+      "split": "reused",
+      "packet": {
+        "current_request": "刚才讲错了，代收点还没开门，实际没有问到。请按这个情况继续。",
+        "recent_messages": [
+          {
+            "message_id": "5fb670a8-f751-51cf-b69b-bbfdaa7a83ba",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "耳机没拿到，我已经问过门口代收点，说没有。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "刚才讲错了，代收点还没开门，实际没有问到。请按这个情况继续。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "UNCLEAR"
+      },
+      "jev": {
+        "t1": "UNCLEAR"
+      },
+      "hybrid": {
+        "t1": "UNCLEAR"
+      },
+      "fallback": true,
+      "scores": {
+        "baseline": false,
+        "jev_raw": false,
+        "hybrid": false
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "UNCLEAR",
+            "confidence": 0.69,
+            "probabilities": {
+              "INFORMATION": 0.17,
+              "PREPARE_REFUND": 0.01,
+              "MERCHANT_REVIEW": 0.03,
+              "DECLINED": 0.04,
+              "UNCLEAR": 0.75
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1281,
+          "output_tokens": 70
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "UNCLEAR",
+              "confidence": 0.69,
+              "probabilities": {
+                "INFORMATION": 0.17,
+                "PREPARE_REFUND": 0.01,
+                "MERCHANT_REVIEW": 0.03,
+                "DECLINED": 0.04,
+                "UNCLEAR": 0.75
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1281,
+            "output_tokens": 70
+          }
+        },
+        "elapsed_ms": 860.0
+      }
+    },
+    {
+      "id": "Q10-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机右边完全不响，我想先整理核查说明。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机右边完全不响，我想先整理核查说明。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "baseline": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "jev": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "hybrid": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "MERCHANT_REVIEW",
+            "confidence": 0.98,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.98,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.02
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1154,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "MERCHANT_REVIEW",
+              "confidence": 0.98,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.98,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.02
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1154,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 485.0
+      }
+    },
+    {
+      "id": "Q10-T2",
+      "split": "reused",
+      "packet": {
+        "current_request": "改一下：左右都能响，是右边偶尔断断续续。重新整理，别发送。",
+        "recent_messages": [
+          {
+            "message_id": "fe2b5139-7be9-5892-8958-cc08caf96588",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "耳机右边完全不响，我想先整理核查说明。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "改一下：左右都能响，是右边偶尔断断续续。重新整理，别发送。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "baseline": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "jev": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "hybrid": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "fallback": true,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "MERCHANT_REVIEW",
+            "confidence": 0.69,
+            "probabilities": {
+              "INFORMATION": 0.01,
+              "PREPARE_REFUND": 0.01,
+              "MERCHANT_REVIEW": 0.75,
+              "DECLINED": 0.02,
+              "UNCLEAR": 0.21
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1281,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "MERCHANT_REVIEW",
+              "confidence": 0.69,
+              "probabilities": {
+                "INFORMATION": 0.01,
+                "PREPARE_REFUND": 0.01,
+                "MERCHANT_REVIEW": 0.75,
+                "DECLINED": 0.02,
+                "UNCLEAR": 0.21
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1281,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 547.0
+      }
+    },
+    {
+      "id": "Q11-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "台灯还没收到。请查物流，不准备申请。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "请查物流"
+              },
+              {
+                "task_id": "t2",
+                "quote": "不准备申请"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION",
+        "t2": "DECLINED"
+      },
+      "baseline": {
+        "t1": "INFORMATION",
+        "t2": "DECLINED"
+      },
+      "jev": {
+        "t1": "INFORMATION",
+        "t2": "DECLINED"
+      },
+      "hybrid": {
+        "t1": "INFORMATION",
+        "t2": "DECLINED"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 0.95,
+            "probabilities": {
+              "INFORMATION": 0.96,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.04,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          },
+          "purpose_1": {
+            "type": "choice",
+            "choice": "DECLINED",
+            "confidence": 0.95,
+            "probabilities": {
+              "INFORMATION": 0.01,
+              "PREPARE_REFUND": 0.01,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.96,
+              "UNCLEAR": 0.02
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1956,
+          "output_tokens": 138
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 0.95,
+              "probabilities": {
+                "INFORMATION": 0.96,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.04,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            },
+            "purpose_1": {
+              "type": "choice",
+              "choice": "DECLINED",
+              "confidence": 0.95,
+              "probabilities": {
+                "INFORMATION": 0.01,
+                "PREPARE_REFUND": 0.01,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.96,
+                "UNCLEAR": 0.02
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1956,
+            "output_tokens": 138
+          }
+        },
+        "elapsed_ms": 469.0
+      }
+    },
+    {
+      "id": "Q11-T2",
+      "split": "reused",
+      "packet": {
+        "current_request": "我仍然没有拿到，只是补充一句，不用办理。",
+        "recent_messages": [
+          {
+            "message_id": "b4e7bb27-8fbd-5c01-880c-4647bfa649ae",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "台灯还没收到。请查物流，不准备申请。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "我仍然没有拿到，只是补充一句，不用办理。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED"
+      },
+      "baseline": {
+        "t1": "DECLINED"
+      },
+      "jev": {
+        "t1": "DECLINED"
+      },
+      "hybrid": {
+        "t1": "DECLINED"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "DECLINED",
+            "confidence": 0.92,
+            "probabilities": {
+              "INFORMATION": 0.04,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.94,
+              "UNCLEAR": 0.02
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1263,
+          "output_tokens": 70
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "DECLINED",
+              "confidence": 0.92,
+              "probabilities": {
+                "INFORMATION": 0.04,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.94,
+                "UNCLEAR": 0.02
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1263,
+            "output_tokens": 70
+          }
+        },
+        "elapsed_ms": 485.0
+      }
+    },
+    {
+      "id": "Q11-T3",
+      "split": "reused",
+      "packet": {
+        "current_request": "物业送过来了，未收到这件事已经结束，不用再查。",
+        "recent_messages": [
+          {
+            "message_id": "b4e7bb27-8fbd-5c01-880c-4647bfa649ae",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "台灯还没收到。请查物流，不准备申请。",
+            "authority": "CUSTOMER_STATEMENT"
+          },
+          {
+            "message_id": "016642a5-826d-529d-b081-3c487076447d",
+            "sequence": 3,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "我仍然没有拿到，只是补充一句，不用办理。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "物业送过来了，未收到这件事已经结束，不用再查。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED"
+      },
+      "baseline": {
+        "t1": "DECLINED"
+      },
+      "jev": {
+        "t1": "DECLINED"
+      },
+      "hybrid": {
+        "t1": "DECLINED"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "DECLINED",
+            "confidence": 0.98,
+            "probabilities": {
+              "INFORMATION": 0.01,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.98,
+              "UNCLEAR": 0.01
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1382,
+          "output_tokens": 70
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "DECLINED",
+              "confidence": 0.98,
+              "probabilities": {
+                "INFORMATION": 0.01,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.98,
+                "UNCLEAR": 0.01
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1382,
+            "output_tokens": 70
+          }
+        },
+        "elapsed_ms": 453.0
+      }
+    },
+    {
+      "id": "Q12-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "邻居说没有收，家里人还没有联系上，我自己没拿到。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "邻居说没有收，家里人还没有联系上，我自己没拿到。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "UNCLEAR"
+      },
+      "hybrid": {
+        "t1": "INFORMATION"
+      },
+      "fallback": true,
+      "scores": {
+        "baseline": true,
+        "jev_raw": false,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "UNCLEAR",
+            "confidence": 0.7,
+            "probabilities": {
+              "INFORMATION": 0.22,
+              "PREPARE_REFUND": 0.01,
+              "MERCHANT_REVIEW": 0.01,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.76
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1164,
+          "output_tokens": 70
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "UNCLEAR",
+              "confidence": 0.7,
+              "probabilities": {
+                "INFORMATION": 0.22,
+                "PREPARE_REFUND": 0.01,
+                "MERCHANT_REVIEW": 0.01,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.76
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1164,
+            "output_tokens": 70
+          }
+        },
+        "elapsed_ms": 422.0
+      }
+    },
+    {
+      "id": "Q12-T2",
+      "split": "reused",
+      "packet": {
+        "current_request": "邻居刚说替我收了，家人依然没联系上；先别申请。",
+        "recent_messages": [
+          {
+            "message_id": "f3325640-9fde-5207-9d8e-f3e04887b8d4",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "邻居说没有收，家里人还没有联系上，我自己没拿到。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "邻居刚说替我收了，家人依然没联系上；先别申请。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED"
+      },
+      "baseline": {
+        "t1": "DECLINED"
+      },
+      "jev": {
+        "t1": "DECLINED"
+      },
+      "hybrid": {
+        "t1": "DECLINED"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "DECLINED",
+            "confidence": 0.95,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 0.01,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.96,
+              "UNCLEAR": 0.03
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1276,
+          "output_tokens": 70
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "DECLINED",
+              "confidence": 0.95,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 0.01,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.96,
+                "UNCLEAR": 0.03
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1276,
+            "output_tokens": 70
+          }
+        },
+        "elapsed_ms": 532.0
+      }
+    },
+    {
+      "id": "Q13-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机签收可我没收到，请核对一下。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机签收可我没收到，请核对一下。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "hybrid": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": false,
+        "hybrid": false
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "MERCHANT_REVIEW",
+            "confidence": 0.85,
+            "probabilities": {
+              "INFORMATION": 0.08,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.88,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.04
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1148,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "MERCHANT_REVIEW",
+              "confidence": 0.85,
+              "probabilities": {
+                "INFORMATION": 0.08,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.88,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.04
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1148,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 500.0
+      }
+    },
+    {
+      "id": "Q13-T2",
+      "split": "reused",
+      "packet": {
+        "current_request": "这件事暂缓，我先问：人工回复以后就会自动显示解决吗？",
+        "recent_messages": [
+          {
+            "message_id": "3473b824-544e-5120-9ae0-4f29fac0e8cd",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "耳机签收可我没收到，请核对一下。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "这件事暂缓"
+              },
+              {
+                "task_id": "t2",
+                "quote": "人工回复以后就会自动显示解决吗？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "jev": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "DECLINED",
+            "confidence": 0.99,
+            "probabilities": {
+              "INFORMATION": 0.01,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.99,
+              "UNCLEAR": 0.0
+            }
+          },
+          "purpose_1": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 0.99,
+            "probabilities": {
+              "INFORMATION": 0.99,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.01,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 2081,
+          "output_tokens": 138
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "DECLINED",
+              "confidence": 0.99,
+              "probabilities": {
+                "INFORMATION": 0.01,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.99,
+                "UNCLEAR": 0.0
+              }
+            },
+            "purpose_1": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 0.99,
+              "probabilities": {
+                "INFORMATION": 0.99,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.01,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 2081,
+            "output_tokens": 138
+          }
+        },
+        "elapsed_ms": 469.0
+      }
+    },
+    {
+      "id": "Q13-T3",
+      "split": "reused",
+      "packet": {
+        "current_request": "回到刚才那笔耳机，继续查签收争议。",
+        "recent_messages": [
+          {
+            "message_id": "3473b824-544e-5120-9ae0-4f29fac0e8cd",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "耳机签收可我没收到，请核对一下。",
+            "authority": "CUSTOMER_STATEMENT"
+          },
+          {
+            "message_id": "5dd10024-cf91-542b-9080-29af5a7f93c3",
+            "sequence": 3,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "这件事暂缓，我先问：人工回复以后就会自动显示解决吗？",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "回到刚才那笔耳机，继续查签收争议。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "jev": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "hybrid": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "fallback": true,
+      "scores": {
+        "baseline": false,
+        "jev_raw": false,
+        "hybrid": false
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "MERCHANT_REVIEW",
+            "confidence": 0.31,
+            "probabilities": {
+              "INFORMATION": 0.25,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.45,
+              "DECLINED": 0.01,
+              "UNCLEAR": 0.29
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1372,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "MERCHANT_REVIEW",
+              "confidence": 0.31,
+              "probabilities": {
+                "INFORMATION": 0.25,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.45,
+                "DECLINED": 0.01,
+                "UNCLEAR": 0.29
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1372,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 500.0
+      }
+    },
+    {
+      "id": "Q14-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "帮我准备核查说明：耳机充电接口松动，先给我看。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "帮我准备核查说明：耳机充电接口松动，先给我看。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "baseline": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "jev": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "hybrid": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "MERCHANT_REVIEW",
+            "confidence": 1.0,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 1.0,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1162,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "MERCHANT_REVIEW",
+              "confidence": 1.0,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 1.0,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1162,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 515.0
+      }
+    },
+    {
+      "id": "Q14-T2",
+      "split": "reused",
+      "packet": {
+        "current_request": "先暂停说明。用户换商品咨询会丢失之前记录吗？",
+        "recent_messages": [
+          {
+            "message_id": "6cbff466-ffdf-5dfa-8f32-787038f7158d",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "帮我准备核查说明：耳机充电接口松动，先给我看。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "先暂停说明"
+              },
+              {
+                "task_id": "t2",
+                "quote": "用户换商品咨询会丢失之前记录吗？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "jev": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "DECLINED",
+            "confidence": 0.95,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.03,
+              "DECLINED": 0.96,
+              "UNCLEAR": 0.01
+            }
+          },
+          "purpose_1": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 0.99,
+            "probabilities": {
+              "INFORMATION": 0.99,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.01,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 2084,
+          "output_tokens": 138
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "DECLINED",
+              "confidence": 0.95,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.03,
+                "DECLINED": 0.96,
+                "UNCLEAR": 0.01
+              }
+            },
+            "purpose_1": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 0.99,
+              "probabilities": {
+                "INFORMATION": 0.99,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.01,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 2084,
+            "output_tokens": 138
+          }
+        },
+        "elapsed_ms": 500.0
+      }
+    },
+    {
+      "id": "Q14-T3",
+      "split": "reused",
+      "packet": {
+        "current_request": "继续整理刚才接口松动的核查说明，仍先不发。",
+        "recent_messages": [
+          {
+            "message_id": "6cbff466-ffdf-5dfa-8f32-787038f7158d",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "帮我准备核查说明：耳机充电接口松动，先给我看。",
+            "authority": "CUSTOMER_STATEMENT"
+          },
+          {
+            "message_id": "a0812c7e-f234-5b06-b940-3cab0badd020",
+            "sequence": 3,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "先暂停说明。用户换商品咨询会丢失之前记录吗？",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "继续整理刚才接口松动的核查说明，仍先不发。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "baseline": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "jev": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "hybrid": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "MERCHANT_REVIEW",
+            "confidence": 0.99,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.99,
+              "DECLINED": 0.01,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1379,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "MERCHANT_REVIEW",
+              "confidence": 0.99,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.99,
+                "DECLINED": 0.01,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1379,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 391.0
+      }
+    },
+    {
+      "id": "Q15-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "请先帮我准备台灯没收到的退款草稿。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "请先帮我准备台灯没收到的退款草稿。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "PREPARE_REFUND"
+      },
+      "baseline": {
+        "t1": "PREPARE_REFUND"
+      },
+      "jev": {
+        "t1": "PREPARE_REFUND"
+      },
+      "hybrid": {
+        "t1": "PREPARE_REFUND"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "PREPARE_REFUND",
+            "confidence": 0.99,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 0.99,
+              "MERCHANT_REVIEW": 0.01,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1150,
+          "output_tokens": 72
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "PREPARE_REFUND",
+              "confidence": 0.99,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 0.99,
+                "MERCHANT_REVIEW": 0.01,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1150,
+            "output_tokens": 72
+          }
+        },
+        "elapsed_ms": 532.0
+      }
+    },
+    {
+      "id": "Q15-T2",
+      "split": "reused",
+      "packet": {
+        "current_request": "草稿先放一放，怎么查看商家核查进度？",
+        "recent_messages": [
+          {
+            "message_id": "e9de90ae-1ce6-5810-b367-5a02012334ec",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "请先帮我准备台灯没收到的退款草稿。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "草稿先放一放"
+              },
+              {
+                "task_id": "t2",
+                "quote": "怎么查看商家核查进度？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "jev": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "DECLINED",
+            "confidence": 0.99,
+            "probabilities": {
+              "INFORMATION": 0.01,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.99,
+              "UNCLEAR": 0.0
+            }
+          },
+          "purpose_1": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 1.0,
+            "probabilities": {
+              "INFORMATION": 1.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 2069,
+          "output_tokens": 138
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "DECLINED",
+              "confidence": 0.99,
+              "probabilities": {
+                "INFORMATION": 0.01,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.99,
+                "UNCLEAR": 0.0
+              }
+            },
+            "purpose_1": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 1.0,
+              "probabilities": {
+                "INFORMATION": 1.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 2069,
+            "output_tokens": 138
+          }
+        },
+        "elapsed_ms": 625.0
+      }
+    },
+    {
+      "id": "Q15-T3",
+      "split": "reused",
+      "packet": {
+        "current_request": "现在接着准备台灯那份退款原因，我核对后再提交。",
+        "recent_messages": [
+          {
+            "message_id": "e9de90ae-1ce6-5810-b367-5a02012334ec",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "请先帮我准备台灯没收到的退款草稿。",
+            "authority": "CUSTOMER_STATEMENT"
+          },
+          {
+            "message_id": "7715b037-16cf-51e7-8eec-1bbbbb4caea1",
+            "sequence": 3,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "草稿先放一放，怎么查看商家核查进度？",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "现在接着准备台灯那份退款原因，我核对后再提交。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "PREPARE_REFUND"
+      },
+      "baseline": {
+        "t1": "PREPARE_REFUND"
+      },
+      "jev": {
+        "t1": "PREPARE_REFUND"
+      },
+      "hybrid": {
+        "t1": "PREPARE_REFUND"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "PREPARE_REFUND",
+            "confidence": 0.99,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 0.99,
+              "MERCHANT_REVIEW": 0.01,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1372,
+          "output_tokens": 72
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "PREPARE_REFUND",
+              "confidence": 0.99,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 0.99,
+                "MERCHANT_REVIEW": 0.01,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1372,
+            "output_tokens": 72
+          }
+        },
+        "elapsed_ms": 437.0
+      }
+    },
+    {
+      "id": "Q16-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "查一下耳机签收记录，我没收到。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "查一下耳机签收记录，我没收到。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 0.7,
+            "probabilities": {
+              "INFORMATION": 0.76,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.19,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.05
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1146,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 0.7,
+              "probabilities": {
+                "INFORMATION": 0.76,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.19,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.05
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1146,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 500.0
+      }
+    },
+    {
+      "id": "Q16-T2",
+      "split": "reused",
+      "packet": {
+        "current_request": "先不查签收了，我问一下一直运输中是不是就能按丢失退款？",
+        "recent_messages": [
+          {
+            "message_id": "9805537a-a2f1-57a4-b35b-1ea50baf5a70",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "查一下耳机签收记录，我没收到。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "先不查签收了"
+              },
+              {
+                "task_id": "t2",
+                "quote": "一直运输中是不是就能按丢失退款？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "jev": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "DECLINED",
+            "confidence": 0.84,
+            "probabilities": {
+              "INFORMATION": 0.13,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.87,
+              "UNCLEAR": 0.0
+            }
+          },
+          "purpose_1": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 1.0,
+            "probabilities": {
+              "INFORMATION": 1.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 2084,
+          "output_tokens": 138
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "DECLINED",
+              "confidence": 0.84,
+              "probabilities": {
+                "INFORMATION": 0.13,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.87,
+                "UNCLEAR": 0.0
+              }
+            },
+            "purpose_1": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 1.0,
+              "probabilities": {
+                "INFORMATION": 1.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 2084,
+            "output_tokens": 138
+          }
+        },
+        "elapsed_ms": 422.0
+      }
+    },
+    {
+      "id": "Q16-T3",
+      "split": "reused",
+      "packet": {
+        "current_request": "还是回到耳机签收的事，给我退款原因草稿，先不提交。",
+        "recent_messages": [
+          {
+            "message_id": "9805537a-a2f1-57a4-b35b-1ea50baf5a70",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "查一下耳机签收记录，我没收到。",
+            "authority": "CUSTOMER_STATEMENT"
+          },
+          {
+            "message_id": "d6f7e4bc-dcb2-5837-8668-e294cb7caa5f",
+            "sequence": 3,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "先不查签收了，我问一下一直运输中是不是就能按丢失退款？",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "还是回到耳机签收的事，给我退款原因草稿，先不提交。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "PREPARE_REFUND"
+      },
+      "baseline": {
+        "t1": "PREPARE_REFUND"
+      },
+      "jev": {
+        "t1": "PREPARE_REFUND"
+      },
+      "hybrid": {
+        "t1": "PREPARE_REFUND"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "PREPARE_REFUND",
+            "confidence": 1.0,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 1.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1386,
+          "output_tokens": 72
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "PREPARE_REFUND",
+              "confidence": 1.0,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 1.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1386,
+            "output_tokens": 72
+          }
+        },
+        "elapsed_ms": 469.0
+      }
+    },
+    {
+      "id": "Q17-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "台灯没收到，请准备退款原因供核对。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "台灯没收到，请准备退款原因供核对。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "PREPARE_REFUND"
+      },
+      "baseline": {
+        "t1": "PREPARE_REFUND"
+      },
+      "jev": {
+        "t1": "PREPARE_REFUND"
+      },
+      "hybrid": {
+        "t1": "PREPARE_REFUND"
+      },
+      "fallback": true,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "PREPARE_REFUND",
+            "confidence": 0.56,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 0.65,
+              "MERCHANT_REVIEW": 0.35,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1150,
+          "output_tokens": 72
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "PREPARE_REFUND",
+              "confidence": 0.56,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 0.65,
+                "MERCHANT_REVIEW": 0.35,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1150,
+            "output_tokens": 72
+          }
+        },
+        "elapsed_ms": 375.0
+      }
+    },
+    {
+      "id": "Q17-T2",
+      "split": "reused",
+      "packet": {
+        "current_request": "我改成只让商家调查，先别准备退款，帮我写核查说明。",
+        "recent_messages": [
+          {
+            "message_id": "6d25adf2-4017-592c-8274-555f19da68f5",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "台灯没收到，请准备退款原因供核对。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "先别准备退款"
+              },
+              {
+                "task_id": "t2",
+                "quote": "帮我写核查说明"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED",
+        "t2": "MERCHANT_REVIEW"
+      },
+      "baseline": {
+        "t1": "DECLINED",
+        "t2": "MERCHANT_REVIEW"
+      },
+      "jev": {
+        "t1": "DECLINED",
+        "t2": "MERCHANT_REVIEW"
+      },
+      "hybrid": {
+        "t1": "DECLINED",
+        "t2": "MERCHANT_REVIEW"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "DECLINED",
+            "confidence": 0.98,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.02,
+              "DECLINED": 0.98,
+              "UNCLEAR": 0.0
+            }
+          },
+          "purpose_1": {
+            "type": "choice",
+            "choice": "MERCHANT_REVIEW",
+            "confidence": 1.0,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 1.0,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 2075,
+          "output_tokens": 138
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "DECLINED",
+              "confidence": 0.98,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.02,
+                "DECLINED": 0.98,
+                "UNCLEAR": 0.0
+              }
+            },
+            "purpose_1": {
+              "type": "choice",
+              "choice": "MERCHANT_REVIEW",
+              "confidence": 1.0,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 1.0,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 2075,
+            "output_tokens": 138
+          }
+        },
+        "elapsed_ms": 515.0
+      }
+    },
+    {
+      "id": "Q18-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机没收到，先整理给商家的核查说明。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机没收到，先整理给商家的核查说明。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "baseline": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "jev": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "hybrid": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "MERCHANT_REVIEW",
+            "confidence": 1.0,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 1.0,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1152,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "MERCHANT_REVIEW",
+              "confidence": 1.0,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 1.0,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1152,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 578.0
+      }
+    },
+    {
+      "id": "Q18-T2",
+      "split": "reused",
+      "packet": {
+        "current_request": "现在想申请退款，请整理退款原因给我核对，不是人工说明。",
+        "recent_messages": [
+          {
+            "message_id": "a16fc6ab-9a2f-5bf2-ac1f-c33c87bf95f8",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "耳机没收到，先整理给商家的核查说明。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "现在想申请退款，请整理退款原因给我核对"
+              },
+              {
+                "task_id": "t2",
+                "quote": "不是人工说明"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "PREPARE_REFUND",
+        "t2": "DECLINED"
+      },
+      "baseline": {
+        "t1": "PREPARE_REFUND",
+        "t2": "INFORMATION"
+      },
+      "jev": {
+        "t1": "PREPARE_REFUND",
+        "t2": "PREPARE_REFUND"
+      },
+      "hybrid": {
+        "t1": "PREPARE_REFUND",
+        "t2": "INFORMATION"
+      },
+      "fallback": true,
+      "scores": {
+        "baseline": false,
+        "jev_raw": false,
+        "hybrid": false
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "PREPARE_REFUND",
+            "confidence": 0.99,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 0.99,
+              "MERCHANT_REVIEW": 0.01,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          },
+          "purpose_1": {
+            "type": "choice",
+            "choice": "PREPARE_REFUND",
+            "confidence": 0.52,
+            "probabilities": {
+              "INFORMATION": 0.08,
+              "PREPARE_REFUND": 0.62,
+              "MERCHANT_REVIEW": 0.05,
+              "DECLINED": 0.03,
+              "UNCLEAR": 0.22
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 2085,
+          "output_tokens": 141
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "PREPARE_REFUND",
+              "confidence": 0.99,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 0.99,
+                "MERCHANT_REVIEW": 0.01,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            },
+            "purpose_1": {
+              "type": "choice",
+              "choice": "PREPARE_REFUND",
+              "confidence": 0.52,
+              "probabilities": {
+                "INFORMATION": 0.08,
+                "PREPARE_REFUND": 0.62,
+                "MERCHANT_REVIEW": 0.05,
+                "DECLINED": 0.03,
+                "UNCLEAR": 0.22
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 2085,
+            "output_tokens": 141
+          }
+        },
+        "elapsed_ms": 734.0
+      }
+    },
+    {
+      "id": "Q19-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机按键卡住了，先准备给商家看的说明。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机按键卡住了，先准备给商家看的说明。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "baseline": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "jev": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "hybrid": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "MERCHANT_REVIEW",
+            "confidence": 1.0,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 1.0,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1154,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "MERCHANT_REVIEW",
+              "confidence": 1.0,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 1.0,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1154,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 422.0
+      }
+    },
+    {
+      "id": "Q19-T2",
+      "split": "reused",
+      "packet": {
+        "current_request": "不需要那份说明了，也不用发出去，这个问题结束。",
+        "recent_messages": [
+          {
+            "message_id": "54919e50-edde-546f-93c0-41b407b03000",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "耳机按键卡住了，先准备给商家看的说明。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "不需要那份说明了，也不用发出去，这个问题结束。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED"
+      },
+      "baseline": {
+        "t1": "DECLINED"
+      },
+      "jev": {
+        "t1": "DECLINED"
+      },
+      "hybrid": {
+        "t1": "DECLINED"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "DECLINED",
+            "confidence": 0.99,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.01,
+              "DECLINED": 0.99,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1271,
+          "output_tokens": 70
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "DECLINED",
+              "confidence": 0.99,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.01,
+                "DECLINED": 0.99,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1271,
+            "output_tokens": 70
+          }
+        },
+        "elapsed_ms": 484.0
+      }
+    },
+    {
+      "id": "Q20-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "台灯没到，先帮我写申请原因。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "台灯没到，先帮我写申请原因。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "PREPARE_REFUND"
+      },
+      "baseline": {
+        "t1": "PREPARE_REFUND"
+      },
+      "jev": {
+        "t1": "UNCLEAR"
+      },
+      "hybrid": {
+        "t1": "PREPARE_REFUND"
+      },
+      "fallback": true,
+      "scores": {
+        "baseline": true,
+        "jev_raw": false,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "UNCLEAR",
+            "confidence": 0.34,
+            "probabilities": {
+              "INFORMATION": 0.01,
+              "PREPARE_REFUND": 0.38,
+              "MERCHANT_REVIEW": 0.14,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.47
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1144,
+          "output_tokens": 70
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "UNCLEAR",
+              "confidence": 0.34,
+              "probabilities": {
+                "INFORMATION": 0.01,
+                "PREPARE_REFUND": 0.38,
+                "MERCHANT_REVIEW": 0.14,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.47
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1144,
+            "output_tokens": 70
+          }
+        },
+        "elapsed_ms": 453.0
+      }
+    },
+    {
+      "id": "Q20-T2",
+      "split": "reused",
+      "packet": {
+        "current_request": "不写申请了。只告诉我申请之后在哪查看状态？",
+        "recent_messages": [
+          {
+            "message_id": "5bc1cbbb-468b-5dc4-b5a3-f18896f0e6c0",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "台灯没到，先帮我写申请原因。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "不写申请了"
+              },
+              {
+                "task_id": "t2",
+                "quote": "只告诉我申请之后在哪查看状态？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "jev": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "DECLINED",
+            "confidence": 0.96,
+            "probabilities": {
+              "INFORMATION": 0.03,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.97,
+              "UNCLEAR": 0.0
+            }
+          },
+          "purpose_1": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 1.0,
+            "probabilities": {
+              "INFORMATION": 1.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 2071,
+          "output_tokens": 138
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "DECLINED",
+              "confidence": 0.96,
+              "probabilities": {
+                "INFORMATION": 0.03,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.97,
+                "UNCLEAR": 0.0
+              }
+            },
+            "purpose_1": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 1.0,
+              "probabilities": {
+                "INFORMATION": 1.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 2071,
+            "output_tokens": 138
+          }
+        },
+        "elapsed_ms": 500.0
+      }
+    },
+    {
+      "id": "Q21-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机物流是签收，但本人没有包裹。你能直接认定已经收到吗？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机物流是签收，但本人没有包裹。你能直接认定已经收到吗？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 0.91,
+            "probabilities": {
+              "INFORMATION": 0.93,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.04,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.03
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1174,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 0.91,
+              "probabilities": {
+                "INFORMATION": 0.93,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.04,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.03
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1174,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 468.0
+      }
+    },
+    {
+      "id": "Q22-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "我以为台灯还在路上，麻烦核对现在状态并说说能怎样处理。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "我以为台灯还在路上，麻烦核对现在状态并说说能怎样处理。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 0.79,
+            "probabilities": {
+              "INFORMATION": 0.83,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.14,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.03
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1170,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 0.79,
+              "probabilities": {
+                "INFORMATION": 0.83,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.14,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.03
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1170,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 484.0
+      }
+    },
+    {
+      "id": "Q23-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机可能坏了，你能确定是质量问题并直接帮我退款吗？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机可能坏了，你能确定是质量问题并直接帮我退款吗？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "UNCLEAR"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "PREPARE_REFUND"
+      },
+      "hybrid": {
+        "t1": "PREPARE_REFUND"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": false,
+        "jev_raw": false,
+        "hybrid": false
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "PREPARE_REFUND",
+            "confidence": 0.74,
+            "probabilities": {
+              "INFORMATION": 0.18,
+              "PREPARE_REFUND": 0.79,
+              "MERCHANT_REVIEW": 0.02,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.01
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1166,
+          "output_tokens": 72
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "PREPARE_REFUND",
+              "confidence": 0.74,
+              "probabilities": {
+                "INFORMATION": 0.18,
+                "PREPARE_REFUND": 0.79,
+                "MERCHANT_REVIEW": 0.02,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.01
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1166,
+            "output_tokens": 72
+          }
+        },
+        "elapsed_ms": 516.0
+      }
+    },
+    {
+      "id": "Q24-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "我不知道有没有家人收，先问签收争议要提交哪几样必需材料。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "我不知道有没有家人收，先问签收争议要提交哪几样必需材料。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 0.86,
+            "probabilities": {
+              "INFORMATION": 0.89,
+              "PREPARE_REFUND": 0.07,
+              "MERCHANT_REVIEW": 0.03,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.01
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1172,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 0.86,
+              "probabilities": {
+                "INFORMATION": 0.89,
+                "PREPARE_REFUND": 0.07,
+                "MERCHANT_REVIEW": 0.03,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.01
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1172,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 485.0
+      }
+    },
+    {
+      "id": "Q25-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "物流查询打不开时，你能断定我的包裹丢了吗？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "物流查询打不开时，你能断定我的包裹丢了吗？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 1.0,
+            "probabilities": {
+              "INFORMATION": 1.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1162,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 1.0,
+              "probabilities": {
+                "INFORMATION": 1.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1162,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 609.0
+      }
+    },
+    {
+      "id": "Q26-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "帮我查台灯运输记录，看不到就告诉我看不到，不要猜。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "帮我查台灯运输记录，看不到就告诉我看不到，不要猜。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 0.9,
+            "probabilities": {
+              "INFORMATION": 0.92,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.03,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.05
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1166,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 0.9,
+              "probabilities": {
+                "INFORMATION": 0.92,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.03,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.05
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1166,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 484.0
+      }
+    },
+    {
+      "id": "Q27-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机这笔实付多少钱？如果订单接口读不到，请说明原因。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机这笔实付多少钱？如果订单接口读不到，请说明原因。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 0.96,
+            "probabilities": {
+              "INFORMATION": 0.97,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.01,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.02
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1168,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 0.96,
+              "probabilities": {
+                "INFORMATION": 0.97,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.01,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.02
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1168,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 547.0
+      }
+    },
+    {
+      "id": "Q28-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "先核对物流，我还没拿到。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "先核对物流，我还没拿到。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "INFORMATION"
+      },
+      "fallback": true,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 0.56,
+            "probabilities": {
+              "INFORMATION": 0.65,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.15,
+              "DECLINED": 0.01,
+              "UNCLEAR": 0.19
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1140,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 0.56,
+              "probabilities": {
+                "INFORMATION": 0.65,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.15,
+                "DECLINED": 0.01,
+                "UNCLEAR": 0.19
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1140,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 453.0
+      }
+    },
+    {
+      "id": "Q28-T2",
+      "split": "reused",
+      "packet": {
+        "current_request": "既然查不出来，只帮我整理给商家的核查说明，先别发送。",
+        "recent_messages": [
+          {
+            "message_id": "206da74e-d462-5219-a0be-63dd3a9623df",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "先核对物流，我还没拿到。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "既然查不出来，只帮我整理给商家的核查说明，先别发送。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "baseline": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "jev": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "hybrid": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "MERCHANT_REVIEW",
+            "confidence": 1.0,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 1.0,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1267,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "MERCHANT_REVIEW",
+              "confidence": 1.0,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 1.0,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1267,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 407.0
+      }
+    },
+    {
+      "id": "Q29-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "台灯一直没收到，查物流、说明丢失退款前提，再给我原因草稿，不提交。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "查物流、说明丢失退款前提"
+              },
+              {
+                "task_id": "t2",
+                "quote": "再给我原因草稿，不提交"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION",
+        "t2": "PREPARE_REFUND"
+      },
+      "baseline": {
+        "t1": "INFORMATION",
+        "t2": "PREPARE_REFUND"
+      },
+      "jev": {
+        "t1": "INFORMATION",
+        "t2": "PREPARE_REFUND"
+      },
+      "hybrid": {
+        "t1": "INFORMATION",
+        "t2": "PREPARE_REFUND"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 0.92,
+            "probabilities": {
+              "INFORMATION": 0.94,
+              "PREPARE_REFUND": 0.01,
+              "MERCHANT_REVIEW": 0.04,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.01
+            }
+          },
+          "purpose_1": {
+            "type": "choice",
+            "choice": "PREPARE_REFUND",
+            "confidence": 0.95,
+            "probabilities": {
+              "INFORMATION": 0.0,
+              "PREPARE_REFUND": 0.96,
+              "MERCHANT_REVIEW": 0.03,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.01
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1987,
+          "output_tokens": 140
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 0.92,
+              "probabilities": {
+                "INFORMATION": 0.94,
+                "PREPARE_REFUND": 0.01,
+                "MERCHANT_REVIEW": 0.04,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.01
+              }
+            },
+            "purpose_1": {
+              "type": "choice",
+              "choice": "PREPARE_REFUND",
+              "confidence": 0.95,
+              "probabilities": {
+                "INFORMATION": 0.0,
+                "PREPARE_REFUND": 0.96,
+                "MERCHANT_REVIEW": 0.03,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.01
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1987,
+            "output_tokens": 140
+          }
+        },
+        "elapsed_ms": 453.0
+      }
+    },
+    {
+      "id": "Q30-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "签收的耳机我没收到：核对物流，再解释争议怎么处理，以及商家能不能看到全部私聊。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "签收的耳机我没收到：核对物流，再解释争议怎么处理，以及商家能不能看到全部私聊。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "baseline": {
+        "t1": "INFORMATION"
+      },
+      "jev": {
+        "t1": "INFORMATION"
+      },
+      "hybrid": {
+        "t1": "INFORMATION"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": true,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 0.8,
+            "probabilities": {
+              "INFORMATION": 0.84,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.15,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.01
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1194,
+          "output_tokens": 71
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 0.8,
+              "probabilities": {
+                "INFORMATION": 0.84,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.15,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.01
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1194,
+            "output_tokens": 71
+          }
+        },
+        "elapsed_ms": 484.0
+      }
+    },
+    {
+      "id": "Q31-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机转轴松了；我不要退款，想先看核查摘要，也想知道补充后是不是另开一单。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "我不要退款"
+              },
+              {
+                "task_id": "t2",
+                "quote": "想先看核查摘要"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED",
+        "t2": "MERCHANT_REVIEW"
+      },
+      "baseline": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "jev": {
+        "t1": "DECLINED",
+        "t2": "MERCHANT_REVIEW"
+      },
+      "hybrid": {
+        "t1": "DECLINED",
+        "t2": "MERCHANT_REVIEW"
+      },
+      "fallback": false,
+      "scores": {
+        "baseline": false,
+        "jev_raw": true,
+        "hybrid": true
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "DECLINED",
+            "confidence": 0.76,
+            "probabilities": {
+              "INFORMATION": 0.08,
+              "PREPARE_REFUND": 0.01,
+              "MERCHANT_REVIEW": 0.09,
+              "DECLINED": 0.81,
+              "UNCLEAR": 0.01
+            }
+          },
+          "purpose_1": {
+            "type": "choice",
+            "choice": "MERCHANT_REVIEW",
+            "confidence": 0.81,
+            "probabilities": {
+              "INFORMATION": 0.11,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.85,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.04
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1977,
+          "output_tokens": 138
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "DECLINED",
+              "confidence": 0.76,
+              "probabilities": {
+                "INFORMATION": 0.08,
+                "PREPARE_REFUND": 0.01,
+                "MERCHANT_REVIEW": 0.09,
+                "DECLINED": 0.81,
+                "UNCLEAR": 0.01
+              }
+            },
+            "purpose_1": {
+              "type": "choice",
+              "choice": "MERCHANT_REVIEW",
+              "confidence": 0.81,
+              "probabilities": {
+                "INFORMATION": 0.11,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.85,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.04
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1977,
+            "output_tokens": 138
+          }
+        },
+        "elapsed_ms": 516.0
+      }
+    },
+    {
+      "id": "Q32-T1",
+      "split": "reused",
+      "packet": {
+        "current_request": "我问两件事：物流现在怎样；如果以后要退款，是否每笔都能部分退一点？先别申请。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "物流现在怎样"
+              },
+              {
+                "task_id": "t2",
+                "quote": "如果以后要退款，是否每笔都能部分退一点？先别申请"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION",
+        "t2": "DECLINED"
+      },
+      "baseline": {
+        "t1": "INFORMATION",
+        "t2": "INFORMATION"
+      },
+      "jev": {
+        "t1": "INFORMATION",
+        "t2": "DECLINED"
+      },
+      "hybrid": {
+        "t1": "INFORMATION",
+        "t2": "INFORMATION"
+      },
+      "fallback": true,
+      "scores": {
+        "baseline": false,
+        "jev_raw": true,
+        "hybrid": false
+      },
+      "jev_response": {
+        "status": "COMPLETE",
+        "answers": {
+          "purpose_0": {
+            "type": "choice",
+            "choice": "INFORMATION",
+            "confidence": 1.0,
+            "probabilities": {
+              "INFORMATION": 1.0,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.0,
+              "UNCLEAR": 0.0
+            }
+          },
+          "purpose_1": {
+            "type": "choice",
+            "choice": "DECLINED",
+            "confidence": 0.5,
+            "probabilities": {
+              "INFORMATION": 0.4,
+              "PREPARE_REFUND": 0.0,
+              "MERCHANT_REVIEW": 0.0,
+              "DECLINED": 0.6,
+              "UNCLEAR": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 1997,
+          "output_tokens": 138
+        },
+        "response": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "purpose_0": {
+              "type": "choice",
+              "choice": "INFORMATION",
+              "confidence": 1.0,
+              "probabilities": {
+                "INFORMATION": 1.0,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.0,
+                "UNCLEAR": 0.0
+              }
+            },
+            "purpose_1": {
+              "type": "choice",
+              "choice": "DECLINED",
+              "confidence": 0.5,
+              "probabilities": {
+                "INFORMATION": 0.4,
+                "PREPARE_REFUND": 0.0,
+                "MERCHANT_REVIEW": 0.0,
+                "DECLINED": 0.6,
+                "UNCLEAR": 0.0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 1997,
+            "output_tokens": 138
+          }
+        },
+        "elapsed_ms": 453.0
+      }
+    }
+  ],
+  "splits": {
+    "all": {
+      "cases": 50,
+      "tasks": 62,
+      "baseline": 44,
+      "jev_raw": 42,
+      "hybrid": 44,
+      "fallbacks": 11,
+      "accepted_wrong": 2,
+      "baseline_task_correct": 56,
+      "jev_task_correct": 54,
+      "hybrid_task_correct": 56
+    },
+    "reused": {
+      "cases": 50,
+      "tasks": 62,
+      "baseline": 44,
+      "jev_raw": 42,
+      "hybrid": 44,
+      "fallbacks": 11,
+      "accepted_wrong": 2,
+      "baseline_task_correct": 56,
+      "jev_task_correct": 54,
+      "hybrid_task_correct": 56
+    }
+  },
+  "roles": {
+    "jev": {
+      "calls": 50,
+      "input_tokens": 70301,
+      "output_tokens": 4356,
+      "median_ms": 484.0,
+      "estimated_usd": 0.002952642
+    },
+    "intent-baseline": {
+      "calls": 50,
+      "input_tokens": 28254,
+      "output_tokens": 3705,
+      "median_ms": 1062.000000005355,
+      "estimated_usd": 0.0129222
+    }
+  },
+  "total_attempts": 100,
+  "attempts_sha256": {
+    "attempt-001.json": "40eb803fbb8446eabc64b548981831002eb49179f82a9da06c3f59fddcd2677c",
+    "attempt-002.json": "ec3063160eab5c1692f49e8218e1874f7b6b8be7b4a38cf6ed515c6228984740",
+    "attempt-003.json": "b3ca926aa65413fcfeafbaa97699a2afc667812e1e3b0561d0c5e50925eab7e9",
+    "attempt-004.json": "69f67c95562c25e3c085bec2c2631dc7a0e4c73cec516cccc2f595db39071a97",
+    "attempt-005.json": "cf646c0a241006e6c253e21f753aec2256ad89c8f95d5b42038d56d5ce4147ea",
+    "attempt-006.json": "4405d1215efec32a59fe5c1b20daf5787d8bebb825ebaad8e3c9fe5d7dacafcd",
+    "attempt-007.json": "46c021e2fc804e69f14673fdf7bd2a70ee26afab9f5bbb25eb138c432b237669",
+    "attempt-008.json": "4c375a727796393ddf5aaaf61d264421e0358a09575b4bdf649584cc2d5a31fd",
+    "attempt-009.json": "b4223ec0909939fadf58da990ad54c10be3183c8816c9010b140f918d946e1bb",
+    "attempt-010.json": "7c4ea3cd0f0396455c5957d1dd0e42376c5d1393b949b2c6e11c1e70f371c257",
+    "attempt-011.json": "54e459fd38b57bfae5f2e15fcbc85db61bca6da09e90773e107da04c99aaca27",
+    "attempt-012.json": "4b2dc266cf20de1fd9a6ba4ad3668b13bdb87fe504392ea91bdb66e1360dfad8",
+    "attempt-013.json": "d9db45c883af5c3c617f96cd6e351ab33971f5934292022c350f1e71ff4011fc",
+    "attempt-014.json": "05aefc2df5ad622339034c90f8a5c8a613f59c94ac6408cef58173270a81ca01",
+    "attempt-015.json": "b6274d53fbc44098d57cd3bb942a3adb2e58ad4ea4c618c83c9d4d14dc1b230a",
+    "attempt-016.json": "432e1ba4fac2a6f87b8b02c7c0cb677b983ae87fecf395e536c8f6ef4e8b9775",
+    "attempt-017.json": "8a723e67d577528845847126cda36e822f0b9198aa416c6decc7f0e3528428af",
+    "attempt-018.json": "0615db77774354a6f169b519473e51897717f22ca7a1417839dcb3c69882c681",
+    "attempt-019.json": "b51593d2896476ba51033946ee7df66aa977b075e6956e60645391173c62af21",
+    "attempt-020.json": "b7351bc2b5f1eb633265281c41b5db81cd25879c2ca35f245ca4df59b23a0910",
+    "attempt-021.json": "189b21003bdf61cfef85e3d8d969f9527752bb24b661572051ad22009cc98551",
+    "attempt-022.json": "f60034d6d7b6e03ddb3166c7b21411df8be2e3f4396b7ee1f495e1dc1649b7f0",
+    "attempt-023.json": "19fec41c526b345043fd7ace7d95481ea8c0cc486d20b8086f94c67c69c4a943",
+    "attempt-024.json": "849ad198d979ff87974713817697ed07826ceaad05e9a7d8a99eb3748902dce3",
+    "attempt-025.json": "01ff02b94450429b68af952a45a9a96b429b0182f865464a50d45b09fdcec332",
+    "attempt-026.json": "b0ecba48f6c77f9031f685920a00a9e9d0302d9811826f3bcaa584522208799f",
+    "attempt-027.json": "796cf92c8ea40ee084df44e80da7b237985bac18449f3a080ba791e13e9ddeb4",
+    "attempt-028.json": "14e6b8d1aeae8f6c2a31570e535c77546a95b04835d993de24be6bdbc5810d7b",
+    "attempt-029.json": "873b18b11f5a75fbcaaf0f8e8bd18d82e477536664a58d9d1de8d9999394bf0a",
+    "attempt-030.json": "64b4a56161f9c9a7bc1418c9b5e2cec435bf43b0dd6ac316ac0c7f721a255ccc",
+    "attempt-031.json": "bc5d6e76370f5578a629f1aa844d6564b8923a7d728ef20b29f6217817df7946",
+    "attempt-032.json": "6918ea03d7a2591030c3f47a452c8a3c721ddf06b617652c0104f5b5bd4e8913",
+    "attempt-033.json": "d9b297eb691eb56529a081eaebfc59afb8feb8489aa0099ea679cfd6038a9aee",
+    "attempt-034.json": "2b80d2c2df609ef6af17945aa3aab3bcc0ebf02adc3cce46d56c829daf336fbb",
+    "attempt-035.json": "6f918a0e1403b5d0483429b8c2b519ab22c81ed58bdc619c48f3e7f9f0152d65",
+    "attempt-036.json": "9775666cbc91e8948dae963e9b517e97a9e460a42ac1d2130cc9bafe5fd071d2",
+    "attempt-037.json": "2b1c57eaf9dcf06dd43cb101e58f84a36044e3ed9678287a18acabe717432b04",
+    "attempt-038.json": "6919bff4540d440f3f7ab4846c4fe326cae0eac7348050068ce5f5a308e81686",
+    "attempt-039.json": "f2b43bb55ae6b7377012d5efb95f8f85ffa021ccd247e258bc1e51cc9a10deec",
+    "attempt-040.json": "6cbf0d093d1fe4a8354bfe9848c198a1fde7c3a6cda5b797f03dc0fc983143a2",
+    "attempt-041.json": "a99136e2247033b3c7b71b4c77c2e59e9fb844413ebac185757251dfc884ede2",
+    "attempt-042.json": "bc5c3829f3c7b86f612815f7bdbafc989128be7e50422a786fcb21017e505fb5",
+    "attempt-043.json": "5199f0461ff7837667687bdf13ec96f771627b17851d1bddd072bd5514b20859",
+    "attempt-044.json": "40f99f8861984a07887a4ae256935d2d7880d5f3fbbbd1cfefd5cff870c422ec",
+    "attempt-045.json": "3c25bc0052d14fef27527a5fac4f80549981e357b8edda06c8148c8e62fe85da",
+    "attempt-046.json": "20de6014f3bcc7164e0bb9b12d09d7c6f59523ff0a48f0f7babb15996de073c7",
+    "attempt-047.json": "544f25bbf7edeebfc4d3042adab17312d85fa19feef5f1aeed8f5a7c710458fd",
+    "attempt-048.json": "98b0ed2812a055436ce8b02f1c05cbcd34adc8b2227a3ed9812f5020766572c9",
+    "attempt-049.json": "450adceae4797d6b1fc8ddff4e2c2be1f726a8eba00213b57b9fcc4af8983e03",
+    "attempt-050.json": "dbc885638d855423d2df6963bb34352d8b5c084a6ee7f56762d62087c64123f3",
+    "attempt-051.json": "ea198840e1f051fcc15bc8634fcf3ec9bac1aa4e919e8d63290024018b3bea99",
+    "attempt-052.json": "377edc00f91cc63322bab21c3c2e218d6e7a07142a748fa88f12a5f948771baa",
+    "attempt-053.json": "3f5a44355ecaa6b8e0b5012bdf5c8fb88dd4afa932c18789402aaf6227eebcef",
+    "attempt-054.json": "855b3d190b813b4d1c291f81143324b04415862a99f14abc1bf58980be9c04d9",
+    "attempt-055.json": "bfa3d10210a98ccb3c340033947642a5dbaac70d33ac80d5098fd6ffd656ec34",
+    "attempt-056.json": "26f04954d90aec8a353aed541eef55362d2eddca073724ecd8507227b7a71230",
+    "attempt-057.json": "47fbb4a2b5a0a89f385c9ea9ec84ad9a71fde52bacebf9360b54cedbf3af92a3",
+    "attempt-058.json": "c98dfa00243f775d92d17a78c029d15a10136b2c94656fe3d2419fea976e5cb8",
+    "attempt-059.json": "4391c6afb26b3992d3fbd5bb8241aeadfccaefa673b3f4a7ec5f28503da06221",
+    "attempt-060.json": "4d6dd6b1b605a07346fc9a825ccd751b677e18589b2631b30ad2a6394635451a",
+    "attempt-061.json": "99a610140c2bb78d2c4ec55d5b8122d652712f7ccffde76ca58a35178c59d6da",
+    "attempt-062.json": "b0c8907109c8b7b7bf63f45506e38662a75dd8e8fa22ef38e3a6a448459ac156",
+    "attempt-063.json": "efb0aa2fc5cc8ba98f54ce87e0413e2b5861d0a43f678703d76ad32f60401591",
+    "attempt-064.json": "a53aac37046cc7f1aec854c7ca3f0437f7ea16ffa34136833590650093506c06",
+    "attempt-065.json": "1af11937abbcb849c49b4260a95e0f28a7a7a5f7344a0ac3b1b121b0d074bc2c",
+    "attempt-066.json": "f187babbc3a4f92bd7c33d183a8f703a261bd7f5d5cbba994c5650e51ffd6452",
+    "attempt-067.json": "0bb7570bfc76c05434160baf2d5186d91dd583c3850124f64ca7640469606041",
+    "attempt-068.json": "48561af8ca3c8d1133e609c27709f4e6f86ec23a8590d7580c5e063c7f6e1fd8",
+    "attempt-069.json": "606284191006197be281cdff14e10e5d747347fa387c788079c9b4c39b7b75bb",
+    "attempt-070.json": "d0cd9d8fbb6da58184335ee3764aea3e04e5637fb279cab185087ef866875125",
+    "attempt-071.json": "09f42ec18f22ea610d115892265bf59bba4b1e1030e37b9502b8a5e0db7054ef",
+    "attempt-072.json": "0754f035a56e3adbadd87437ac7ef030053426900fc63785e704050b1254f31b",
+    "attempt-073.json": "eef5872bffb8eb197832143bdb7eb015fb3bf66378b70dd086fbe75fb7b38ec6",
+    "attempt-074.json": "b053b6fb809922d728f6a1f7b51eb4c3254b366377f60e10fea731b8eed61d08",
+    "attempt-075.json": "ddc7f508b792ca19b3abb0912a943e6bb9b84a713f30814397e4ef5e0ab1af94",
+    "attempt-076.json": "81f9eb8519b5c1254497876205f804b1eb9bdb80042269a18911bd8f33fe7a81",
+    "attempt-077.json": "142d5f0db82a76df0f6f71cb3ab7aee103c36fd0c48adfd8c9f8257ba5f5639b",
+    "attempt-078.json": "9aa75315d51c4d06eff060c31426a84f4e6184ef39942fa08de4559a4eb319bb",
+    "attempt-079.json": "99a69b7460636d771537d5652e5f42c4eaf26093f04e1b39c0d32f1d6342cd4c",
+    "attempt-080.json": "0fd788f177c1da43d4c8e1258f1ad05c486536505d6c00c48512acb814adf680",
+    "attempt-081.json": "95a8912076fc15931db2dd3fecd488eb18bda1771760f398129d2a1f87f70b2e",
+    "attempt-082.json": "589db84d05346b3668449d04b2ea20e956d35a0b407d24d1b0bd3167c126d14f",
+    "attempt-083.json": "6363e92b9012e5a96a9b8c581a1a886d9540d002dce9e09b8f2c1f3390404a44",
+    "attempt-084.json": "6ea6efd4059777ad65834eff8afb97374c20bff8f246e64ff8a5c278d08e406b",
+    "attempt-085.json": "aee8b9eed89a3f8c398db8aeb285a079a9373997af6bdcb5aab9f920cde18bd7",
+    "attempt-086.json": "a68b9e4c271aaa86d5f8dc43e4cc21e27edf72c97c4b2e96e92bf5617305e5a4",
+    "attempt-087.json": "761a4facc70714679abd45c851defb1721e6f543999eae6da5150c217f80d876",
+    "attempt-088.json": "7677dcac8f3e9b8626a802a58138cab81b211e0b324c15164915328d1369503c",
+    "attempt-089.json": "590a0772af953193099269a853d2c1802f9f11eb29e0db35a20644ebf612f660",
+    "attempt-090.json": "37d02c62b3a30ba7adb84dc2175d9486031199d59d9c0127a49d22f5f928cb10",
+    "attempt-091.json": "d8af8444486aefd4b89a2e4a02911fa6bb4ad8efe73950e648dc72ececc2601b",
+    "attempt-092.json": "bacc8803671aa976d0376b06c3e5490e26a342032347dcd61dcfd1d71ea9991a",
+    "attempt-093.json": "d4fede1e6b54859ede1e2ecdeea3351cfba95879d6023e1e4706a7ef36894a67",
+    "attempt-094.json": "772d96245b6157169cd6de8dcc39715e9daed7ab2b039ff7878e3c3921087554",
+    "attempt-095.json": "6baf362503557350d4beed304c931215e4eb5fc114cf848eb38c81066804ce33",
+    "attempt-096.json": "244ba01b581bab66bdebbf67343cbeeb00d7168e7e51f482910264273186ddf4",
+    "attempt-097.json": "94095d35a501113f0c6d9818457d0b4b1459a2fce6ba43f066cd79280fdc8373",
+    "attempt-098.json": "9ffa55724e6f4d204e136d553e4c18b29179c9e8a7d57a72f1e6806697318194",
+    "attempt-099.json": "cb3dfdb4add8b082c6d7cc68558ae486c1b14a472aafbc2a5d7a991615e2fe75",
+    "attempt-100.json": "ab0b29e718d841b4cb3bba53def9c0dd836184bba0dd8f199ebce8ba5862e21c"
+  },
+  "metrics": {
+    "baseline": {
+      "cases": 50,
+      "correct": 44,
+      "tasks": 62,
+      "task_correct": 56,
+      "false_operation": 1,
+      "sensitivity_without_Q23": {
+        "cases": 49,
+        "correct": 44
+      }
+    },
+    "jev_raw": {
+      "cases": 50,
+      "correct": 42,
+      "tasks": 62,
+      "task_correct": 54,
+      "false_operation": 4,
+      "sensitivity_without_Q23": {
+        "cases": 49,
+        "correct": 42
+      }
+    },
+    "hybrid": {
+      "cases": 50,
+      "correct": 44,
+      "tasks": 62,
+      "task_correct": 56,
+      "false_operation": 3,
+      "sensitivity_without_Q23": {
+        "cases": 49,
+        "correct": 44
+      }
+    }
+  },
+  "cost_estimate_peak_cache_miss_usd": {
+    "baseline": 0.0129222,
+    "jev_raw": 0.002952642,
+    "hybrid": 0.005778042
+  },
+  "cost_unknown_calls": {
+    "baseline": 0,
+    "jev_raw": 0,
+    "hybrid": 0
+  },
+  "errors": {
+    "baseline": [],
+    "jev": []
+  },
+  "label_counts": {
+    "INFORMATION": 29,
+    "DECLINED": 15,
+    "MERCHANT_REVIEW": 10,
+    "PREPARE_REFUND": 7,
+    "UNCLEAR": 1
+  },
+  "cost_comparison_scope": "Purpose module only; hybrid reconstructed using paired baseline usage; uniform peak cache-miss estimates, not actual billing or full Agent cost."
+}

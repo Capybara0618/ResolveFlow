@@ -1,0 +1,943 @@
+{
+  "version": "jev-intent-fifty-cost-audit-v1",
+  "summary_sha256": "1828f3390968454b00b5f33cf2fd3825da5ddc74471fd4f5ab1e94483fa76289",
+  "uniform_peak_estimate_only": true,
+  "not_invoice": true,
+  "pricing_sources": [
+    "https://docs.typesafe.ai/models",
+    "https://api-docs.deepseek.com/quick_start/pricing/"
+  ],
+  "rates_usd_per_million": {
+    "primary_cache_hit": 0.006,
+    "primary_cache_miss": 0.3,
+    "primary_output": 1.2,
+    "jev_input": 0.042,
+    "jev_output": 0
+  },
+  "all_100_complete": true,
+  "actual_attempts": 100,
+  "actual_study_estimated_usd": 0.012111642,
+  "reserved_usd": 0.11220160199999998,
+  "served_models": {
+    "deepseek-flash": 50,
+    "jev-1.14.0": 50
+  },
+  "primary_cache_hit_tokens": 12800,
+  "primary_cache_miss_tokens": 15454,
+  "baseline_peak_cache_aware_estimated_usd": 0.009159,
+  "hybrid_peak_cache_aware_estimated_usd": 0.004950138,
+  "hybrid_estimated_saving_fraction": 0.45953291844087785,
+  "hybrid_reconstructed_usage": {
+    "input_tokens": 76515,
+    "output_tokens": 5157,
+    "model_calls": 61
+  },
+  "module_latency_ms": {
+    "baseline_mean": 1052.1000000019558,
+    "baseline_median": 1062.000000005355,
+    "hybrid_sequential_reconstructed_mean": 739.9999999988545,
+    "hybrid_sequential_reconstructed_median": 500.0
+  },
+  "rows": [
+    {
+      "id": "Q01-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 528,
+        "completion_tokens": 62,
+        "total_tokens": 590,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 272
+      },
+      "primary_sent_at": "2026-11-02T06:45:03.588512+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000157536,
+      "jev_estimated_usd": 4.8552e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.8552e-05
+    },
+    {
+      "id": "Q02-T1",
+      "fallback": true,
+      "primary_usage": {
+        "prompt_tokens": 526,
+        "completion_tokens": 67,
+        "total_tokens": 593,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 270
+      },
+      "primary_sent_at": "2026-11-02T06:45:04.556280+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00016293599999999997,
+      "jev_estimated_usd": 4.8552e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 0.00021148799999999996
+    },
+    {
+      "id": "Q03-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 536,
+        "completion_tokens": 91,
+        "total_tokens": 627,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 280
+      },
+      "primary_sent_at": "2026-11-02T06:45:06.795110+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000194736,
+      "jev_estimated_usd": 8.269800000000001e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 8.269800000000001e-05
+    },
+    {
+      "id": "Q04-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 528,
+        "completion_tokens": 71,
+        "total_tokens": 599,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 272
+      },
+      "primary_sent_at": "2026-11-02T06:45:07.716312+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00016833600000000002,
+      "jev_estimated_usd": 4.8804e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.8804e-05
+    },
+    {
+      "id": "Q05-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 534,
+        "completion_tokens": 72,
+        "total_tokens": 606,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 278
+      },
+      "primary_sent_at": "2026-11-02T06:45:09.888633+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000171336,
+      "jev_estimated_usd": 4.8972e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.8972e-05
+    },
+    {
+      "id": "Q06-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 534,
+        "completion_tokens": 66,
+        "total_tokens": 600,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 278
+      },
+      "primary_sent_at": "2026-11-02T06:45:10.871868+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000164136,
+      "jev_estimated_usd": 4.8804e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.8804e-05
+    },
+    {
+      "id": "Q07-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 536,
+        "completion_tokens": 75,
+        "total_tokens": 611,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 280
+      },
+      "primary_sent_at": "2026-11-02T06:45:12.646820+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000175536,
+      "jev_estimated_usd": 4.914e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.914e-05
+    },
+    {
+      "id": "Q08-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 536,
+        "completion_tokens": 67,
+        "total_tokens": 603,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 280
+      },
+      "primary_sent_at": "2026-11-02T06:45:13.797800+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000165936,
+      "jev_estimated_usd": 4.914e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.914e-05
+    },
+    {
+      "id": "Q09-T1",
+      "fallback": true,
+      "primary_usage": {
+        "prompt_tokens": 532,
+        "completion_tokens": 74,
+        "total_tokens": 606,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 276
+      },
+      "primary_sent_at": "2026-11-02T06:45:15.681304+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000173136,
+      "jev_estimated_usd": 4.8636e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 0.00022177200000000002
+    },
+    {
+      "id": "Q09-T2",
+      "fallback": true,
+      "primary_usage": {
+        "prompt_tokens": 612,
+        "completion_tokens": 80,
+        "total_tokens": 692,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 356
+      },
+      "primary_sent_at": "2026-11-02T06:45:16.881909+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000204336,
+      "jev_estimated_usd": 5.3802000000000004e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 0.000258138
+    },
+    {
+      "id": "Q10-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 524,
+        "completion_tokens": 64,
+        "total_tokens": 588,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 268
+      },
+      "primary_sent_at": "2026-11-02T06:45:19.379440+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00015873599999999998,
+      "jev_estimated_usd": 4.8468000000000004e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.8468000000000004e-05
+    },
+    {
+      "id": "Q10-T2",
+      "fallback": true,
+      "primary_usage": {
+        "prompt_tokens": 609,
+        "completion_tokens": 77,
+        "total_tokens": 686,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 353
+      },
+      "primary_sent_at": "2026-11-02T06:45:20.180286+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00019983599999999998,
+      "jev_estimated_usd": 5.3802000000000004e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 0.000253638
+    },
+    {
+      "id": "Q11-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 531,
+        "completion_tokens": 84,
+        "total_tokens": 615,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 275
+      },
+      "primary_sent_at": "2026-11-02T06:45:22.169508+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00018483600000000002,
+      "jev_estimated_usd": 8.2152e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 8.2152e-05
+    },
+    {
+      "id": "Q11-T2",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 597,
+        "completion_tokens": 61,
+        "total_tokens": 658,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 341
+      },
+      "primary_sent_at": "2026-11-02T06:45:23.287378+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000177036,
+      "jev_estimated_usd": 5.304600000000001e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 5.304600000000001e-05
+    },
+    {
+      "id": "Q11-T3",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 666,
+        "completion_tokens": 63,
+        "total_tokens": 729,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 410
+      },
+      "primary_sent_at": "2026-11-02T06:45:25.272440+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00020013599999999998,
+      "jev_estimated_usd": 5.8044e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 5.8044e-05
+    },
+    {
+      "id": "Q12-T1",
+      "fallback": true,
+      "primary_usage": {
+        "prompt_tokens": 530,
+        "completion_tokens": 67,
+        "total_tokens": 597,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 274
+      },
+      "primary_sent_at": "2026-11-02T06:45:26.299562+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000164136,
+      "jev_estimated_usd": 4.8888000000000004e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 0.000213024
+    },
+    {
+      "id": "Q12-T2",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 607,
+        "completion_tokens": 58,
+        "total_tokens": 665,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 351
+      },
+      "primary_sent_at": "2026-11-02T06:45:28.127609+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00017643599999999998,
+      "jev_estimated_usd": 5.3592000000000005e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 5.3592000000000005e-05
+    },
+    {
+      "id": "Q13-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 524,
+        "completion_tokens": 68,
+        "total_tokens": 592,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 268
+      },
+      "primary_sent_at": "2026-11-02T06:45:29.096114+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00016353600000000001,
+      "jev_estimated_usd": 4.8216e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.8216e-05
+    },
+    {
+      "id": "Q13-T2",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 608,
+        "completion_tokens": 94,
+        "total_tokens": 702,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 352
+      },
+      "primary_sent_at": "2026-11-02T06:45:31.125490+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00021993599999999998,
+      "jev_estimated_usd": 8.7402e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 8.7402e-05
+    },
+    {
+      "id": "Q13-T3",
+      "fallback": true,
+      "primary_usage": {
+        "prompt_tokens": 668,
+        "completion_tokens": 59,
+        "total_tokens": 727,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 412
+      },
+      "primary_sent_at": "2026-11-02T06:45:32.239820+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000195936,
+      "jev_estimated_usd": 5.7624e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 0.00025356
+    },
+    {
+      "id": "Q14-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 530,
+        "completion_tokens": 63,
+        "total_tokens": 593,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 274
+      },
+      "primary_sent_at": "2026-11-02T06:45:34.142487+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00015933600000000002,
+      "jev_estimated_usd": 4.8804e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.8804e-05
+    },
+    {
+      "id": "Q14-T2",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 609,
+        "completion_tokens": 87,
+        "total_tokens": 696,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 353
+      },
+      "primary_sent_at": "2026-11-02T06:45:35.237323+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000211836,
+      "jev_estimated_usd": 8.7528e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 8.7528e-05
+    },
+    {
+      "id": "Q14-T3",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 668,
+        "completion_tokens": 67,
+        "total_tokens": 735,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 412
+      },
+      "primary_sent_at": "2026-11-02T06:45:37.095592+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000205536,
+      "jev_estimated_usd": 5.7918000000000003e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 5.7918000000000003e-05
+    },
+    {
+      "id": "Q15-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 526,
+        "completion_tokens": 60,
+        "total_tokens": 586,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 270
+      },
+      "primary_sent_at": "2026-11-02T06:45:38.180787+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000154536,
+      "jev_estimated_usd": 4.83e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.83e-05
+    },
+    {
+      "id": "Q15-T2",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 604,
+        "completion_tokens": 92,
+        "total_tokens": 696,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 348
+      },
+      "primary_sent_at": "2026-11-02T06:45:40.433453+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000216336,
+      "jev_estimated_usd": 8.689800000000001e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 8.689800000000001e-05
+    },
+    {
+      "id": "Q15-T3",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 668,
+        "completion_tokens": 70,
+        "total_tokens": 738,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 412
+      },
+      "primary_sent_at": "2026-11-02T06:45:41.537814+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00020913599999999998,
+      "jev_estimated_usd": 5.7624e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 5.7624e-05
+    },
+    {
+      "id": "Q16-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 522,
+        "completion_tokens": 60,
+        "total_tokens": 582,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 266
+      },
+      "primary_sent_at": "2026-11-02T06:45:43.623920+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000153336,
+      "jev_estimated_usd": 4.8132000000000006e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.8132000000000006e-05
+    },
+    {
+      "id": "Q16-T2",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 611,
+        "completion_tokens": 91,
+        "total_tokens": 702,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 355
+      },
+      "primary_sent_at": "2026-11-02T06:45:44.298071+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000217236,
+      "jev_estimated_usd": 8.7528e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 8.7528e-05
+    },
+    {
+      "id": "Q16-T3",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 680,
+        "completion_tokens": 80,
+        "total_tokens": 760,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 424
+      },
+      "primary_sent_at": "2026-11-02T06:45:46.432189+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00022473599999999998,
+      "jev_estimated_usd": 5.8212000000000004e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 5.8212000000000004e-05
+    },
+    {
+      "id": "Q17-T1",
+      "fallback": true,
+      "primary_usage": {
+        "prompt_tokens": 526,
+        "completion_tokens": 59,
+        "total_tokens": 585,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 270
+      },
+      "primary_sent_at": "2026-11-02T06:45:47.276762+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000153336,
+      "jev_estimated_usd": 4.83e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 0.00020163600000000002
+    },
+    {
+      "id": "Q17-T2",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 606,
+        "completion_tokens": 84,
+        "total_tokens": 690,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 350
+      },
+      "primary_sent_at": "2026-11-02T06:45:49.398065+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00020733600000000002,
+      "jev_estimated_usd": 8.715e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 8.715e-05
+    },
+    {
+      "id": "Q18-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 526,
+        "completion_tokens": 60,
+        "total_tokens": 586,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 270
+      },
+      "primary_sent_at": "2026-11-02T06:45:50.388843+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000154536,
+      "jev_estimated_usd": 4.8384e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.8384e-05
+    },
+    {
+      "id": "Q18-T2",
+      "fallback": true,
+      "primary_usage": {
+        "prompt_tokens": 613,
+        "completion_tokens": 92,
+        "total_tokens": 705,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 357
+      },
+      "primary_sent_at": "2026-11-02T06:45:52.795537+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000219036,
+      "jev_estimated_usd": 8.757e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 0.000306606
+    },
+    {
+      "id": "Q19-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 526,
+        "completion_tokens": 61,
+        "total_tokens": 587,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 270
+      },
+      "primary_sent_at": "2026-11-02T06:45:53.797208+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000155736,
+      "jev_estimated_usd": 4.8468000000000004e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.8468000000000004e-05
+    },
+    {
+      "id": "Q19-T2",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 590,
+        "completion_tokens": 67,
+        "total_tokens": 657,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 334
+      },
+      "primary_sent_at": "2026-11-02T06:45:55.449162+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000182136,
+      "jev_estimated_usd": 5.3382000000000005e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 5.3382000000000005e-05
+    },
+    {
+      "id": "Q20-T1",
+      "fallback": true,
+      "primary_usage": {
+        "prompt_tokens": 524,
+        "completion_tokens": 60,
+        "total_tokens": 584,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 268
+      },
+      "primary_sent_at": "2026-11-02T06:45:56.611021+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00015393599999999997,
+      "jev_estimated_usd": 4.8048000000000005e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 0.00020198399999999997
+    },
+    {
+      "id": "Q20-T2",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 607,
+        "completion_tokens": 86,
+        "total_tokens": 693,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 351
+      },
+      "primary_sent_at": "2026-11-02T06:45:58.421402+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000210036,
+      "jev_estimated_usd": 8.6982e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 8.6982e-05
+    },
+    {
+      "id": "Q21-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 538,
+        "completion_tokens": 74,
+        "total_tokens": 612,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 282
+      },
+      "primary_sent_at": "2026-11-02T06:45:59.301431+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00017493599999999997,
+      "jev_estimated_usd": 4.9308e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.9308e-05
+    },
+    {
+      "id": "Q22-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 534,
+        "completion_tokens": 75,
+        "total_tokens": 609,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 278
+      },
+      "primary_sent_at": "2026-11-02T06:46:01.396137+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00017493599999999997,
+      "jev_estimated_usd": 4.914e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.914e-05
+    },
+    {
+      "id": "Q23-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 530,
+        "completion_tokens": 73,
+        "total_tokens": 603,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 274
+      },
+      "primary_sent_at": "2026-11-02T06:46:02.556807+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00017133600000000001,
+      "jev_estimated_usd": 4.8972e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.8972e-05
+    },
+    {
+      "id": "Q24-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 538,
+        "completion_tokens": 76,
+        "total_tokens": 614,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 282
+      },
+      "primary_sent_at": "2026-11-02T06:46:04.310067+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00017733600000000002,
+      "jev_estimated_usd": 4.9224e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.9224e-05
+    },
+    {
+      "id": "Q25-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 528,
+        "completion_tokens": 69,
+        "total_tokens": 597,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 272
+      },
+      "primary_sent_at": "2026-11-02T06:46:05.596065+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000165936,
+      "jev_estimated_usd": 4.8804e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.8804e-05
+    },
+    {
+      "id": "Q26-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 534,
+        "completion_tokens": 75,
+        "total_tokens": 609,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 278
+      },
+      "primary_sent_at": "2026-11-02T06:46:08.080404+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00017493599999999997,
+      "jev_estimated_usd": 4.8972e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.8972e-05
+    },
+    {
+      "id": "Q27-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 534,
+        "completion_tokens": 71,
+        "total_tokens": 605,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 278
+      },
+      "primary_sent_at": "2026-11-02T06:46:09.053380+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00017013599999999999,
+      "jev_estimated_usd": 4.9056000000000006e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 4.9056000000000006e-05
+    },
+    {
+      "id": "Q28-T1",
+      "fallback": true,
+      "primary_usage": {
+        "prompt_tokens": 518,
+        "completion_tokens": 64,
+        "total_tokens": 582,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 262
+      },
+      "primary_sent_at": "2026-11-02T06:46:11.040301+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000156936,
+      "jev_estimated_usd": 4.788e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 0.000204816
+    },
+    {
+      "id": "Q28-T2",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 598,
+        "completion_tokens": 73,
+        "total_tokens": 671,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 342
+      },
+      "primary_sent_at": "2026-11-02T06:46:12.257207+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000191736,
+      "jev_estimated_usd": 5.3214e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 5.3214e-05
+    },
+    {
+      "id": "Q29-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 550,
+        "completion_tokens": 114,
+        "total_tokens": 664,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 294
+      },
+      "primary_sent_at": "2026-11-02T06:46:14.384043+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000226536,
+      "jev_estimated_usd": 8.3454e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 8.3454e-05
+    },
+    {
+      "id": "Q30-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 550,
+        "completion_tokens": 87,
+        "total_tokens": 637,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 294
+      },
+      "primary_sent_at": "2026-11-02T06:46:15.595705+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000194136,
+      "jev_estimated_usd": 5.0148e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 5.0148e-05
+    },
+    {
+      "id": "Q31-T1",
+      "fallback": false,
+      "primary_usage": {
+        "prompt_tokens": 544,
+        "completion_tokens": 93,
+        "total_tokens": 637,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 288
+      },
+      "primary_sent_at": "2026-11-02T06:46:18.265163+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.000199536,
+      "jev_estimated_usd": 8.3034e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 8.3034e-05
+    },
+    {
+      "id": "Q32-T1",
+      "fallback": true,
+      "primary_usage": {
+        "prompt_tokens": 556,
+        "completion_tokens": 102,
+        "total_tokens": 658,
+        "prompt_tokens_details": {
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 300
+      },
+      "primary_sent_at": "2026-11-02T06:46:19.658818+00:00",
+      "primary_peak_cache_aware_estimated_usd": 0.00021393599999999997,
+      "jev_estimated_usd": 8.3874e-05,
+      "hybrid_peak_cache_aware_estimated_usd": 0.00029780999999999997
+    }
+  ]
+}
