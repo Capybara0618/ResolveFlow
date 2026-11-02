@@ -22,7 +22,8 @@ def test_direct_catalog_retains_request_response_and_anonymous_security(suffix, 
 
 def test_commerce_does_not_publish_internal_commands_or_private_media():
     doc = load_openapi("commerce", "contracts/core")
-    public = {p: v for p, v in doc["paths"].items() if p.startswith("/api/")}
+    public = {p: v for p, v in doc["paths"].items() if p.startswith("/api/")
+              and all(op.get("security") == [] for method, op in v.items() if method in {"get", "post"})}
     assert len(public) == 8
     assert all(set(item) <= {"get", "post", "parameters"} for item in public.values())
     assert [p for p,item in public.items() if "post" in item] == ["/api/v1/shop/quote"]

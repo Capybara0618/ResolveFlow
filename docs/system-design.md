@@ -4,7 +4,7 @@
 
 ![四服务架构与通信边界](assets/readme/architecture.svg)
 
-Gateway 已按接口分流：公共商品/店铺目录、展示资料、公开评价及只读报价直接进入 Commerce；受保护交易、账户、图片字节及售后接口目前仍进入 Case。上图为此前完整售后链路，目录新增直连箭头以[边界调整方案](service-boundary-plan.md)及[网关路由](../java/gateway/src/main/java/com/resolveflow/gateway/CoreRoutes.java)为准。身份认证与可信绑定暂由 Case 提供，不把目录直连宣称为受保护交易已经解耦。Agent通过Case限定范围的事实入口读取订单、物流与会话；退款命令及结果由RocketMQ连接Case与Commerce。图中的缓存标注表示用途，Redis是共享基础设施；Case与Commerce分别持有自己的MySQL业务库。调用实现见[Agent调度](../java/case-service/src/main/java/com/resolveflow/caseservice/support/SupportAgentClient.java)与[事实读取](../agent/src/resolveflow/support/sources.py)。
+Gateway 已按接口分流：公共商品/店铺目录、展示资料、公开评价及报价，以及购物车、草稿、付款、购买记录与收货快照直接进入 Commerce；商家交易、评价写入、原订单行视图、账户、图片字节及售后接口暂进入 Case。上图为此前完整售后链路，新增直连箭头以[边界调整方案](service-boundary-plan.md)及[网关路由](../java/gateway/src/main/java/com/resolveflow/gateway/CoreRoutes.java)为准。Commerce 通过受限身份协议实时向暂部署在 Case 的账户模块复核账号和可信绑定，再执行本地资源授权；不宣称受保护交易已实现身份服务故障隔离。Agent通过Case限定范围的事实入口读取订单、物流与会话；退款命令及结果由RocketMQ连接Case与Commerce。图中的缓存标注表示用途，Redis是共享基础设施；Case与Commerce分别持有自己的MySQL业务库。调用实现见[Agent调度](../java/case-service/src/main/java/com/resolveflow/caseservice/support/SupportAgentClient.java)与[事实读取](../agent/src/resolveflow/support/sources.py)。
 
 | 组件 | 职责 | 数据 |
 | --- | --- | --- |

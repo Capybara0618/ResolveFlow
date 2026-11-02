@@ -31,6 +31,734 @@ tags:
   - name: refund
     description: Refund operation state and the reconciliation answer.
 paths:
+  /api/v1/shop/cart:
+    get:
+      operationId: commerceDirectCaseCartGet
+      summary: Cart
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/cart-multiline-checkout.md.
+        Cart ownership from trusted Case buyer bindings. Read and write require private
+        commerce:checkout scope; Agent has no access. Absolute quantities, immutable
+        request receipts and cart revision CAS.'
+      parameters: []
+      responses:
+        '200':
+          description: Scoped persistent cart projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+              example:
+                stores:
+                - store_id: M-1001
+                  store_name: 松间数码
+                  revision: 1
+                  currency: CNY
+                  items:
+                  - sku_id: SKU-1001-BLACK
+                    product_id: P-1001
+                    product_name: 无线降噪耳机
+                    variant: 黑色
+                    asset_key: headphones
+                    quantity: 1
+                    unit_amount: 32900
+                    total_amount: 32900
+                    max_quantity: 10
+                    sku_version: 1
+                    price_changed: false
+                    availability: AVAILABLE
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Only buyer / case-service checkout identity
+        '404':
+          description: Not visible
+        '409':
+          description: Cart, price or idempotency conflict
+        '503':
+          description: Unavailable; retry original request
+      security:
+      - bearerAuth: []
+  /api/v1/shop/cart/{store_id}/items:
+    post:
+      operationId: commerceDirectCaseCartPost
+      summary: CartReceipt
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/cart-multiline-checkout.md.
+        Cart ownership from trusted Case buyer bindings. Read and write require private
+        commerce:checkout scope; Agent has no access. Absolute quantities, immutable
+        request receipts and cart revision CAS.'
+      parameters:
+      - name: store_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+      responses:
+        '200':
+          description: Scoped persistent cart projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartReceipt'
+              example:
+                store_id: M-1001
+                revision: 1
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Only buyer / case-service checkout identity
+        '404':
+          description: Not visible
+        '409':
+          description: Cart, price or idempotency conflict
+        '503':
+          description: Unavailable; retry original request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartRequest'
+            example:
+              sku_id: SKU-1001-BLACK
+              quantity: 1
+              expected_revision: 0
+              expected_sku_version: 1
+      security:
+      - bearerAuth: []
+  /api/v1/shop/cart/{store_id}/quote:
+    post:
+      operationId: commerceDirectCaseCartQuote
+      summary: CartQuote
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/cart-multiline-checkout.md.
+        Single-store selected cart lines, canonical SKU order, immutable request key,
+        cart version and current price revalidation. Other store and unselected rows
+        retained; replay never deletes readded rows. Private commerce:checkout only
+        for case-service.'
+      parameters:
+      - name: store_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+      responses:
+        '200':
+          description: Authoritative quote or immutable purchase snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartQuote'
+              example:
+                store_id: M-1001
+                store_name: 松间数码
+                revision: 2
+                currency: CNY
+                lines:
+                - sku_id: SKU-1001-BLACK
+                  product_id: P-1001
+                  product_name: 无线降噪耳机
+                  variant: 黑色
+                  asset_key: headphones
+                  quantity: 1
+                  unit_amount: 32900
+                  sku_version: 1
+                  category: electronics
+                  line_amount: 32900
+                - sku_id: SKU-1002-WHITE
+                  product_id: P-1002
+                  product_name: 机械键盘
+                  variant: 白色
+                  asset_key: keyboard
+                  quantity: 2
+                  unit_amount: 19900
+                  sku_version: 1
+                  category: electronics
+                  line_amount: 39800
+                total_amount: 72700
+        '400':
+          description: Invalid lines or amount
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Only buyer / case-service checkout identity
+        '404':
+          description: Not visible or delisted
+        '409':
+          description: Cart, price or request changed
+        '503':
+          description: Unavailable; retry same original request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartQuoteRequest'
+            example:
+              expected_revision: 2
+              sku_ids:
+              - SKU-1001-BLACK
+              - SKU-1002-WHITE
+      security:
+      - bearerAuth: []
+  /api/v1/shop/cart/{store_id}/drafts:
+    post:
+      operationId: commerceDirectCaseCartDrafts
+      summary: CheckoutPurchase
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/cart-multiline-checkout.md.
+        Single-store selected cart lines, canonical SKU order, immutable request key,
+        cart version and current price revalidation. Other store and unselected rows
+        retained; replay never deletes readded rows. Private commerce:checkout only
+        for case-service.'
+      parameters:
+      - name: store_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+      responses:
+        '200':
+          description: Authoritative quote or immutable purchase snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutPurchase'
+        '400':
+          description: Invalid lines or amount
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Only buyer / case-service checkout identity
+        '404':
+          description: Not visible or delisted
+        '409':
+          description: Cart, price or request changed
+        '503':
+          description: Unavailable; retry same original request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartDraftRequest'
+            example:
+              expected_revision: 2
+              lines:
+              - sku_id: SKU-1001-BLACK
+                quantity: 1
+                expected_sku_version: 1
+              - sku_id: SKU-1002-WHITE
+                quantity: 2
+                expected_sku_version: 1
+      security:
+      - bearerAuth: []
+  /api/v1/shop/drafts:
+    post:
+      operationId: commerceDirectCaseShoppingPost_drafts
+      summary: ShopDraft
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/catalog-checkout.md.
+        Public catalog or trusted buyer checkout; no payment publication. Draft routes
+        require commerce:checkout and case-service deployment identity internally.'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+          pattern: ^[A-Za-z0-9_-]+$
+      responses:
+        '200':
+          description: Persisted or public projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopDraft'
+              example:
+                draft_id: 00000000-0000-4000-8000-000000004001
+                store_id: M-1001
+                store_name: 松间数码
+                product_id: P-1001
+                product_name: 无线降噪耳机
+                asset_key: headphones
+                sku_id: SKU-1001-BLACK
+                variant: 黑色
+                quantity: 2
+                unit_amount: 32900
+                total_amount: 65800
+                currency: CNY
+                status: WAITING_PAYMENT
+                created_at: '2026-10-03T04:00:00Z'
+                expires_at: '2026-10-03T04:15:00Z'
+        '400':
+          description: Invalid documented input
+        '404':
+          description: Missing or not visible
+        '409':
+          description: Price changed or idempotency conflict
+        '503':
+          description: Unavailable; retry the same request/key
+        '401':
+          description: Missing or invalid current identity
+        '403':
+          description: Wrong role or service scope
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShopDraftRequest'
+            example:
+              sku_id: SKU-1001-BLACK
+              quantity: 2
+              expected_sku_version: 1
+      security:
+      - bearerAuth: []
+  /api/v1/shop/drafts/{draft_id}:
+    get:
+      operationId: commerceDirectCaseShoppingGet_drafts_draft_id
+      summary: ShopDraft
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/catalog-checkout.md.
+        Public catalog or trusted buyer checkout; no payment publication. Draft routes
+        require commerce:checkout and case-service deployment identity internally.'
+      parameters:
+      - name: draft_id
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+      responses:
+        '200':
+          description: Persisted or public projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopDraft'
+              example:
+                draft_id: 00000000-0000-4000-8000-000000004001
+                store_id: M-1001
+                store_name: 松间数码
+                product_id: P-1001
+                product_name: 无线降噪耳机
+                asset_key: headphones
+                sku_id: SKU-1001-BLACK
+                variant: 黑色
+                quantity: 2
+                unit_amount: 32900
+                total_amount: 65800
+                currency: CNY
+                status: WAITING_PAYMENT
+                created_at: '2026-10-03T04:00:00Z'
+                expires_at: '2026-10-03T04:15:00Z'
+        '400':
+          description: Invalid documented input
+        '404':
+          description: Missing or not visible
+        '409':
+          description: Price changed or idempotency conflict
+        '503':
+          description: Unavailable; retry the same request/key
+        '401':
+          description: Missing or invalid current identity
+        '403':
+          description: Wrong role or service scope
+      security:
+      - bearerAuth: []
+  /api/v1/shop/drafts/{draft_id}/payment:
+    post:
+      operationId: commerceDirectCaseCheckoutOperation1
+      summary: CheckoutPayment
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. 模拟付款/本人交易，见docs/simulated-checkout-payment.md；当前平台买家，归属仅从持久绑定派生。'
+      parameters:
+      - name: draft_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+      responses:
+        '200':
+          description: Scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutPayment'
+        '400':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutEmptyRequest'
+      security:
+      - bearerAuth: []
+    get:
+      operationId: commerceDirectCaseCheckoutOperation2
+      summary: CheckoutPaymentLookup
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. 模拟付款/本人交易，见docs/simulated-checkout-payment.md；当前平台买家，归属仅从持久绑定派生。'
+      parameters:
+      - name: draft_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+      responses:
+        '200':
+          description: Scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutPaymentLookup'
+        '400':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - bearerAuth: []
+  /api/v1/shop/drafts/{draft_id}/cancel:
+    post:
+      operationId: commerceDirectCaseCheckoutOperation3
+      summary: ShopDraft
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. 模拟付款/本人交易，见docs/simulated-checkout-payment.md；当前平台买家，归属仅从持久绑定派生。'
+      parameters:
+      - name: draft_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+      responses:
+        '200':
+          description: Scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopDraft'
+        '400':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutEmptyRequest'
+      security:
+      - bearerAuth: []
+  /api/v1/shop/purchases:
+    get:
+      operationId: commerceDirectCaseCheckoutOperation4
+      summary: CheckoutPurchases
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. 模拟付款/本人交易，见docs/simulated-checkout-payment.md；当前平台买家，归属仅从持久绑定派生。'
+      parameters:
+      - name: store_id
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - WAITING_PAYMENT
+          - PAYMENT_PENDING
+          - PAID
+          - CANCELLED
+          - EXPIRED
+          - AWAITING_SHIPMENT
+          - AWAITING_RECEIPT
+          - COMPLETED
+          - AFTER_SALES
+          - LOGISTICS_UNKNOWN
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 16384
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 48
+          default: 24
+      responses:
+        '200':
+          description: Scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutPurchases'
+        '400':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - bearerAuth: []
+  /api/v1/shop/purchases/{purchase_id}:
+    get:
+      operationId: commerceDirectCaseCheckoutOperation5
+      summary: CheckoutPurchase
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. 模拟付款/本人交易，见docs/simulated-checkout-payment.md；当前平台买家，归属仅从持久绑定派生。'
+      parameters:
+      - name: purchase_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+      responses:
+        '200':
+          description: Scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutPurchase'
+        '400':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - bearerAuth: []
+  /api/v1/shop/purchases/{purchase_id}/shipping:
+    get:
+      summary: 读取本人订单或草稿的固定收货信息
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShippingView'
+        '401':
+          description: 登录失效
+        '404':
+          description: 记录不可见或不存在
+        '409':
+          description: 版本已变化
+      parameters:
+      - in: path
+        name: purchase_id
+        required: true
+        schema:
+          type: string
+      operationId: commerceDirectBuyerShipping
+      description: 'Authority: docs/service-boundary-plan.md. Commerce checks current
+        buyer bindings and reads the immutable checkout address.'
+      security:
+      - bearerAuth: []
   /api/v1/shop/stores:
     get:
       operationId: commercePublicCaseShoppingGet_stores
@@ -2368,6 +3096,18 @@ paths:
               $ref: '#/components/schemas/ManagedProductCommand'
 components:
   securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'User JWT from the demonstration login. It carries the principal; X-User,
+        X-Role
+
+        and X-Merchant headers are stripped at the gateway and never trusted here
+
+        (docs/core-contracts.md:15).
+
+        '
     serviceToken:
       type: http
       scheme: bearer
@@ -2484,6 +3224,16 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    ShippingView:
+      type: object
+      additionalProperties: false
+      required:
+      - shipping
+      properties:
+        shipping:
+          oneOf:
+          - $ref: '#/components/schemas/ShippingSnapshot'
+          - type: 'null'
     Specification:
       type: object
       additionalProperties: false

@@ -55,6 +55,7 @@ class CoreRoutesTest {
         try {
             var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
             server.createContext("/api/v1/", exchange -> {
+                exchange.getRequestBody().readAllBytes();
                 commerceForwarded.set(exchange.getRequestMethod() + " " + exchange.getRequestURI() + " "
                         + exchange.getRequestHeaders().getFirst("X-Merchant"));
                 byte[] body = "{\"owner\":\"commerce\"}".getBytes(StandardCharsets.UTF_8);
@@ -97,7 +98,7 @@ class CoreRoutesTest {
     }
 
     @Test
-    void quoteGoesToCommerceButPrivateAndMediaPathsAndWrongMethodsStayOnCase() {
+    void quoteGoesToCommerceButUnmigratedMediaAndWrongMethodsStayOnCase() {
         webTestClient
                 .post()
                 .uri("/api/v1/shop/quote")
@@ -110,7 +111,6 @@ class CoreRoutesTest {
                 .isEqualTo("commerce");
         for (String path : new String[] {
             "/api/v1/shop/drafts",
-            "/api/v1/shop/cart",
             "/api/v1/shop/media/image-1",
             "/api/v1/shop/products/P-1001/private",
             "/api/v1/shop/orders/lines/line-1/review"
@@ -132,9 +132,62 @@ class CoreRoutesTest {
                 .isNotFound();
     }
 
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "/api/v1/shop/cart",
+                "/api/v1/shop/drafts/d-1",
+                "/api/v1/shop/drafts/d-1/payment",
+                "/api/v1/shop/purchases?limit=2",
+                "/api/v1/shop/purchases/draft:d-1",
+                "/api/v1/shop/purchases/draft:d-1/shipping"
+            })
+    void authenticatedShoppingReadsGoToCommerce(String path) {
+        webTestClient
+                .get()
+                .uri(path)
+                .header("Authorization", "Bearer buyer-token")
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$.owner")
+                .isEqualTo("commerce");
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "/api/v1/shop/drafts",
+                "/api/v1/shop/drafts/d-1/payment",
+                "/api/v1/shop/drafts/d-1/cancel",
+                "/api/v1/shop/cart/M-1001/items",
+                "/api/v1/shop/cart/M-1001/quote",
+                "/api/v1/shop/cart/M-1001/drafts"
+            })
+    void authenticatedShoppingWritesGoToCommerce(String path) {
+        webTestClient
+                .post()
+                .uri(path)
+                .header("Authorization", "Bearer buyer-token")
+                .header("Idempotency-Key", "request-1")
+                .bodyValue("{}")
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$.owner")
+                .isEqualTo("commerce");
+    }
+
     private static HttpServer startUpstream() {
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+            server.createContext("/api/v1/", exchange -> {
+                exchange.getRequestBody().readAllBytes();
+                exchange.sendResponseHeaders(404, -1);
+                exchange.close();
+            });
             server.createContext("/api/v1/cases/case-1/events", exchange -> {
                 forwarded.set(exchange.getRequestMethod() + " " + exchange.getRequestURI() + " "
                         + exchange.getRequestHeaders().getFirst("Authorization") + " "

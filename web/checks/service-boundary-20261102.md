@@ -33,3 +33,18 @@
 - 身份契约夹具/注入拒绝及运行驱动 31 项过；新测试 Ruff、7 类定向 Spotless、`git diff --check` 通过。核心路由数只追加一个 Case 内部操作，未删除原断言。
 
 本步尚未切换私有交易流量；身份服务暂部署在 Case，受保护交易仍依赖它的可用性。账户包尚复用旧会话解析器，不宣称整个身份模块已经实现物理拆分。
+
+## 买家购物与结算直连
+
+`PublicCartController`/`PublicCheckoutController` 通过当前身份协议取可信绑定，直接调用 Commerce 的购物车、草稿、付款与购买记录服务。跨店归并迁到 `BuyerPurchaseReads`，保留买家/绑定/筛选绑定游标、微秒时间及稳定店内排序。Gateway 切换对应 12 个操作，其他未迁移入口保留原路由。共享 DTO 与原 Case 兼容声明保留；Commerce 公共操作显式使用用户 bearerAuth，内部接口继续要求服务凭证。
+
+新建草稿前先在所有可信店铺探测原键结果，确认需要新建才读取地址快照。修复第二店铺旧草稿可能先读已删除地址的问题；外部账户调用位于本地事务完成后，付款/购物车版本/幂等/金额与原服务一致。
+
+- 新 `PublicShoppingApiTest` 4 项先红，日志 `tmp/service-boundary-shopping-red.log`；初实现与原购物/金额/收货/多行数据库组通过，追加分页检查后最终该类 5 项通过。
+- 最终 `-pl gateway,commerce-service -am -Dtest=CoreRoutesTest,PublicShoppingApiTest,BuyerPurchaseReadsTest,PublicCatalogApiTest,CartDatabaseTest,CheckoutPaymentDatabaseTest,MultiCheckoutDatabaseTest,CheckoutShippingDatabaseTest -Dsurefire.failIfNoSpecifiedTests=false test`：Gateway 23、Commerce 46 全过，无跳过。日志 `tmp/service-boundary-shopping-final2.log`。
+- HTTP 身份桩只返回已签名主体的绑定与地址，不代理交易；真实 MySQL 验证跨买家/跨店购物车隔离、附加 customer_id 拒绝、禁用后401、第二店铺地址删除后原键重放、换请求体409、重复付款只有一笔订单、收货快照不变、购物车结算服务器金额与原键回执。
+- 新归并单测 2 项验证相同微秒时间下原店内顺序、游标不能跨买家/归属/筛选复用、任一店失败不返回部分列表；HTTP 还验证真实两店分页。
+- 公共购物/目录/身份及原购物、付款、购物车契约 58 过；新增 Ruff、定向 Spotless 通过。初次契约命令误指不存在的文件，0 tests 明确失败后改为现有文件重跑，不当作成功。
+- 首次网关扩大用例出现桩默认404在POST未消费请求体时触发连接重置，修正 HTTP 测试桩读取请求体后，原404断言保持并通过；生产路由未为此放宽。
+
+仍未运行项目浏览器或付费模型；商家、评价写入、原订单行视图与图片字节的迁移不在本步完成声明内。

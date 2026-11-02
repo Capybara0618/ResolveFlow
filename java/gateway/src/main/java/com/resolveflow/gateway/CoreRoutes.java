@@ -36,6 +36,30 @@ public class CoreRoutes {
                                 .and()
                                 .path("/api/v1/shop/quote")
                                 .uri(commerceBaseUrl))
+                .route(
+                        "commerce-shopping-read",
+                        route -> route.method(HttpMethod.GET)
+                                .and()
+                                .path(
+                                        "/api/v1/shop/cart",
+                                        "/api/v1/shop/drafts/{id}",
+                                        "/api/v1/shop/drafts/{id}/payment",
+                                        "/api/v1/shop/purchases",
+                                        "/api/v1/shop/purchases/{id}",
+                                        "/api/v1/shop/purchases/{id}/shipping")
+                                .uri(commerceBaseUrl))
+                .route(
+                        "commerce-shopping-write",
+                        route -> route.method(HttpMethod.POST)
+                                .and()
+                                .path(
+                                        "/api/v1/shop/drafts",
+                                        "/api/v1/shop/drafts/{id}/payment",
+                                        "/api/v1/shop/drafts/{id}/cancel",
+                                        "/api/v1/shop/cart/{store}/items",
+                                        "/api/v1/shop/cart/{store}/quote",
+                                        "/api/v1/shop/cart/{store}/drafts")
+                                .uri(commerceBaseUrl))
                 .route("case-core-api", route -> route.path("/api/v1/**").uri(caseBaseUrl))
                 .build();
     }

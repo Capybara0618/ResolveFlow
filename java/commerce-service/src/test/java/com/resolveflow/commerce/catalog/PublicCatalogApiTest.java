@@ -116,7 +116,7 @@ class PublicCatalogApiTest extends CommerceDatabaseTest {
                 .body("{}")
                 .exchange()
                 .expectStatus()
-                .isNotFound();
+                .isUnauthorized();
         rest.post()
                 .uri("/api/v1/shop/products/P-1001/presentation")
                 .contentType(MediaType.APPLICATION_JSON)
