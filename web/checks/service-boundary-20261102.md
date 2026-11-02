@@ -48,3 +48,13 @@
 - 首次网关扩大用例出现桩默认404在POST未消费请求体时触发连接重置，修正 HTTP 测试桩读取请求体后，原404断言保持并通过；生产路由未为此放宽。
 
 仍未运行项目浏览器或付费模型；商家、评价写入、原订单行视图与图片字节的迁移不在本步完成声明内。
+
+## 商家交易、商品与评价直连
+
+新增 Commerce `PublicMerchantController`、`PublicCatalogAdminController`、`PublicReviewController`，13 操作切到 Commerce，继续通过当前会话协议认证，服务自身按商家/买家匹配订单、商品与评价。购物车与付款等原领域规则、通知事件和资金路径不改。迁移评价限流到 Commerce，保留原 Redis 命名空间与账号/动作窗口；运行脚本及 Compose 显式启用，旧窗口不重置。
+
+- 新增3个HTTP场景先红，原5场景通过；实现后完整 `PublicShoppingApiTest` 8过。新增场景覆盖本店/他店/买家访问商家交易、重复发货原键复用、本人履约、签收资格、跨买家评价、跨店回复、商品管理归属及请求体归属注入拒绝。
+- 最终 `-pl gateway,commerce-service -am -Dtest=CoreRoutesTest,PublicShoppingApiTest,ReviewWriteLimiterRedisTest,PublicReviewLimiterApiTest,ProductReviewDatabaseTest,FulfillmentDatabaseTest,CatalogManagementTest -Dsurefire.failIfNoSpecifiedTests=false test`：Gateway36、Commerce32全过。真实隔离Redis的3项沿用原6次/60秒、两个实例原子共享窗口和暂停故障限时拒绝；HTTP额外验证429/503、Retry-After及失败不调用评价领域写入。
+- 直接购物/商家契约、原履约/基础管理与运行驱动69过；新Ruff、定向格式、diff-check通过。原评价契约专题纳入集中收尾。日志 `tmp/service-boundary-merchant-red.log`、`merchant-green.log`、`merchant-final.log`、`merchant-contracts.log` 均在相同前缀目录。
+
+商家展示资料写入与图片上传/读取仍在Case：实际文件与媒体归属库属于该进程，不能仅按商品URL把它切给没有文件的Commerce。普通商品管理已直连；原订单行API及旧门面默认停用仍待下一小步。

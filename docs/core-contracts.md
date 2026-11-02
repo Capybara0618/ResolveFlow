@@ -188,6 +188,20 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Commerce | GET /api/v1/shop/purchases/{purchase_id} | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
 | Commerce | GET /api/v1/shop/purchases/{purchase_id}/shipping | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
 
+| Commerce | GET /api/v1/merchant/orders | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
+| Commerce | GET /api/v1/merchant/orders/{order_id} | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
+| Commerce | POST /api/v1/merchant/orders/{order_id}/simulated-shipment | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
+| Commerce | GET /api/v1/shop/purchases/{purchase_id}/fulfillment | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
+| Commerce | GET /api/v1/shop/orders/lines/{line_id}/review | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
+| Commerce | POST /api/v1/shop/orders/lines/{line_id}/review | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
+| Commerce | GET /api/v1/merchant/reviews | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
+| Commerce | POST /api/v1/merchant/reviews/{review_id}/reply | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
+| Commerce | GET /api/v1/merchant/products | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
+| Commerce | POST /api/v1/merchant/products | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
+| Commerce | GET /api/v1/merchant/products/{id} | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
+| Commerce | POST /api/v1/merchant/products/{id} | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
+| Commerce | GET /api/v1/merchant/orders/{order_id}/shipping | docs/service-boundary-plan.md；当前用户实时复核，Commerce本地资源授权与交易 |
+
 ## 4. 运行与回调
 
 run请求沿用run/case/input_revision、受控context(merchant/customer/order/line)、request、policy_manifest、deadline_at、traceparent；body主体必须与service JWT及Case绑定一致。

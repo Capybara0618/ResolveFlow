@@ -1664,6 +1664,7 @@ def start_commerce_service(settings: Settings, log: Log) -> None:
             RESOLVEFLOW_IDENTITY_BASE_URL=settings.case_url,
             REFUND_PROVIDER_URL=settings.agent_url,
             PRODUCT_REVIEW_CACHE_ENABLED="true",
+            PRODUCT_REVIEW_RATE_LIMIT_ENABLED="true",
             CHECKOUT_RECOVERY_ENABLED="true",
             REDIS_HOST="127.0.0.1",
             REDIS_PORT=str(settings.ports["redis"]),

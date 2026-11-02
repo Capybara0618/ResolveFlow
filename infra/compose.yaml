@@ -87,6 +87,7 @@ services:
       RESOLVEFLOW_IDENTITY_BASE_URL: http://case-service:8083
       REFUND_PROVIDER_URL: http://agent:8082
       PRODUCT_REVIEW_CACHE_ENABLED: "true"
+      PRODUCT_REVIEW_RATE_LIMIT_ENABLED: "true"
       CHECKOUT_RECOVERY_ENABLED: "true"
       REDIS_HOST: redis
     depends_on:

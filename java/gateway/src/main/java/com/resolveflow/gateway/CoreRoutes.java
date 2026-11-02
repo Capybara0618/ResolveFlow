@@ -60,6 +60,31 @@ public class CoreRoutes {
                                         "/api/v1/shop/cart/{store}/quote",
                                         "/api/v1/shop/cart/{store}/drafts")
                                 .uri(commerceBaseUrl))
+                .route(
+                        "commerce-merchant-read",
+                        route -> route.method(HttpMethod.GET)
+                                .and()
+                                .path(
+                                        "/api/v1/merchant/orders",
+                                        "/api/v1/merchant/orders/{id}",
+                                        "/api/v1/merchant/orders/{id}/shipping",
+                                        "/api/v1/shop/purchases/{id}/fulfillment",
+                                        "/api/v1/shop/orders/lines/{id}/review",
+                                        "/api/v1/merchant/reviews",
+                                        "/api/v1/merchant/products",
+                                        "/api/v1/merchant/products/{id}")
+                                .uri(commerceBaseUrl))
+                .route(
+                        "commerce-merchant-write",
+                        route -> route.method(HttpMethod.POST)
+                                .and()
+                                .path(
+                                        "/api/v1/merchant/orders/{id}/simulated-shipment",
+                                        "/api/v1/shop/orders/lines/{id}/review",
+                                        "/api/v1/merchant/reviews/{id}/reply",
+                                        "/api/v1/merchant/products",
+                                        "/api/v1/merchant/products/{id}")
+                                .uri(commerceBaseUrl))
                 .route("case-core-api", route -> route.path("/api/v1/**").uri(caseBaseUrl))
                 .build();
     }

@@ -34,7 +34,7 @@ CORE_DIR = "contracts/core"
 #: Commerce went 4 -> 5 in C01.2: the Case row already said its order view calls
 #: Commerce internally, but no listing route existed for it to call (see the C01.2
 #: record in tasks/todo.md).
-EXPECTED_ROUTE_COUNTS = {"Case": 89, "Commerce": 55, "Agent": 8}
+EXPECTED_ROUTE_COUNTS = {"Case": 89, "Commerce": 68, "Agent": 8}
 
 
 def test_manual_refund_preparation_and_server_owned_action_contracts() -> None:

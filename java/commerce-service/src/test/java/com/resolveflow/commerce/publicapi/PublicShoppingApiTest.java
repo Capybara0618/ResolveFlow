@@ -318,4 +318,155 @@ class PublicShoppingApiTest extends CommerceDatabaseTest {
                 .expectStatus()
                 .isBadRequest();
     }
+
+    String merchantToken(String store) {
+        return "Bearer "
+                + TOKENS.issue(
+                        new AuthenticatedPrincipal("merchant-" + store, store, Role.MERCHANT_ADMIN, null),
+                        1,
+                        Instant.now());
+    }
+
+    JsonNode paid() {
+        String id = created("SKU-1001-BLACK", UUID.randomUUID().toString())
+                .path("draft_id")
+                .asString();
+        return JSON.readTree(post(
+                        "/api/v1/shop/drafts/" + id + "/payment",
+                        buyer,
+                        UUID.randomUUID().toString(),
+                        "{}")
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .returnResult()
+                .getResponseBody());
+    }
+
+    @Test
+    void merchantTradesAndFulfillmentKeepTenantRoleAndReplayBoundaries() {
+        var payment = paid();
+        String order = payment.path("order_id").asString();
+        rest.get()
+                .uri("/api/v1/merchant/orders/" + order)
+                .header("Authorization", merchantToken("M-1001"))
+                .exchange()
+                .expectStatus()
+                .isOk();
+        rest.get()
+                .uri("/api/v1/merchant/orders/" + order)
+                .header("Authorization", merchantToken("M-1002"))
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+        rest.get()
+                .uri("/api/v1/merchant/orders/" + order)
+                .header("Authorization", token(buyer))
+                .exchange()
+                .expectStatus()
+                .isForbidden();
+        String key = UUID.randomUUID().toString();
+        for (int i = 0; i < 2; i++)
+            rest.post()
+                    .uri("/api/v1/merchant/orders/" + order + "/simulated-shipment")
+                    .header("Authorization", merchantToken("M-1001"))
+                    .header("Idempotency-Key", key)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("{\"expected_version\":1}")
+                    .exchange()
+                    .expectStatus()
+                    .isOk();
+        rest.get()
+                .uri("/api/v1/shop/purchases/draft:" + payment.path("draft_id").asString() + "/fulfillment")
+                .header("Authorization", token(buyer))
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$.synthetic")
+                .isEqualTo(true);
+    }
+
+    @Test
+    void ownReviewAndMerchantReplyUseLocalEligibilityAndOwnership() {
+        var payment = paid();
+        String line = payment.path("line_id").asString();
+        String path = "/api/v1/shop/orders/lines/" + line + "/review";
+        post(path, buyer, UUID.randomUUID().toString(), "{\"rating\":5,\"body\":\"已购合成评价\",\"expected_version\":0}")
+                .expectStatus()
+                .isEqualTo(409);
+        db.update(
+                "UPDATE shipment SET status='DELIVERED',carrier_conclusion='DELIVERED',source_version=2 WHERE line_id=?",
+                line);
+        post(
+                        path,
+                        "other-" + buyer,
+                        UUID.randomUUID().toString(),
+                        "{\"rating\":5,\"body\":\"其他买家\",\"expected_version\":0}")
+                .expectStatus()
+                .isNotFound();
+        var review = JSON.readTree(post(
+                        path,
+                        buyer,
+                        UUID.randomUUID().toString(),
+                        "{\"rating\":5,\"body\":\"已购合成评价\",\"expected_version\":0}")
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .returnResult()
+                .getResponseBody());
+        String reply = "/api/v1/merchant/reviews/" + review.path("review_id").asLong() + "/reply";
+        rest.post()
+                .uri(reply)
+                .header("Authorization", merchantToken("M-1002"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("{\"body\":\"跨店回复\",\"expected_version\":1}")
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+        rest.post()
+                .uri(reply)
+                .header("Authorization", merchantToken("M-1001"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("{\"body\":\"本店合成回复\",\"expected_version\":1}")
+                .exchange()
+                .expectStatus()
+                .isOk();
+        rest.get()
+                .uri(path)
+                .header("Authorization", token("other-" + buyer))
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
+
+    @Test
+    void merchantCatalogCannotReadOrChangeOtherStoreProducts() {
+        rest.get()
+                .uri("/api/v1/merchant/products/P-1001")
+                .header("Authorization", merchantToken("M-1001"))
+                .exchange()
+                .expectStatus()
+                .isOk();
+        rest.get()
+                .uri("/api/v1/merchant/products/P-1001")
+                .header("Authorization", merchantToken("M-1002"))
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+        rest.get()
+                .uri("/api/v1/merchant/products")
+                .header("Authorization", token(buyer))
+                .exchange()
+                .expectStatus()
+                .isForbidden();
+        rest.post()
+                .uri("/api/v1/merchant/products/P-1001")
+                .header("Authorization", merchantToken("M-1001"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("{\"merchant_id\":\"M-1002\"}")
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+    }
 }

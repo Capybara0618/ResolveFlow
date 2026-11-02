@@ -31,6 +31,653 @@ tags:
   - name: refund
     description: Refund operation state and the reconciliation answer.
 paths:
+  /api/v1/merchant/orders:
+    get:
+      operationId: commerceDirectCaseMerchantMerchantTradesget
+      summary: 本商家交易或首次模拟发货
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/merchant-fulfillment.md.
+        Administrator merchant/actor are derived by Case. Internally requires case-service
+        and commerce:fulfillment; Agent forbidden. No carrier delivery is generated.'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - NOT_SHIPPED
+          - IN_TRANSIT
+          - DELIVERED
+          - LOST
+          - UNKNOWN
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 512
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 48
+      responses:
+        '200':
+          description: MerchantTrades
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantTrades'
+        '400':
+          description: Invalid observed version/input/cursor
+        '401':
+          description: Missing/current identity invalid
+        '403':
+          description: Wrong role, subject or scope
+        '404':
+          description: Missing or foreign order
+        '503':
+          description: Unavailable; do not replace uncertain request
+  /api/v1/merchant/orders/{order_id}:
+    get:
+      operationId: commerceDirectCaseMerchantMerchantTradeget
+      summary: 本商家交易或首次模拟发货
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/merchant-fulfillment.md.
+        Administrator merchant/actor are derived by Case. Internally requires case-service
+        and commerce:fulfillment; Agent forbidden. No carrier delivery is generated.'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: order_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          format: uuid
+      responses:
+        '200':
+          description: MerchantTrade
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantTrade'
+        '400':
+          description: Invalid observed version/input/cursor
+        '401':
+          description: Missing/current identity invalid
+        '403':
+          description: Wrong role, subject or scope
+        '404':
+          description: Missing or foreign order
+        '503':
+          description: Unavailable; do not replace uncertain request
+  /api/v1/merchant/orders/{order_id}/simulated-shipment:
+    post:
+      operationId: commerceDirectCaseMerchantOrderFulfillmentpost
+      summary: 本商家交易或首次模拟发货
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/merchant-fulfillment.md.
+        Administrator merchant/actor are derived by Case. Internally requires case-service
+        and commerce:fulfillment; Agent forbidden. No carrier delivery is generated.'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: order_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          format: uuid
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+      responses:
+        '200':
+          description: OrderFulfillment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderFulfillment'
+        '400':
+          description: Invalid observed version/input/cursor
+        '401':
+          description: Missing/current identity invalid
+        '403':
+          description: Wrong role, subject or scope
+        '404':
+          description: Missing or foreign order
+        '503':
+          description: Unavailable; do not replace uncertain request
+        '409':
+          description: Old version, occupied refund, replay conflict or already shipped
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimulatedShipmentRequest'
+  /api/v1/shop/purchases/{purchase_id}/fulfillment:
+    get:
+      operationId: commerceDirectCaseBuyerOrderFulfillment
+      summary: 本人已付款订单履约
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/merchant-fulfillment.md.
+        Case verifies owned paid purchase first. Internally requires case-service
+        and commerce:checkout. Missing historic carrier records remain UNKNOWN, not
+        unshipped.'
+      parameters:
+      - name: purchase_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 100
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: OrderFulfillment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderFulfillment'
+        '400':
+          description: Invalid input
+        '401':
+          description: Invalid identity
+        '403':
+          description: Wrong role/subject/scope
+        '404':
+          description: Not owned or unpaid
+        '503':
+          description: Unavailable
+  /api/v1/shop/orders/lines/{line_id}/review:
+    get:
+      operationId: commerceDirectCaseProductReviews1
+      summary: OwnProductReview
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/backend-deepening-v1.md.
+        Commerce owns reviews. Delivered purchased line only; one per line, same-content
+        replay, CAS edits and merchant reply. Refund never deletes a review; Agent
+        cannot access private writes. Public results never include account or order
+        identifiers.'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: line_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: \S
+      responses:
+        '200':
+          description: Authoritative review projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OwnProductReview'
+        '400':
+          description: Invalid or non-integer input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Wrong role, scope or deployment subject
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Unknown or outside trusted ownership
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not delivered or stale review version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Account write limit reached
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: Temporarily unavailable; retain input and query original resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+    post:
+      operationId: commerceDirectCaseProductReviews2
+      summary: ProductReview
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/backend-deepening-v1.md.
+        Commerce owns reviews. Delivered purchased line only; one per line, same-content
+        replay, CAS edits and merchant reply. Refund never deletes a review; Agent
+        cannot access private writes. Public results never include account or order
+        identifiers.'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: line_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: \S
+      responses:
+        '200':
+          description: Authoritative review projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductReview'
+        '400':
+          description: Invalid or non-integer input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Wrong role, scope or deployment subject
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Unknown or outside trusted ownership
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not delivered or stale review version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Account write limit reached
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: Temporarily unavailable; retain input and query original resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductReviewWrite'
+  /api/v1/merchant/reviews:
+    get:
+      operationId: commerceDirectCaseProductReviews3
+      summary: ProductReviewPage
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/backend-deepening-v1.md.
+        Commerce owns reviews. Delivered purchased line only; one per line, same-content
+        replay, CAS edits and merchant reply. Refund never deletes a review; Agent
+        cannot access private writes. Public results never include account or order
+        identifiers.'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: before
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 10
+      responses:
+        '200':
+          description: Authoritative review projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductReviewPage'
+        '400':
+          description: Invalid or non-integer input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Wrong role, scope or deployment subject
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Unknown or outside trusted ownership
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not delivered or stale review version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Account write limit reached
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: Temporarily unavailable; retain input and query original resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /api/v1/merchant/reviews/{review_id}/reply:
+    post:
+      operationId: commerceDirectCaseProductReviews4
+      summary: ProductReview
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/backend-deepening-v1.md.
+        Commerce owns reviews. Delivered purchased line only; one per line, same-content
+        replay, CAS edits and merchant reply. Refund never deletes a review; Agent
+        cannot access private writes. Public results never include account or order
+        identifiers.'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+      responses:
+        '200':
+          description: Authoritative review projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductReview'
+        '400':
+          description: Invalid or non-integer input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Wrong role, scope or deployment subject
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Unknown or outside trusted ownership
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not delivered or stale review version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Account write limit reached
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: Temporarily unavailable; retain input and query original resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductReviewReply'
+  /api/v1/merchant/products:
+    get:
+      operationId: commerceDirectCaseFoundationGetApiV1MerchantProducts
+      summary: ManagedProducts
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/demo-foundation.md.
+        Role and current session checked; no Agent access or financial authority.'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagedProducts'
+        '400':
+          description: Refused or unavailable
+        '401':
+          description: Refused or unavailable
+        '403':
+          description: Refused or unavailable
+        '404':
+          description: Refused or unavailable
+        '409':
+          description: Refused or unavailable
+        '503':
+          description: Refused or unavailable
+      parameters:
+      - name: after
+        in: query
+        required: false
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 48
+      security:
+      - bearerAuth: []
+    post:
+      operationId: commerceDirectCaseFoundationPostApiV1MerchantProducts
+      summary: ManagedProduct
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/demo-foundation.md.
+        Role and current session checked; no Agent access or financial authority.'
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagedProduct'
+        '400':
+          description: Refused or unavailable
+        '401':
+          description: Refused or unavailable
+        '403':
+          description: Refused or unavailable
+        '404':
+          description: Refused or unavailable
+        '409':
+          description: Refused or unavailable
+        '503':
+          description: Refused or unavailable
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagedProductWrite'
+      security:
+      - bearerAuth: []
+  /api/v1/merchant/products/{id}:
+    get:
+      operationId: commerceDirectCaseFoundationGetApiV1MerchantProductsId
+      summary: ManagedProduct
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/demo-foundation.md.
+        Role and current session checked; no Agent access or financial authority.'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagedProduct'
+        '400':
+          description: Refused or unavailable
+        '401':
+          description: Refused or unavailable
+        '403':
+          description: Refused or unavailable
+        '404':
+          description: Refused or unavailable
+        '409':
+          description: Refused or unavailable
+        '503':
+          description: Refused or unavailable
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+      security:
+      - bearerAuth: []
+    post:
+      operationId: commerceDirectCaseFoundationPostApiV1MerchantProductsId
+      summary: ManagedProduct
+      description: 'Authority: docs/service-boundary-plan.md. Commerce owns resource
+        authorization and local transactions. Authority: docs/demo-foundation.md.
+        Role and current session checked; no Agent access or financial authority.'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagedProduct'
+        '400':
+          description: Refused or unavailable
+        '401':
+          description: Refused or unavailable
+        '403':
+          description: Refused or unavailable
+        '404':
+          description: Refused or unavailable
+        '409':
+          description: Refused or unavailable
+        '503':
+          description: Refused or unavailable
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagedProductWrite'
+      security:
+      - bearerAuth: []
+  /api/v1/merchant/orders/{order_id}/shipping:
+    get:
+      summary: 读取本店订单的固定收货信息
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShippingView'
+        '401':
+          description: 登录失效
+        '404':
+          description: 记录不可见或不存在
+        '409':
+          description: 版本已变化
+      parameters:
+      - in: path
+        name: order_id
+        required: true
+        schema:
+          type: string
+      operationId: commerceDirectMerchantShipping
+      description: 'Authority: docs/service-boundary-plan.md. Commerce checks current
+        buyer bindings and reads the immutable checkout address.'
+      security:
+      - bearerAuth: []
   /api/v1/shop/cart:
     get:
       operationId: commerceDirectCaseCartGet

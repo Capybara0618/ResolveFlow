@@ -110,10 +110,7 @@ class CoreRoutesTest {
                 .jsonPath("$.owner")
                 .isEqualTo("commerce");
         for (String path : new String[] {
-            "/api/v1/shop/drafts",
-            "/api/v1/shop/media/image-1",
-            "/api/v1/shop/products/P-1001/private",
-            "/api/v1/shop/orders/lines/line-1/review"
+            "/api/v1/shop/drafts", "/api/v1/shop/media/image-1", "/api/v1/shop/products/P-1001/private"
         }) {
             webTestClient.get().uri(path).exchange().expectStatus().isNotFound();
         }
@@ -140,7 +137,15 @@ class CoreRoutesTest {
                 "/api/v1/shop/drafts/d-1/payment",
                 "/api/v1/shop/purchases?limit=2",
                 "/api/v1/shop/purchases/draft:d-1",
-                "/api/v1/shop/purchases/draft:d-1/shipping"
+                "/api/v1/shop/purchases/draft:d-1/shipping",
+                "/api/v1/merchant/orders",
+                "/api/v1/merchant/orders/o-1",
+                "/api/v1/merchant/orders/o-1/shipping",
+                "/api/v1/shop/purchases/draft:d-1/fulfillment",
+                "/api/v1/shop/orders/lines/l-1/review",
+                "/api/v1/merchant/reviews",
+                "/api/v1/merchant/products",
+                "/api/v1/merchant/products/P-1001"
             })
     void authenticatedShoppingReadsGoToCommerce(String path) {
         webTestClient
@@ -163,7 +168,12 @@ class CoreRoutesTest {
                 "/api/v1/shop/drafts/d-1/cancel",
                 "/api/v1/shop/cart/M-1001/items",
                 "/api/v1/shop/cart/M-1001/quote",
-                "/api/v1/shop/cart/M-1001/drafts"
+                "/api/v1/shop/cart/M-1001/drafts",
+                "/api/v1/merchant/orders/o-1/simulated-shipment",
+                "/api/v1/shop/orders/lines/l-1/review",
+                "/api/v1/merchant/reviews/1/reply",
+                "/api/v1/merchant/products",
+                "/api/v1/merchant/products/P-1001"
             })
     void authenticatedShoppingWritesGoToCommerce(String path) {
         webTestClient
