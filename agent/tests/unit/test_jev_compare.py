@@ -23,6 +23,8 @@ def test_source_failures_do_not_become_empty_successes():
     case = {"http_status": {"get_shipment_trace": 503}, "facts": {}}
     assert study.FrozenSources(case).read("get_shipment_trace", {}) == {
         "error": "SOURCE_UNAVAILABLE", "retryable": True}
+    assert study.FrozenSources(case).read("get_order_context", {}) == {
+        "error": "NOT_FOUND", "retryable": False}
 
 
 def test_allowance_is_saved_before_call_and_refuses_exhaustion(tmp_path):

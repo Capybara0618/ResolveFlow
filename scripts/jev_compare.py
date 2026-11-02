@@ -122,7 +122,7 @@ class FrozenSources:
     def read(self, name: str, _arguments: dict[str, Any]) -> dict[str, Any]:
         if name == "get_support_guide":
             return cast(dict[str, Any], guide_source())
-        status = self.case["http_status"].get(name, 200)
+        status = self.case["http_status"].get(name, 404)
         if status != 200:
             return {"error": "NOT_FOUND" if status == 404 else "SOURCE_UNAVAILABLE", "retryable": status >= 500}
         value = deepcopy(self.case["facts"].get(name))
