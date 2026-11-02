@@ -28,7 +28,7 @@ uv run --project agent --frozen --extra retrieval python -c "from huggingface_hu
 ```powershell
 docker compose -f infra/compose.reviewer-demo.yaml up -d
 # 等待MySQL/PostgreSQL/Redis healthy后：
-.\demo.ps1 reset -ClearDemoData
+.\manage.ps1 reset -ClearDemoData
 .\stop.ps1
 ```
 

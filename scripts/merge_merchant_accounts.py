@@ -1,6 +1,6 @@
 """One-time, backed-up upgrade of the fixed local foundation; never resets transactions.
 
-Applications remain stopped on failure. Restart with demo.ps1 only after the report passes.
+Applications remain stopped on failure. Restart with manage.ps1 only after the report passes.
 """
 
 from __future__ import annotations

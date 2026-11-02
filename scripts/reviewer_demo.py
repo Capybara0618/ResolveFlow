@@ -1804,7 +1804,7 @@ def start_readonly_agent(settings: Settings, log: Log, *, live: bool = False, ar
     if architecture not in {"single", "staged-v1", "orchestrated-v1"}:
         raise DemoRefused("unknown support architecture")
     if live and not os.environ.get("RESOLVEFLOW_MODEL_API_KEY"):
-        raise DemoRefused("DeepSeek key is missing; set Deepseek_API_KEY in your user environment and run demo.ps1 -Live")
+        raise DemoRefused("DeepSeek key is missing; set Deepseek_API_KEY in your user environment and run manage.ps1 -Live")
     if owns_port(settings, process_name, settings.ports["agent"]) and agent_health(settings, architecture=architecture):
         log.step(f"{process_name} is already up under this driver", True, settings.agent_url)
         return
