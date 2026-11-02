@@ -28,7 +28,7 @@ https://github.com/user-attachments/assets/34304069-e2da-4552-ac25-2443e1b759d3
 
 <picture>
   <source media="(max-width: 600px)" srcset="docs/assets/readme/tech-stack-mobile.png">
-  <img src="docs/assets/readme/tech-stack.png" alt="Vue 3、TypeScript、Vite、SSE；Java 21、Spring Boot、MyBatis，Gateway、Case、Commerce 三个微服务；Python、FastAPI、AgentScope、MCP、Agent Harness；pgvector、BGE、BM25、RRF、CrossEncoder 检索与评测；RocketMQ、Outbox/Inbox、Redis、Redisson、Lua；MySQL、PostgreSQL、Docker。" width="100%">
+  <img src="docs/assets/readme/tech-stack.png" alt="Vue 3、TypeScript、Vite、SSE；Java 21、Spring Boot、MyBatis，Gateway、Case、Commerce 三个微服务；Python、FastAPI、AgentScope、Jev、MCP、Agent Harness；pgvector、BGE、BM25、RRF、CrossEncoder 检索与评测；RocketMQ、Outbox/Inbox、Redis、Redisson、Lua；MySQL、PostgreSQL、Docker。" width="100%">
 </picture>
 
 ## 微服务架构
@@ -39,7 +39,7 @@ https://github.com/user-attachments/assets/34304069-e2da-4552-ac25-2443e1b759d3
 
 <picture>
   <source media="(max-width: 600px)" srcset="docs/assets/readme/core-design-mobile.png">
-  <img src="docs/assets/readme/core-design.png" alt="Agent 自主决策：咨询成功率46.9%→87.5%；Agentic RAG：Top-3关键证据完整命中率75.0%→84.4%；交易一致性：160轮竞争测试，重复订单与扣款均为0；异步可靠退款：80笔订单行测试，重复与超额退款均为0；上下文与恢复：上下文通过率68.8%→90.6%；SQL与Redis：30并发订单查询p95从2441降至755ms。" width="100%">
+  <img src="docs/assets/readme/core-design.png" alt="Agent 自主决策：咨询成功率46.9%→87.5%，模型花销降低46%；Agentic RAG：Top-3关键证据完整命中率75.0%→84.4%；交易一致性：160轮竞争测试，重复订单与扣款均为0；异步可靠退款：80笔订单行测试，重复与超额退款均为0；上下文与恢复：上下文通过率68.8%→90.6%；SQL与Redis：30并发订单查询p95从2441降至755ms。" width="100%">
 </picture>
 
 ## 快速开始
