@@ -31,6 +31,9 @@ from resolveflow.support.context import LAYOUTS, read_context, render_context
 from resolveflow.support.dialogue import DialogueState, event_outcomes
 from resolveflow.support.grounding import check_amounts, diagnostic_fact_references, ground_answer
 from resolveflow.support.guidance import CAPABILITIES, capabilities, decision_feedback, tool_schema
+from resolveflow.support.jev import JevClient
+from resolveflow.support.jev_intent import IntentPolicy
+from resolveflow.support.jev_intent_route import route_request_check
 from resolveflow.support.memory import CustomerMemory
 from resolveflow.support.navigation import RefundSummaryError, navigation_references, render_navigation
 from resolveflow.support.orchestration import FactReadBatch, GoalConflict, Orchestration, Response, TurnPlan
@@ -72,12 +75,15 @@ class SupportAgent:
         provider_capacity: int = 8192,
         architecture: str = "single",
         progress: Any = None,
+        intent_policy: IntentPolicy | None = None,
+        intent_client: JevClient | None = None,
     ) -> None:
         self.stage = TurnStage(architecture)
         self.buyer_view: dict[str, Any] | None = None
         self.orchestration = Orchestration(request) if architecture == "orchestrated-v1" else None
         self.request, self.model, self.sources, self.journal = request, model, sources, journal
         self.progress = progress
+        self.intent_policy, self.intent_client = intent_policy or IntentPolicy(), intent_client
         self.budget = budget or RunBudget()
         self.input_cap = min(self.budget.step_input_tokens, provider_capacity - self.budget.step_output_tokens)
         self.guard = BudgetGuard(self.budget, active_deadline=request.deadline_at)
@@ -300,50 +306,55 @@ class SupportAgent:
         else:
             raise SupportFailure("CONTEXT_REQUIRED_OVERFLOW")
         ceiling = self.budget.step_output_tokens
-        saved = self._cached("model", self.step, body)
-        prepare_ms = (time.perf_counter() - prepared_at) * 1000
-        if saved is not None:
-            reply = ModelReply(saved["decision"], ModelUsage(**saved["usage"]), saved["mode"])
-            LOG.info("support_model_timing run=%s step=%d phase=%s cached=True prepare_ms=%.3f provider_ms=0",
-                     self.request.run_id, self.step, phase, prepare_ms)
+        choice = (route_request_check(self, packet, self.intent_client, self.intent_policy)
+                  if self.intent_client is not None and self.journal is not None else None)
+        if choice is not None:
+            reply = choice
         else:
-            self.guard.check_deadline()
-            check = getattr(self.sources, "check_current", None)
-            current_at = time.perf_counter()
-            if callable(check):
-                check()
-            current_ms = (time.perf_counter() - current_at) * 1000
-            ceiling = self.guard.reserve_model_request(input_tokens=tokens)
-            journal_at = time.perf_counter()
-            self._start("model", self.step, body)
-            journal_ms = (time.perf_counter() - journal_at) * 1000
-            if self.progress is not None:
-                if self.orchestration is not None:
-                    self.progress.begin(self.step, project_answer=self._readiness()["phase"] == "COMPOSE")
-                else:
-                    self.progress.begin(self.step)
-            provider_at = time.perf_counter()
-            outcome = "ERROR"
-            try:
-                reply = self.model.decide(
-                    system="", messages=messages, context=packet, sent_context=packet, max_output_tokens=ceiling
+            saved = self._cached("model", self.step, body)
+            prepare_ms = (time.perf_counter() - prepared_at) * 1000
+            if saved is not None:
+                reply = ModelReply(saved["decision"], ModelUsage(**saved["usage"]), saved["mode"])
+                LOG.info("support_model_timing run=%s step=%d phase=%s cached=True prepare_ms=%.3f provider_ms=0",
+                         self.request.run_id, self.step, phase, prepare_ms)
+            else:
+                self.guard.check_deadline()
+                check = getattr(self.sources, "check_current", None)
+                current_at = time.perf_counter()
+                if callable(check):
+                    check()
+                current_ms = (time.perf_counter() - current_at) * 1000
+                ceiling = self.guard.reserve_model_request(input_tokens=tokens)
+                journal_at = time.perf_counter()
+                self._start("model", self.step, body)
+                journal_ms = (time.perf_counter() - journal_at) * 1000
+                if self.progress is not None:
+                    if self.orchestration is not None:
+                        self.progress.begin(self.step, project_answer=self._readiness()["phase"] == "COMPOSE")
+                    else:
+                        self.progress.begin(self.step)
+                provider_at = time.perf_counter()
+                outcome = "ERROR"
+                try:
+                    reply = self.model.decide(
+                        system="", messages=messages, context=packet, sent_context=packet, max_output_tokens=ceiling
+                    )
+                    outcome = "COMPLETE"
+                finally:
+                    stream = self.model.last_stream if isinstance(self.model, StreamingLiveModelClient) else None
+                    LOG.info(
+                        "support_model_timing run=%s step=%d phase=%s cached=False prepare_ms=%.3f "
+                        "current_ms=%.3f journal_ms=%.3f provider_ms=%.3f first_content_ms=%s outcome=%s",
+                        self.request.run_id, self.step, phase, prepare_ms, current_ms, journal_ms,
+                        (time.perf_counter() - provider_at) * 1000,
+                        stream.get("first_content_ms") if stream else None, outcome,
+                    )
+                self.guard.settle_model_output(reply.usage.output_tokens, estimated=reply.usage.estimated)
+                self._save(
+                    "model", self.step, {"decision": reply.decision, "usage": asdict(reply.usage), "mode": reply.mode}
                 )
-                outcome = "COMPLETE"
-            finally:
-                stream = self.model.last_stream if isinstance(self.model, StreamingLiveModelClient) else None
-                LOG.info(
-                    "support_model_timing run=%s step=%d phase=%s cached=False prepare_ms=%.3f "
-                    "current_ms=%.3f journal_ms=%.3f provider_ms=%.3f first_content_ms=%s outcome=%s",
-                    self.request.run_id, self.step, phase, prepare_ms, current_ms, journal_ms,
-                    (time.perf_counter() - provider_at) * 1000,
-                    stream.get("first_content_ms") if stream else None, outcome,
-                )
-            self.guard.settle_model_output(reply.usage.output_tokens, estimated=reply.usage.estimated)
-            self._save(
-                "model", self.step, {"decision": reply.decision, "usage": asdict(reply.usage), "mode": reply.mode}
-            )
-            if self.progress is not None:
-                self.progress.end()
+                if self.progress is not None:
+                    self.progress.end()
         self.mode = reply.mode
         try:
             if self.stage.pending:

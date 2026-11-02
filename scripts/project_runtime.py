@@ -216,9 +216,13 @@ def main() -> int:
     try:
         if args.command == "start":
             from resolveflow.support.jev import JevConfig, load_local_env
+            from resolveflow.support.jev_intent import IntentPolicy
 
             load_local_env(runtime.ROOT / ".env")
-            JevConfig.from_environ()  # Validate before starting/replacing processes.
+            jev = JevConfig.from_environ()
+            intent = IntentPolicy.from_environ()
+            if intent.enabled and not jev.api_key:
+                raise ValueError("enabled Jev intent requires TYPESAFE_API_KEY")
         current = settings()
         log = ProjectLog(
             runtime.log_path(current, "project-" + args.command),

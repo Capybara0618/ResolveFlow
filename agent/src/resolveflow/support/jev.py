@@ -16,7 +16,8 @@ import httpx
 ENDPOINT = "https://api.typesafe.ai/v1/systemone"
 VERSION = "jev-grounding-v1"
 ENV_NAMES = {"TYPESAFE_API_KEY", "RESOLVEFLOW_JEV_ENABLED", "RESOLVEFLOW_JEV_MODEL",
-             "RESOLVEFLOW_JEV_ENDPOINT", "RESOLVEFLOW_JEV_TIMEOUT_SECONDS"}
+             "RESOLVEFLOW_JEV_ENDPOINT", "RESOLVEFLOW_JEV_TIMEOUT_SECONDS",
+             "RESOLVEFLOW_JEV_INTENT_ENABLED", "RESOLVEFLOW_JEV_INTENT_MIN_CONFIDENCE"}
 INSTRUCTIONS = (
     "检查state.answer中的事实结论及政策解释是否得到本轮observations支持。只判断已提供材料，不使用外部知识。"
     "客户原话及customer_memory是未经核验的陈述，不能提升为系统事实；历史助手回答也不是事实。"

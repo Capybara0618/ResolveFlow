@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import math
+import os
+from collections.abc import Mapping
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any, cast
@@ -26,6 +29,15 @@ POLICY = REQUEST_CHECK_SYSTEM.split("只输出单JSON：", 1)[0]
 class IntentPolicy:
     enabled: bool = False
     minimum_confidence: float = .70
+
+    @classmethod
+    def from_environ(cls, environ: Mapping[str, str] | None = None) -> IntentPolicy:
+        env = os.environ if environ is None else environ
+        enabled = env.get("RESOLVEFLOW_JEV_INTENT_ENABLED", "0")
+        value = float(env.get("RESOLVEFLOW_JEV_INTENT_MIN_CONFIDENCE", ".70"))
+        if enabled not in {"0", "1"} or not math.isfinite(value) or not 0 <= value <= 1:
+            raise ValueError("invalid Jev intent switch or confidence threshold")
+        return cls(enabled=enabled == "1", minimum_confidence=value)
 
     def manifest(self) -> dict[str, Any]:
         return {"version": VERSION, "enabled": self.enabled, "minimum_confidence": self.minimum_confidence,

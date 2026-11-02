@@ -57,3 +57,15 @@ def test_fixture_is_small_and_declares_expected_results_before_inference():
     cases = json.loads(jev_check.FIXTURE.read_bytes())
     assert len(cases) == 12 and len({c["id"] for c in cases}) == 12
     assert {c["expected"] for c in cases} == {"supported", "contradicted", "insufficient_evidence"}
+
+
+@pytest.mark.parametrize("threshold,key", [("nan", "test-key"), (".70", "")])
+def test_start_rejects_invalid_intent_before_starting_processes(tmp_path, monkeypatch, threshold, key):
+    monkeypatch.setattr(project_runtime.runtime, "ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["project_runtime.py", "start", "--skip-build", "--no-browser"])
+    monkeypatch.setenv("RESOLVEFLOW_JEV_ENABLED", "0")
+    monkeypatch.setenv("RESOLVEFLOW_JEV_INTENT_ENABLED", "1")
+    monkeypatch.setenv("RESOLVEFLOW_JEV_INTENT_MIN_CONFIDENCE", threshold)
+    monkeypatch.setenv("TYPESAFE_API_KEY", key)
+    monkeypatch.setattr(project_runtime, "settings", lambda: pytest.fail("validated too late"))
+    assert project_runtime.main() == 1

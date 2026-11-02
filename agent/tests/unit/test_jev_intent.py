@@ -88,3 +88,16 @@ def test_frozen_fixture_has_balanced_splits_and_separate_multi_task_labels():
     for case in fixture["cases"]:
         body = build_intent_request(JevConfig(), case["packet"])
         assert "expected" not in body["state"] and len(body["questions"]) == len(case["expected"])
+
+
+@pytest.mark.parametrize("value", ["nan", "-1", "1.1"])
+def test_intent_threshold_is_finite_and_bounded(value):
+    with pytest.raises(ValueError):
+        IntentPolicy.from_environ({"RESOLVEFLOW_JEV_INTENT_MIN_CONFIDENCE": value})
+
+
+def test_intent_switch_is_separate_and_disabled_by_default():
+    assert not IntentPolicy.from_environ({}).enabled
+    assert IntentPolicy.from_environ({"RESOLVEFLOW_JEV_INTENT_ENABLED": "1"}).enabled
+    with pytest.raises(ValueError):
+        IntentPolicy.from_environ({"RESOLVEFLOW_JEV_INTENT_ENABLED": "yes"})

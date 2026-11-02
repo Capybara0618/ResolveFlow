@@ -23,6 +23,7 @@ from resolveflow.support.grounding import FACT_RENDERING_VERSION
 from resolveflow.support.guide import GUIDE_VERSION
 from resolveflow.support.jev import JevClient, JevConfig
 from resolveflow.support.jev_audit import audit_answer
+from resolveflow.support.jev_intent import IntentPolicy
 from resolveflow.support.orchestration import GoalReview, Response, TurnPlan
 from resolveflow.support.orchestration_prompts import (
     COMPOSE_SYSTEM,
@@ -59,6 +60,8 @@ class SupportRuntime:
         architecture: str = "single",
         jev_config: JevConfig | None = None,
         jev_client: JevClient | None = None,
+        intent_policy: IntentPolicy | None = None,
+        intent_client: JevClient | None = None,
     ) -> None:
         TurnStage(architecture)  # Refuse unknown configuration before constructing a model.
         self.architecture = architecture
@@ -67,6 +70,10 @@ class SupportRuntime:
         self.embeddings = embeddings if embeddings is not None else SupportEmbeddings()
         self.jev_config = jev_config if jev_config is not None else JevConfig.from_environ()
         self.jev_client = jev_client if jev_client is not None else JevClient(self.jev_config)
+        self.intent_policy = intent_policy if intent_policy is not None else IntentPolicy.from_environ()
+        self.intent_client = intent_client if intent_client is not None else JevClient(self.jev_config)
+        if self.intent_policy.enabled and not self.intent_client.config.api_key:
+            raise ValueError("enabled Jev purpose routing requires TYPESAFE_API_KEY")
 
     def _model(self, streaming: bool = False) -> Any:
         config = self.config
@@ -129,6 +136,7 @@ class SupportRuntime:
             "support_guide_version": GUIDE_VERSION,
             "endpoint": self.config.endpoint,
             "jev": self.jev_config.manifest(),
+            "jev_intent": self.intent_policy.manifest(),
             "retrieval": {
                 "version": RETRIEVAL_VERSION,
                 "candidate_k": CANDIDATE_K,
@@ -151,6 +159,8 @@ class SupportRuntime:
                     "service.py",
                     "jev.py",
                     "jev_audit.py",
+                    "jev_intent.py",
+                    "jev_intent_route.py",
                     "progress.py",
                     "stream_projection.py",
                     "../harness/streaming_model.py",
@@ -211,6 +221,8 @@ class SupportRuntime:
                 request, model, sources, journal=journal, provider_capacity=self.config.context_window_tokens,
                 architecture=self.architecture,
                 progress=progress,
+                intent_policy=self.intent_policy,
+                intent_client=self.intent_client,
             )
             result = cast(dict[str, Any], agent.run())
             audit_answer(agent, result, self.jev_config, self.jev_client)
