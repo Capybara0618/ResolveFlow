@@ -1,8 +1,8 @@
 # 领域Agent Harness · v1.3 AgentScope目标
 
-2026-11-02接入可选Jev操作用途判断：现有Agent提出候选事项后，仅在原`CHECK_REQUEST`阶段使用Choice选择用途，confidence不足或UNCLEAR整批回退原模型；不替代事项拆分/工具规划/本人确认。调用与回退共享预算、deadline和fence，保存实际请求、响应与usage；完成复用、未知不重发，配置变更不静默恢复旧run。独立开关`RESOLVEFLOW_JEV_INTENT_ENABLED`默认0，本机`.env`可开启；与回答后audit独立。真实30条合成比较、95项定向测试及2项已复现基线失败见[用途识别报告](../web/checks/jev-intent-20261102.md)，不将小样本提高一条外推为整个Agent提升。
+2026-11-02接入可选Jev操作用途判断：现有Agent提出候选事项后，仅在原`CHECK_REQUEST`阶段使用Choice选择用途，confidence不足或UNCLEAR整批回退原模型；不替代事项拆分/工具规划/本人确认。调用与回退共享预算、deadline和fence，保存实际请求、响应与usage；完成复用、未知不重发，配置变更不静默恢复旧run。独立开关`RESOLVEFLOW_JEV_INTENT_ENABLED`默认0，本机`.env`可开启；与回答后audit独立。真实30条合成比较、95项定向测试及2项已复现基线失败见用途识别报告（本地开发记录），不将小样本提高一条外推为整个Agent提升。
 
-2026-11-02接入可选Jev回答辅助检查：客服SupportRuntime在回答生成后，使用本轮实际observations核对回答与事实/政策的一致性，最多一次固定版本TypeSafe调用。配置/源码进入manifest，调用沿用总预算、deadline及fence，在support_agent_call中以jev种类保存。检查失败或预算不足不改变原答案；已存结果复用，未保存响应保持UNKNOWN且不重付。当前仅记录，不自动纠错、不审批；流式增量保持，最终完成增加检查耗时。启停、真实12例合成小测与未验证边界见[接入报告](../web/checks/jev-integration-20261102.md)。
+2026-11-02接入可选Jev回答辅助检查：客服SupportRuntime在回答生成后，使用本轮实际observations核对回答与事实/政策的一致性，最多一次固定版本TypeSafe调用。配置/源码进入manifest，调用沿用总预算、deadline及fence，在support_agent_call中以jev种类保存。检查失败或预算不足不改变原答案；已存结果复用，未保存响应保持UNKNOWN且不重付。当前仅记录，不自动纠错、不审批；流式增量保持，最终完成增加检查耗时。启停、真实12例合成小测与未验证边界见接入报告（本地开发记录）。
 
 2026-10-06接续建议与停止来源改进（本地历史资料）：引用反馈定位finding字段和短编号、系统字段与客户补证责任分开、具体REQUEST_INFO在动作/最终校验同检查，SDK停止不再记作模型ESCALATE。有效模型转交的FAILED回调保留其原因码；不将COMPLETED当转交原因。结果见集中报告（本地历史资料），真实模型质量仍待对照，旧版本回放保持。
 

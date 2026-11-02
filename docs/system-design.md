@@ -6,7 +6,7 @@
 
 Gateway 将商品、购物车、结算付款、订单、履约、评价及商家商品管理请求直接路由到 Commerce；账户、咨询与售后请求进入 Case。Commerce 通过受限身份协议向账户模块实时复核账号、会话版本与可信绑定，再独立校验交易资源归属。账户模块暂部署在 Case，因此受保护交易仍依赖该进程的可用性；公共目录无需调用账户模块。商品媒体文件及其归属暂在 Case，图片上传/读取和依赖图片归属的商家展示资料写入保留原入口。旧 Case 商城门面默认关闭，仅显式兼容测试启用。
 
-Case 按需查询 Commerce 的订单与物流事实，调度 Agent 调查并接收建议；退款命令与结果通过 RocketMQ 衔接，Case 管授权，Commerce 管资金。Case、Commerce 分别持有自己的 MySQL 库，Redis 是共享基础设施。详见[边界方案](service-boundary-plan.md)、[网关路由](../java/gateway/src/main/java/com/resolveflow/gateway/CoreRoutes.java)、[身份客户端](../java/commerce-service/src/main/java/com/resolveflow/commerce/security/IdentityAccessClient.java)、[Agent调度](../java/case-service/src/main/java/com/resolveflow/caseservice/support/SupportAgentClient.java)与[事实读取](../agent/src/resolveflow/support/sources.py)。
+Case 按需查询 Commerce 的订单与物流事实，调度 Agent 调查并接收建议；退款命令与结果通过 RocketMQ 衔接，Case 管授权，Commerce 管资金。Case、Commerce 分别持有自己的 MySQL 库，Redis 是共享基础设施。详见边界方案（本地开发记录）、[网关路由](../java/gateway/src/main/java/com/resolveflow/gateway/CoreRoutes.java)、[身份客户端](../java/commerce-service/src/main/java/com/resolveflow/commerce/security/IdentityAccessClient.java)、[Agent调度](../java/case-service/src/main/java/com/resolveflow/caseservice/support/SupportAgentClient.java)与[事实读取](../agent/src/resolveflow/support/sources.py)。
 
 | 组件 | 职责 | 数据 |
 | --- | --- | --- |

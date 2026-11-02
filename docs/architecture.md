@@ -1,6 +1,6 @@
 # 系统架构 · v1.3
 
-按[核心范围](core-scope.md)保留三个Java进程与Python Agent；唯一生产循环由AgentScope驱动。2026-11-02按[服务边界调整](service-boundary-plan.md)拆分商城与售后公共入口，现有依赖锁与退款约束保持。实际验证见[本批报告](../web/checks/service-boundary-20261102.md)，当前进度只看任务账本。
+按[核心范围](core-scope.md)保留三个Java进程与Python Agent；唯一生产循环由AgentScope驱动。2026-11-02按服务边界调整（本地开发记录）拆分商城与售后公共入口，现有依赖锁与退款约束保持。实际验证见本批报告（本地开发记录），当前进度只看任务账本。
 
 ## 1. 部署单元
 

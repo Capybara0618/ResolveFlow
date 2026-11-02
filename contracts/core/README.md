@@ -111,6 +111,6 @@
 除此之外**全部仍是目标协议**：订单写路径、授权消费与对账、手工方案、运行接口都没有实现，`POST /api/v1/operations/{operation_id}/reconcile` 之类仍是 404。演示账号见 `docs/product-spec.md:9`（CUSTOMER/REVIEWER/OPERATOR、2 个合成商家各 ≥2 用户）；口令只存 PBKDF2-SHA256 哈希（`docs/domain-model.md:24`），签名是 HS256、用户面与服务面 `aud` 分离，且算法固定不读 token 自带的 `alg`。没有 JWKS、密钥轮换、RS256、refresh 或吊销列表——这是演示身份，不是可用于生产的 IAM。
 ## 购物基础功能
 
-2026-10-29补充[资料、地址、聊天身份及订单收货接口](openapi-account.yaml)，合成fixture见[account.json](fixtures/account.json)。结算shipping字段与ShippingSelection/ShippingSnapshot同步于Case、Commerce主协议；范围与权限见[购物基础规格](../../docs/shopping-basics.md)。
+2026-10-29补充[资料、地址、聊天身份及订单收货接口](openapi-account.yaml)，合成fixture见[account.json](fixtures/account.json)。结算shipping字段与ShippingSelection/ShippingSnapshot同步于Case、Commerce主协议；范围与权限见购物基础规格（本地开发记录）。
 
 2026-10-29补充[商品与店铺资料协议](openapi-presentation.yaml)及[presentation.json](fixtures/presentation.json)，含公开展示、本店版本化写入与图片预览/发布读取；注册、恢复密钥与站内消息纳入openapi-account.yaml。shopping_stage与cover_image_id为共享商品/订单可选字段，不改变付款状态或退款权限。
