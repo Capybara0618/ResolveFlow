@@ -1,0 +1,1888 @@
+{
+  "version": "jev-intent-fifty-v1",
+  "synthetic": true,
+  "independent_holdout": false,
+  "labels": "Codex source-aware authored before this experiment; no independent human review",
+  "input_policy": "All 50 old customer turns. Only prior CUSTOMER utterances; no historical assistant, facts, proposed goals or Gold in requests. Candidate quote splitting fixed offline, not evaluating the planner.",
+  "boundary_policy": "Q23-T1 primary gold UNCLEAR fixed before inference; also report predeclared 49-case sensitivity excluding this ambiguous item, never replace the main 50-case denominator.",
+  "sources": {
+    "evals/customer-workflow-comparison-v2/cases.json": "cc434e38c52c11b539e34d3e4bba2cf6ccec321288fc017edea6282e22cc3800",
+    "reports/customer-workflow-comparison-v2/agent-runtime-complete.json": "47e3e543aeb24797f2c4bad0c9b9a210fa31e1d8139ffb0e65bb96509565f9f6"
+  },
+  "cases": [
+    {
+      "id": "Q01-T1",
+      "source_case": "Q01",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "我这副耳机现在送到哪里了？先查物流就好。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "我这副耳机现在送到哪里了？先查物流就好。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q02-T1",
+      "source_case": "Q02",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "台灯运输有没有异常？帮我确认承运商记录。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "台灯运输有没有异常？帮我确认承运商记录。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q03-T1",
+      "source_case": "Q03",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "请告诉我这件商品的实付金额，先不处理售后。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "请告诉我这件商品的实付金额"
+              },
+              {
+                "task_id": "t2",
+                "quote": "先不处理售后"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION",
+        "t2": "DECLINED"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。",
+        "t2": "本事项明确暂停、拒绝、结束或仅假设以后办理，不能继承旧意愿。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q04-T1",
+      "source_case": "Q04",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "如果只需要商家帮忙核查，也一定要填退款金额吗？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "如果只需要商家帮忙核查，也一定要填退款金额吗？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q05-T1",
+      "source_case": "Q05",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "给商家发核查材料之前，我能选哪些聊天记录给他看吗？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "给商家发核查材料之前，我能选哪些聊天记录给他看吗？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q06-T1",
+      "source_case": "Q06",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "我只想看给商家的说明草稿：耳机按键按了没反应。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "我只想看给商家的说明草稿：耳机按键按了没反应。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "label_reasons": {
+        "t1": "本轮要求整理给商家核查的说明/摘要；先不发送不否定准备。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q07-T1",
+      "source_case": "Q07",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "假如签收记录存在，客户说没收到，店里的处理原则是什么？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "假如签收记录存在，客户说没收到，店里的处理原则是什么？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q08-T1",
+      "source_case": "Q08",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "承运商已经判丢又没有有效签收时，本店退款有什么前提？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "承运商已经判丢又没有有效签收时，本店退款有什么前提？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q09-T1",
+      "source_case": "Q09",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机没拿到，我已经问过门口代收点，说没有。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机没拿到，我已经问过门口代收点，说没有。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q09-T2",
+      "source_case": "Q09",
+      "source_turn": 2,
+      "split": "reused",
+      "packet": {
+        "current_request": "刚才讲错了，代收点还没开门，实际没有问到。请按这个情况继续。",
+        "recent_messages": [
+          {
+            "message_id": "5fb670a8-f751-51cf-b69b-bbfdaa7a83ba",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "耳机没拿到，我已经问过门口代收点，说没有。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "刚才讲错了，代收点还没开门，实际没有问到。请按这个情况继续。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q10-T1",
+      "source_case": "Q10",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机右边完全不响，我想先整理核查说明。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机右边完全不响，我想先整理核查说明。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "label_reasons": {
+        "t1": "本轮要求整理给商家核查的说明/摘要；先不发送不否定准备。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q10-T2",
+      "source_case": "Q10",
+      "source_turn": 2,
+      "split": "reused",
+      "packet": {
+        "current_request": "改一下：左右都能响，是右边偶尔断断续续。重新整理，别发送。",
+        "recent_messages": [
+          {
+            "message_id": "fe2b5139-7be9-5892-8958-cc08caf96588",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "耳机右边完全不响，我想先整理核查说明。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "改一下：左右都能响，是右边偶尔断断续续。重新整理，别发送。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "label_reasons": {
+        "t1": "本轮要求整理给商家核查的说明/摘要；先不发送不否定准备。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q11-T1",
+      "source_case": "Q11",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "台灯还没收到。请查物流，不准备申请。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "请查物流"
+              },
+              {
+                "task_id": "t2",
+                "quote": "不准备申请"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION",
+        "t2": "DECLINED"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。",
+        "t2": "本事项明确暂停、拒绝、结束或仅假设以后办理，不能继承旧意愿。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q11-T2",
+      "source_case": "Q11",
+      "source_turn": 2,
+      "split": "reused",
+      "packet": {
+        "current_request": "我仍然没有拿到，只是补充一句，不用办理。",
+        "recent_messages": [
+          {
+            "message_id": "b4e7bb27-8fbd-5c01-880c-4647bfa649ae",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "台灯还没收到。请查物流，不准备申请。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "我仍然没有拿到，只是补充一句，不用办理。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED"
+      },
+      "label_reasons": {
+        "t1": "本事项明确暂停、拒绝、结束或仅假设以后办理，不能继承旧意愿。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q11-T3",
+      "source_case": "Q11",
+      "source_turn": 3,
+      "split": "reused",
+      "packet": {
+        "current_request": "物业送过来了，未收到这件事已经结束，不用再查。",
+        "recent_messages": [
+          {
+            "message_id": "b4e7bb27-8fbd-5c01-880c-4647bfa649ae",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "台灯还没收到。请查物流，不准备申请。",
+            "authority": "CUSTOMER_STATEMENT"
+          },
+          {
+            "message_id": "016642a5-826d-529d-b081-3c487076447d",
+            "sequence": 3,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "我仍然没有拿到，只是补充一句，不用办理。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "物业送过来了，未收到这件事已经结束，不用再查。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED"
+      },
+      "label_reasons": {
+        "t1": "本事项明确暂停、拒绝、结束或仅假设以后办理，不能继承旧意愿。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q12-T1",
+      "source_case": "Q12",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "邻居说没有收，家里人还没有联系上，我自己没拿到。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "邻居说没有收，家里人还没有联系上，我自己没拿到。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q12-T2",
+      "source_case": "Q12",
+      "source_turn": 2,
+      "split": "reused",
+      "packet": {
+        "current_request": "邻居刚说替我收了，家人依然没联系上；先别申请。",
+        "recent_messages": [
+          {
+            "message_id": "f3325640-9fde-5207-9d8e-f3e04887b8d4",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "邻居说没有收，家里人还没有联系上，我自己没拿到。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "邻居刚说替我收了，家人依然没联系上；先别申请。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED"
+      },
+      "label_reasons": {
+        "t1": "本事项明确暂停、拒绝、结束或仅假设以后办理，不能继承旧意愿。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q13-T1",
+      "source_case": "Q13",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机签收可我没收到，请核对一下。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机签收可我没收到，请核对一下。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q13-T2",
+      "source_case": "Q13",
+      "source_turn": 2,
+      "split": "reused",
+      "packet": {
+        "current_request": "这件事暂缓，我先问：人工回复以后就会自动显示解决吗？",
+        "recent_messages": [
+          {
+            "message_id": "3473b824-544e-5120-9ae0-4f29fac0e8cd",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "耳机签收可我没收到，请核对一下。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "这件事暂缓"
+              },
+              {
+                "task_id": "t2",
+                "quote": "人工回复以后就会自动显示解决吗？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项明确暂停、拒绝、结束或仅假设以后办理，不能继承旧意愿。",
+        "t2": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q13-T3",
+      "source_case": "Q13",
+      "source_turn": 3,
+      "split": "reused",
+      "packet": {
+        "current_request": "回到刚才那笔耳机，继续查签收争议。",
+        "recent_messages": [
+          {
+            "message_id": "3473b824-544e-5120-9ae0-4f29fac0e8cd",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "耳机签收可我没收到，请核对一下。",
+            "authority": "CUSTOMER_STATEMENT"
+          },
+          {
+            "message_id": "5dd10024-cf91-542b-9080-29af5a7f93c3",
+            "sequence": 3,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "这件事暂缓，我先问：人工回复以后就会自动显示解决吗？",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "回到刚才那笔耳机，继续查签收争议。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q14-T1",
+      "source_case": "Q14",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "帮我准备核查说明：耳机充电接口松动，先给我看。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "帮我准备核查说明：耳机充电接口松动，先给我看。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "label_reasons": {
+        "t1": "本轮要求整理给商家核查的说明/摘要；先不发送不否定准备。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q14-T2",
+      "source_case": "Q14",
+      "source_turn": 2,
+      "split": "reused",
+      "packet": {
+        "current_request": "先暂停说明。用户换商品咨询会丢失之前记录吗？",
+        "recent_messages": [
+          {
+            "message_id": "6cbff466-ffdf-5dfa-8f32-787038f7158d",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "帮我准备核查说明：耳机充电接口松动，先给我看。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "先暂停说明"
+              },
+              {
+                "task_id": "t2",
+                "quote": "用户换商品咨询会丢失之前记录吗？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项明确暂停、拒绝、结束或仅假设以后办理，不能继承旧意愿。",
+        "t2": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q14-T3",
+      "source_case": "Q14",
+      "source_turn": 3,
+      "split": "reused",
+      "packet": {
+        "current_request": "继续整理刚才接口松动的核查说明，仍先不发。",
+        "recent_messages": [
+          {
+            "message_id": "6cbff466-ffdf-5dfa-8f32-787038f7158d",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "帮我准备核查说明：耳机充电接口松动，先给我看。",
+            "authority": "CUSTOMER_STATEMENT"
+          },
+          {
+            "message_id": "a0812c7e-f234-5b06-b940-3cab0badd020",
+            "sequence": 3,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "先暂停说明。用户换商品咨询会丢失之前记录吗？",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "继续整理刚才接口松动的核查说明，仍先不发。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "label_reasons": {
+        "t1": "本轮要求整理给商家核查的说明/摘要；先不发送不否定准备。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q15-T1",
+      "source_case": "Q15",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "请先帮我准备台灯没收到的退款草稿。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "请先帮我准备台灯没收到的退款草稿。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "PREPARE_REFUND"
+      },
+      "label_reasons": {
+        "t1": "本轮明确请求准备退款原因或申请草稿；核对后提交不否定准备。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q15-T2",
+      "source_case": "Q15",
+      "source_turn": 2,
+      "split": "reused",
+      "packet": {
+        "current_request": "草稿先放一放，怎么查看商家核查进度？",
+        "recent_messages": [
+          {
+            "message_id": "e9de90ae-1ce6-5810-b367-5a02012334ec",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "请先帮我准备台灯没收到的退款草稿。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "草稿先放一放"
+              },
+              {
+                "task_id": "t2",
+                "quote": "怎么查看商家核查进度？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项明确暂停、拒绝、结束或仅假设以后办理，不能继承旧意愿。",
+        "t2": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q15-T3",
+      "source_case": "Q15",
+      "source_turn": 3,
+      "split": "reused",
+      "packet": {
+        "current_request": "现在接着准备台灯那份退款原因，我核对后再提交。",
+        "recent_messages": [
+          {
+            "message_id": "e9de90ae-1ce6-5810-b367-5a02012334ec",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "请先帮我准备台灯没收到的退款草稿。",
+            "authority": "CUSTOMER_STATEMENT"
+          },
+          {
+            "message_id": "7715b037-16cf-51e7-8eec-1bbbbb4caea1",
+            "sequence": 3,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "草稿先放一放，怎么查看商家核查进度？",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "现在接着准备台灯那份退款原因，我核对后再提交。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "PREPARE_REFUND"
+      },
+      "label_reasons": {
+        "t1": "本轮明确请求准备退款原因或申请草稿；核对后提交不否定准备。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q16-T1",
+      "source_case": "Q16",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "查一下耳机签收记录，我没收到。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "查一下耳机签收记录，我没收到。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q16-T2",
+      "source_case": "Q16",
+      "source_turn": 2,
+      "split": "reused",
+      "packet": {
+        "current_request": "先不查签收了，我问一下一直运输中是不是就能按丢失退款？",
+        "recent_messages": [
+          {
+            "message_id": "9805537a-a2f1-57a4-b35b-1ea50baf5a70",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "查一下耳机签收记录，我没收到。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "先不查签收了"
+              },
+              {
+                "task_id": "t2",
+                "quote": "一直运输中是不是就能按丢失退款？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项明确暂停、拒绝、结束或仅假设以后办理，不能继承旧意愿。",
+        "t2": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q16-T3",
+      "source_case": "Q16",
+      "source_turn": 3,
+      "split": "reused",
+      "packet": {
+        "current_request": "还是回到耳机签收的事，给我退款原因草稿，先不提交。",
+        "recent_messages": [
+          {
+            "message_id": "9805537a-a2f1-57a4-b35b-1ea50baf5a70",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "查一下耳机签收记录，我没收到。",
+            "authority": "CUSTOMER_STATEMENT"
+          },
+          {
+            "message_id": "d6f7e4bc-dcb2-5837-8668-e294cb7caa5f",
+            "sequence": 3,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "先不查签收了，我问一下一直运输中是不是就能按丢失退款？",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "还是回到耳机签收的事，给我退款原因草稿，先不提交。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "PREPARE_REFUND"
+      },
+      "label_reasons": {
+        "t1": "本轮明确请求准备退款原因或申请草稿；核对后提交不否定准备。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q17-T1",
+      "source_case": "Q17",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "台灯没收到，请准备退款原因供核对。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "台灯没收到，请准备退款原因供核对。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "PREPARE_REFUND"
+      },
+      "label_reasons": {
+        "t1": "本轮明确请求准备退款原因或申请草稿；核对后提交不否定准备。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q17-T2",
+      "source_case": "Q17",
+      "source_turn": 2,
+      "split": "reused",
+      "packet": {
+        "current_request": "我改成只让商家调查，先别准备退款，帮我写核查说明。",
+        "recent_messages": [
+          {
+            "message_id": "6d25adf2-4017-592c-8274-555f19da68f5",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "台灯没收到，请准备退款原因供核对。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "先别准备退款"
+              },
+              {
+                "task_id": "t2",
+                "quote": "帮我写核查说明"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED",
+        "t2": "MERCHANT_REVIEW"
+      },
+      "label_reasons": {
+        "t1": "本事项明确暂停、拒绝、结束或仅假设以后办理，不能继承旧意愿。",
+        "t2": "本轮要求整理给商家核查的说明/摘要；先不发送不否定准备。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q18-T1",
+      "source_case": "Q18",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机没收到，先整理给商家的核查说明。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机没收到，先整理给商家的核查说明。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "label_reasons": {
+        "t1": "本轮要求整理给商家核查的说明/摘要；先不发送不否定准备。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q18-T2",
+      "source_case": "Q18",
+      "source_turn": 2,
+      "split": "reused",
+      "packet": {
+        "current_request": "现在想申请退款，请整理退款原因给我核对，不是人工说明。",
+        "recent_messages": [
+          {
+            "message_id": "a16fc6ab-9a2f-5bf2-ac1f-c33c87bf95f8",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "耳机没收到，先整理给商家的核查说明。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "现在想申请退款，请整理退款原因给我核对"
+              },
+              {
+                "task_id": "t2",
+                "quote": "不是人工说明"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "PREPARE_REFUND",
+        "t2": "DECLINED"
+      },
+      "label_reasons": {
+        "t1": "本轮明确请求准备退款原因或申请草稿；核对后提交不否定准备。",
+        "t2": "本事项明确暂停、拒绝、结束或仅假设以后办理，不能继承旧意愿。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q19-T1",
+      "source_case": "Q19",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机按键卡住了，先准备给商家看的说明。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机按键卡住了，先准备给商家看的说明。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "label_reasons": {
+        "t1": "本轮要求整理给商家核查的说明/摘要；先不发送不否定准备。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q19-T2",
+      "source_case": "Q19",
+      "source_turn": 2,
+      "split": "reused",
+      "packet": {
+        "current_request": "不需要那份说明了，也不用发出去，这个问题结束。",
+        "recent_messages": [
+          {
+            "message_id": "54919e50-edde-546f-93c0-41b407b03000",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "耳机按键卡住了，先准备给商家看的说明。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "不需要那份说明了，也不用发出去，这个问题结束。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED"
+      },
+      "label_reasons": {
+        "t1": "本事项明确暂停、拒绝、结束或仅假设以后办理，不能继承旧意愿。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q20-T1",
+      "source_case": "Q20",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "台灯没到，先帮我写申请原因。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "台灯没到，先帮我写申请原因。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "PREPARE_REFUND"
+      },
+      "label_reasons": {
+        "t1": "本轮明确请求准备退款原因或申请草稿；核对后提交不否定准备。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q20-T2",
+      "source_case": "Q20",
+      "source_turn": 2,
+      "split": "reused",
+      "packet": {
+        "current_request": "不写申请了。只告诉我申请之后在哪查看状态？",
+        "recent_messages": [
+          {
+            "message_id": "5bc1cbbb-468b-5dc4-b5a3-f18896f0e6c0",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "台灯没到，先帮我写申请原因。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "不写申请了"
+              },
+              {
+                "task_id": "t2",
+                "quote": "只告诉我申请之后在哪查看状态？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED",
+        "t2": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项明确暂停、拒绝、结束或仅假设以后办理，不能继承旧意愿。",
+        "t2": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q21-T1",
+      "source_case": "Q21",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机物流是签收，但本人没有包裹。你能直接认定已经收到吗？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机物流是签收，但本人没有包裹。你能直接认定已经收到吗？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q22-T1",
+      "source_case": "Q22",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "我以为台灯还在路上，麻烦核对现在状态并说说能怎样处理。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "我以为台灯还在路上，麻烦核对现在状态并说说能怎样处理。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q23-T1",
+      "source_case": "Q23",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机可能坏了，你能确定是质量问题并直接帮我退款吗？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机可能坏了，你能确定是质量问题并直接帮我退款吗？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "UNCLEAR"
+      },
+      "label_reasons": {
+        "t1": "同时询问能否确认质量且直接退款，能力咨询与要求准备的边界不明确；预先保留为歧义项。"
+      },
+      "boundary_case": true,
+      "projection_note": ""
+    },
+    {
+      "id": "Q24-T1",
+      "source_case": "Q24",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "我不知道有没有家人收，先问签收争议要提交哪几样必需材料。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "我不知道有没有家人收，先问签收争议要提交哪几样必需材料。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q25-T1",
+      "source_case": "Q25",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "物流查询打不开时，你能断定我的包裹丢了吗？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "物流查询打不开时，你能断定我的包裹丢了吗？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q26-T1",
+      "source_case": "Q26",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "帮我查台灯运输记录，看不到就告诉我看不到，不要猜。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "帮我查台灯运输记录，看不到就告诉我看不到，不要猜。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q27-T1",
+      "source_case": "Q27",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机这笔实付多少钱？如果订单接口读不到，请说明原因。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机这笔实付多少钱？如果订单接口读不到，请说明原因。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q28-T1",
+      "source_case": "Q28",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "先核对物流，我还没拿到。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "先核对物流，我还没拿到。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q28-T2",
+      "source_case": "Q28",
+      "source_turn": 2,
+      "split": "reused",
+      "packet": {
+        "current_request": "既然查不出来，只帮我整理给商家的核查说明，先别发送。",
+        "recent_messages": [
+          {
+            "message_id": "206da74e-d462-5219-a0be-63dd3a9623df",
+            "sequence": 1,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "先核对物流，我还没拿到。",
+            "authority": "CUSTOMER_STATEMENT"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "既然查不出来，只帮我整理给商家的核查说明，先别发送。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      },
+      "label_reasons": {
+        "t1": "本轮要求整理给商家核查的说明/摘要；先不发送不否定准备。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q29-T1",
+      "source_case": "Q29",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "台灯一直没收到，查物流、说明丢失退款前提，再给我原因草稿，不提交。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "查物流、说明丢失退款前提"
+              },
+              {
+                "task_id": "t2",
+                "quote": "再给我原因草稿，不提交"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION",
+        "t2": "PREPARE_REFUND"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。",
+        "t2": "本轮明确请求准备退款原因或申请草稿；核对后提交不否定准备。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q30-T1",
+      "source_case": "Q30",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "签收的耳机我没收到：核对物流，再解释争议怎么处理，以及商家能不能看到全部私聊。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "签收的耳机我没收到：核对物流，再解释争议怎么处理，以及商家能不能看到全部私聊。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    },
+    {
+      "id": "Q31-T1",
+      "source_case": "Q31",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "耳机转轴松了；我不要退款，想先看核查摘要，也想知道补充后是不是另开一单。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "我不要退款"
+              },
+              {
+                "task_id": "t2",
+                "quote": "想先看核查摘要"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED",
+        "t2": "MERCHANT_REVIEW"
+      },
+      "label_reasons": {
+        "t1": "本事项明确暂停、拒绝、结束或仅假设以后办理，不能继承旧意愿。",
+        "t2": "本轮要求整理给商家核查的说明/摘要；先不发送不否定准备。"
+      },
+      "boundary_case": false,
+      "projection_note": "Q31保留退款拒绝与商家核查两个操作事项；补充后是否另开单的旁支咨询不计入本模块子项。"
+    },
+    {
+      "id": "Q32-T1",
+      "source_case": "Q32",
+      "source_turn": 1,
+      "split": "reused",
+      "packet": {
+        "current_request": "我问两件事：物流现在怎样；如果以后要退款，是否每笔都能部分退一点？先别申请。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "物流现在怎样"
+              },
+              {
+                "task_id": "t2",
+                "quote": "如果以后要退款，是否每笔都能部分退一点？先别申请"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION",
+        "t2": "DECLINED"
+      },
+      "label_reasons": {
+        "t1": "本事项为事实/条件/入口/进度咨询或陈述补充，不是请求准备操作材料。",
+        "t2": "本事项明确暂停、拒绝、结束或仅假设以后办理，不能继承旧意愿。"
+      },
+      "boundary_case": false,
+      "projection_note": ""
+    }
+  ]
+}
