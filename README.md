@@ -4,7 +4,7 @@
 
 ## 完整演示
 
-https://github.com/user-attachments/assets/34304069-e2da-4552-ac25-2443e1b759d3
+https://github.com/user-attachments/assets/3ca343f9-3261-4638-8dd0-c448d504c3dc
 
 ## 关键流程
 
