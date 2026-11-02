@@ -45,3 +45,5 @@ $env:RESOLVEFLOW_AGENT_DB='postgresql://agent:agent@127.0.0.1:55439/agent_db'
 接口来源：[System One](https://docs.typesafe.ai/api/system-one)、[Choice](https://docs.typesafe.ai/primitives/choice)、[模型](https://docs.typesafe.ai/models)。
 
 定向 mypy `--follow-imports=skip` 检查3个本批源码通过；完整导入检查长时间无结果，停止本轮所属进程，未计为通过。首次定向检查暴露导入跳过后的Any返回，补显式边界cast后通过，不代表全项目类型检查。
+
+第二步提交前差异检查曾因Windows写入CRLF报逐行尾空白；串行命令未在失败处停止，7e57ccd2已提交推送。随后立即统一本步新增测试/报告为LF，单独修复提交，不重写历史；后续提交明确先检查退出码。
