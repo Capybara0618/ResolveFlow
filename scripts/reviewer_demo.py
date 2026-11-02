@@ -1661,6 +1661,7 @@ def start_commerce_service(settings: Settings, log: Log) -> None:
             COMMERCE_DB_URL=settings.commerce_dsn,
             COMMERCE_DB_USER="commerce",
             COMMERCE_DB_PASSWORD="commerce",
+            RESOLVEFLOW_IDENTITY_BASE_URL=settings.case_url,
             REFUND_PROVIDER_URL=settings.agent_url,
             PRODUCT_REVIEW_CACHE_ENABLED="true",
             CHECKOUT_RECOVERY_ENABLED="true",

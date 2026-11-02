@@ -104,6 +104,7 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
      */
     private static String requiredScope(HttpServletRequest request) {
         String path = request.getRequestURI();
+        if (path.startsWith("/internal/v1/identity/")) return ServiceScopes.IDENTITY_RESOLVE;
         if (path.startsWith("/internal/v1/support/turns/") && path.endsWith("/stream-events"))
             return "support:progress";
         if (path.startsWith("/internal/v1/support/turns/")) return "support:read";
@@ -143,6 +144,15 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
             return;
         }
         String required = requiredScope(request);
+        if (ServiceScopes.IDENTITY_RESOLVE.equals(required) && !"commerce-service".equals(identity.subject())) {
+            refuse(
+                    response,
+                    request,
+                    HttpStatus.FORBIDDEN,
+                    "FORBIDDEN_SCOPE",
+                    "account resolution requires Commerce identity");
+            return;
+        }
         if (required != null && !identity.hasScope(required)) {
             // 403 FORBIDDEN_SCOPE, matching the audience refusal above and Commerce's filter: the caller is
             // authenticated as a service and may not do *this*, which is not the same as not being a service.

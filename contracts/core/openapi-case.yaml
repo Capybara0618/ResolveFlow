@@ -43,6 +43,44 @@ tags:
   - name: internal
     description: Service-to-service endpoints. Never exposed through the gateway.
 paths:
+  /internal/v1/identity/resolve:
+    post:
+      operationId: resolveCurrentCommerceIdentity
+      summary: Resolve the current user session and trusted trading bindings
+      description: >-
+        Authority: docs/service-boundary-plan.md. Requires commerce-service deployment identity
+        and identity:resolve scope. The separate user bearer token is carried only in the body.
+        Rechecks persistent account enablement, identity version and principal; returns only
+        enabled merchant bindings and optionally a current owned address snapshot. Never reads
+        orders or cases. No offline or cached-identity fallback. Platform admins are refused.
+      security:
+        - serviceToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentityResolveRequest'
+      responses:
+        '200':
+          description: Current account context, never cacheable
+          headers:
+            Cache-Control:
+              schema: {type: string, const: no-store}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityContext'
+        '400':
+          description: Invalid or additional request fields
+        '401':
+          description: Missing service credential or invalid/revoked user session
+        '403':
+          description: Wrong service subject, audience, scope or user role
+        '404':
+          description: Requested address does not belong to the current buyer
+        '409':
+          description: Address version changed
   /api/v1/support/conversations/{id}/refund-drafts/{draftId}/confirm:
     post: {"operationId": "confirmSupportRefund", "tags": ["support"], "security": [{"bearerAuth": []}], "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string"}}, {"name": "draftId", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}, {"name": "Idempotency-Key", "in": "header", "required": true, "schema": {"type": "string", "pattern": "^[A-Za-z0-9_-]{1,128}$"}}], "responses": {"200": {"description": "Current customer refund view; draft alone never creates a Case", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/SupportRefundView"}}}}, "400": {"description": "Invalid input"}, "401": {"description": "Login required"}, "403": {"description": "Platform buyer required"}, "404": {"description": "Conversation not visible"}, "409": {"description": "Version, eligibility or idempotency conflict"}, "503": {"description": "Commerce unavailable; retry with original key"}}, "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/SupportRefundConfirm"}}}}}
   /api/v1/support/conversations/{id}/refund-application:
@@ -4854,6 +4892,47 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    IdentityResolveRequest:
+      type: object
+      additionalProperties: false
+      required: [user_authorization]
+      properties:
+        user_authorization:
+          type: string
+          minLength: 8
+          maxLength: 8192
+          writeOnly: true
+        shipping:
+          oneOf:
+            - $ref: '#/components/schemas/ShippingSelection'
+            - type: 'null'
+    IdentityBinding:
+      type: object
+      additionalProperties: false
+      required: [merchant_id, customer_id, merchant_name]
+      properties:
+        merchant_id: {type: string, minLength: 1, maxLength: 64}
+        customer_id: {type: string, minLength: 1, maxLength: 64}
+        merchant_name: {type: string}
+    IdentityContext:
+      type: object
+      additionalProperties: false
+      required: [subject, merchant_id, role, customer_id, buyer_id, identity_version, bindings, shipping]
+      properties:
+        subject: {type: string, minLength: 1}
+        merchant_id: {type: [string, 'null']}
+        role: {type: string, enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR]}
+        customer_id: {type: [string, 'null']}
+        buyer_id: {type: [string, 'null']}
+        identity_version: {type: integer, minimum: 0}
+        bindings:
+          type: array
+          maxItems: 20
+          items: {$ref: '#/components/schemas/IdentityBinding'}
+        shipping:
+          oneOf:
+            - $ref: '#/components/schemas/ShippingSnapshot'
+            - type: 'null'
     SupportOperationsRun:
       type: object
       additionalProperties: false

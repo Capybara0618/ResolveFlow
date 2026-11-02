@@ -58,6 +58,7 @@ def test_local_redis_is_isolated_and_case_cache_enabled(tmp_path, monkeypatch):
     commerce_env = calls[1][0][-2]
     assert commerce_env["PRODUCT_REVIEW_CACHE_ENABLED"] == "true"
     assert commerce_env["CHECKOUT_RECOVERY_ENABLED"] == "true"
+    assert commerce_env["RESOLVEFLOW_IDENTITY_BASE_URL"] == current.case_url
     assert commerce_env["REDIS_HOST"] == "127.0.0.1"
     assert commerce_env["REDIS_PORT"] == "56380"
 

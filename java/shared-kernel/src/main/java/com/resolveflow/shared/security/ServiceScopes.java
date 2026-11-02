@@ -34,6 +34,9 @@ public final class ServiceScopes {
 
     public static final String COMMERCE_CATALOG = "commerce:catalog";
 
+    /** Commerce may resolve a supplied user's current account and trusted bindings, never Agent. */
+    public static final String IDENTITY_RESOLVE = "identity:resolve";
+
     /** Read Case's material and the policy version a case is pinned to. */
     public static final String POLICY_READ = "policy:read";
 

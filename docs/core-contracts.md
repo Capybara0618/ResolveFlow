@@ -173,6 +173,7 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Commerce | GET /api/v1/shop/products/{product_id}/reviews | docs/service-boundary-plan.md；公共投影直接路由，Case 同名声明暂保留兼容 |
 | Commerce | GET /api/v1/shop/products/{id}/presentation | docs/service-boundary-plan.md；公共投影直接路由，Case 同名声明暂保留兼容 |
 | Commerce | GET /api/v1/shop/stores/{id}/presentation | docs/service-boundary-plan.md；公共投影直接路由，Case 同名声明暂保留兼容 |
+| Case | POST /internal/v1/identity/resolve | docs/service-boundary-plan.md；仅commerce-service+identity:resolve，复核当前用户会话/有效绑定及可选地址，不查工单/订单 |
 
 ## 4. 运行与回调
 
