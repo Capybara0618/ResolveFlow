@@ -1,0 +1,791 @@
+{
+  "version": "jev-intent-v1",
+  "synthetic": true,
+  "independent_holdout": false,
+  "scope": "operation-purpose check on pending tasks only, not full intent understanding or authorization",
+  "threshold_predeclared": 0.7,
+  "selection": "30 authored utterances across five purposes; 10 dev and 20 test, two multi-task cases",
+  "rubric": "labels authored by Codex before execution; no user/independent human labelling; U cases lack enough referent context",
+  "cases": [
+    {
+      "id": "I01",
+      "split": "dev",
+      "packet": {
+        "current_request": "退款申请入口在哪儿？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "退款申请入口在哪儿？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      }
+    },
+    {
+      "id": "I02",
+      "split": "dev",
+      "packet": {
+        "current_request": "请商家核查必须填写退款金额吗？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "请商家核查必须填写退款金额吗？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      }
+    },
+    {
+      "id": "I03",
+      "split": "test",
+      "packet": {
+        "current_request": "我这种情况符合退钱条件吗？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "我这种情况符合退钱条件吗？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      }
+    },
+    {
+      "id": "I04",
+      "split": "test",
+      "packet": {
+        "current_request": "你说的核查摘要是什么？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "你说的核查摘要是什么？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      }
+    },
+    {
+      "id": "I05",
+      "split": "test",
+      "packet": {
+        "current_request": "这笔退款现在到哪一步了？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "这笔退款现在到哪一步了？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      }
+    },
+    {
+      "id": "I06",
+      "split": "test",
+      "packet": {
+        "current_request": "如果要让商家帮忙，应该怎么操作？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "如果要让商家帮忙，应该怎么操作？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "INFORMATION"
+      }
+    },
+    {
+      "id": "R01",
+      "split": "dev",
+      "packet": {
+        "current_request": "帮我把退款原因整理成草稿，暂时不要提交。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "帮我把退款原因整理成草稿，暂时不要提交。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "PREPARE_REFUND"
+      }
+    },
+    {
+      "id": "R02",
+      "split": "dev",
+      "packet": {
+        "current_request": "我要申请退款，请先把申请内容给我核对。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "我要申请退款，请先把申请内容给我核对。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "PREPARE_REFUND"
+      }
+    },
+    {
+      "id": "R03",
+      "split": "test",
+      "packet": {
+        "current_request": "能帮我整理一下退款申请吗？",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "能帮我整理一下退款申请吗？"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "PREPARE_REFUND"
+      }
+    },
+    {
+      "id": "R04",
+      "split": "test",
+      "packet": {
+        "current_request": "耳机没收到，请给我准备退款原因，我自己确认。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机没收到，请给我准备退款原因，我自己确认。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "PREPARE_REFUND"
+      }
+    },
+    {
+      "id": "R05",
+      "split": "test",
+      "packet": {
+        "current_request": "先别发给商家，但退款原因麻烦写好让我看看。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "先别发给商家，但退款原因麻烦写好让我看看。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "PREPARE_REFUND"
+      }
+    },
+    {
+      "id": "R06",
+      "split": "test",
+      "packet": {
+        "current_request": "人工核查先不做，退款申请草稿请现在准备。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "人工核查先不做"
+              },
+              {
+                "task_id": "t2",
+                "quote": "退款申请草稿请现在准备"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED",
+        "t2": "PREPARE_REFUND"
+      }
+    },
+    {
+      "id": "M01",
+      "split": "dev",
+      "packet": {
+        "current_request": "我只想先看给商家的情况说明，请你整理。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "我只想先看给商家的情况说明，请你整理。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      }
+    },
+    {
+      "id": "M02",
+      "split": "dev",
+      "packet": {
+        "current_request": "别申请退款，帮我准备人工核查摘要。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "别申请退款"
+              },
+              {
+                "task_id": "t2",
+                "quote": "帮我准备人工核查摘要"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED",
+        "t2": "MERCHANT_REVIEW"
+      }
+    },
+    {
+      "id": "M03",
+      "split": "test",
+      "packet": {
+        "current_request": "耳机转轴松了，我不要退款，想先看核查摘要。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "耳机转轴松了，我不要退款，想先看核查摘要。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      }
+    },
+    {
+      "id": "M04",
+      "split": "test",
+      "packet": {
+        "current_request": "能帮我把这件事整理给商家核查吗？先不要发送。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "能帮我把这件事整理给商家核查吗？先不要发送。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      }
+    },
+    {
+      "id": "M05",
+      "split": "test",
+      "packet": {
+        "current_request": "就按刚才说的人工核查，先把摘要写出来。",
+        "recent_messages": [
+          {
+            "role": "assistant",
+            "text": "你可以先准备商家核查摘要，或者只是了解处理条件。"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "就按刚才说的人工核查，先把摘要写出来。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      }
+    },
+    {
+      "id": "M06",
+      "split": "test",
+      "packet": {
+        "current_request": "先给我生成核查内容，我看完再决定发不发。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "先给我生成核查内容，我看完再决定发不发。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "MERCHANT_REVIEW"
+      }
+    },
+    {
+      "id": "D01",
+      "split": "dev",
+      "packet": {
+        "current_request": "退款草稿先不用准备了。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "退款草稿先不用准备了。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED"
+      }
+    },
+    {
+      "id": "D02",
+      "split": "dev",
+      "packet": {
+        "current_request": "商家核查先停一下，我想想。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "商家核查先停一下，我想想。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED"
+      }
+    },
+    {
+      "id": "D03",
+      "split": "test",
+      "packet": {
+        "current_request": "刚才让你整理的退款原因撤回，别再写了。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "刚才让你整理的退款原因撤回，别再写了。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED"
+      }
+    },
+    {
+      "id": "D04",
+      "split": "test",
+      "packet": {
+        "current_request": "现在不申请，等过两天我再说。",
+        "recent_messages": [
+          {
+            "role": "assistant",
+            "text": "如果你要申请退款，我可以先帮你准备原因草稿，最后由你确认提交。"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "现在不申请，等过两天我再说。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED"
+      }
+    },
+    {
+      "id": "D05",
+      "split": "test",
+      "packet": {
+        "current_request": "假如以后决定退款再准备，现在先别做。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "假如以后决定退款再准备，现在先别做。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED"
+      }
+    },
+    {
+      "id": "D06",
+      "split": "test",
+      "packet": {
+        "current_request": "先别整理给商家的说明，等我通知。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "先别整理给商家的说明，等我通知。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "DECLINED"
+      }
+    },
+    {
+      "id": "U01",
+      "split": "dev",
+      "packet": {
+        "current_request": "就按那个来吧。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "就按那个来吧。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "UNCLEAR"
+      }
+    },
+    {
+      "id": "U02",
+      "split": "dev",
+      "packet": {
+        "current_request": "帮我处理一下。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "帮我处理一下。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "UNCLEAR"
+      }
+    },
+    {
+      "id": "U03",
+      "split": "test",
+      "packet": {
+        "current_request": "你看着弄吧。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "你看着弄吧。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "UNCLEAR"
+      }
+    },
+    {
+      "id": "U04",
+      "split": "test",
+      "packet": {
+        "current_request": "退款和商家核查都说过了，我要前面那个。",
+        "recent_messages": [
+          {
+            "role": "assistant",
+            "text": "可以解释退款条件，也可以准备退款原因或商家核查摘要，你想怎么处理？"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "退款和商家核查都说过了，我要前面那个。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "UNCLEAR"
+      }
+    },
+    {
+      "id": "U05",
+      "split": "test",
+      "packet": {
+        "current_request": "嗯，可以。",
+        "recent_messages": [
+          {
+            "role": "assistant",
+            "text": "可以解释退款条件，也可以准备退款原因或商家核查摘要，你想怎么处理？"
+          }
+        ],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "嗯，可以。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "UNCLEAR"
+      }
+    },
+    {
+      "id": "U06",
+      "split": "test",
+      "packet": {
+        "current_request": "把它整理好。",
+        "recent_messages": [],
+        "history_index": [],
+        "history_read_refs": [],
+        "feedback": null,
+        "orchestration": {
+          "phase": "CHECK_REQUEST",
+          "request_check": {
+            "tasks": [
+              {
+                "task_id": "t1",
+                "quote": "把它整理好。"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "t1": "UNCLEAR"
+      }
+    }
+  ]
+}

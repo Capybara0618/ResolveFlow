@@ -256,6 +256,7 @@ tmp/
 !/scripts/jev_check.py
 !/scripts/jev_compare.py
 !/scripts/jev_compare_summary.py
+!/scripts/jev_intent_eval.py
 !/scripts/configure_showcase.py
 !/agent/tests/unit/test_configure_showcase.py
 !/agent/tests/unit/test_catalog_collection.py

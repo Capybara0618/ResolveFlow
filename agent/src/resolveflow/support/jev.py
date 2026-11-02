@@ -98,6 +98,41 @@ class JevClient:
         self.config, self.transport = config, transport
 
     def evaluate(self, body: dict[str, Any], *, timeout: float | None = None) -> dict[str, Any]:
+        value, elapsed = self._request(body, timeout=timeout)
+        try:
+            answer = self._choice(value["answers"]["grounding"], set(CRITERIA))
+        except (ValueError, KeyError, TypeError, AttributeError):
+            raise JevError("INVALID_RESPONSE") from None
+        return {"status": "COMPLETE", "verdict": answer["choice"], "confidence": answer["confidence"],
+                "probabilities": answer["probabilities"], "usage": value["usage"], "response": value,
+                "elapsed_ms": elapsed}
+
+    def evaluate_choices(self, body: dict[str, Any], *, timeout: float | None = None) -> dict[str, Any]:
+        """Validate every declared Choice, including sibling coverage, before accepting any decision."""
+        questions = body.get("questions", {})
+        if not questions or any(q.get("type") != "choice" or not q.get("criteria") for q in questions.values()):
+            raise JevError("INVALID_REQUEST")
+        value, elapsed = self._request(body, timeout=timeout)
+        try:
+            if set(value["answers"]) != set(questions):
+                raise ValueError("question coverage mismatch")
+            answers = {key: self._choice(value["answers"][key], set(q["criteria"])) for key, q in questions.items()}
+        except (ValueError, KeyError, TypeError, AttributeError):
+            raise JevError("INVALID_RESPONSE") from None
+        return {"status": "COMPLETE", "answers": answers, "usage": value["usage"],
+                "response": value, "elapsed_ms": elapsed}
+
+    @staticmethod
+    def _choice(answer: Any, options: set[str]) -> dict[str, Any]:
+        probabilities = answer["probabilities"]
+        if (answer["type"] != "choice" or answer["choice"] not in options or set(probabilities) != options
+                or any(type(n) not in {int, float} or not math.isfinite(n) or not 0 <= n <= 1
+                       for n in [answer["confidence"], *probabilities.values()])
+                or abs(sum(probabilities.values()) - 1) > .02):
+            raise ValueError("invalid choice")
+        return dict(answer)
+
+    def _request(self, body: dict[str, Any], *, timeout: float | None = None) -> tuple[dict[str, Any], float]:
         started = time.monotonic()
         try:
             with httpx.Client(timeout=timeout or self.config.timeout_seconds, follow_redirects=False,
@@ -121,17 +156,10 @@ class JevClient:
             if self.config.api_key:
                 text = text.replace(self.config.api_key, "[REDACTED]")
             value = json.loads(text)
-            answer, usage = value["answers"]["grounding"], value["usage"]
-            probabilities = answer["probabilities"]
-            if (value["model"] != self.config.model or answer["type"] != "choice"
-                    or answer["choice"] not in CRITERIA or set(probabilities) != set(CRITERIA)
-                    or any(type(n) not in {int, float} or not math.isfinite(n) or not 0 <= n <= 1
-                           for n in [answer["confidence"], *probabilities.values()])
-                    or abs(sum(probabilities.values()) - 1) > .02
+            usage = value["usage"]
+            if (value["model"] != self.config.model
                     or any(type(usage[k]) is not int or usage[k] < 0 for k in ("input_tokens", "output_tokens"))):
                 raise ValueError("invalid decision response")
         except (ValueError, KeyError, TypeError, AttributeError):
             raise JevError("INVALID_RESPONSE") from None
-        return {"status": "COMPLETE", "verdict": answer["choice"], "confidence": answer["confidence"],
-                "probabilities": probabilities, "usage": usage, "response": value,
-                "elapsed_ms": round((time.monotonic() - started) * 1000, 2)}
+        return value, round((time.monotonic() - started) * 1000, 2)
