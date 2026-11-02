@@ -214,6 +214,11 @@ def main() -> int:
         parser.error("构建与浏览器选项仅用于 start")
     log = None
     try:
+        if args.command == "start":
+            from resolveflow.support.jev import JevConfig, load_local_env
+
+            load_local_env(runtime.ROOT / ".env")
+            JevConfig.from_environ()  # Validate before starting/replacing processes.
         current = settings()
         log = ProjectLog(
             runtime.log_path(current, "project-" + args.command),
@@ -241,9 +246,10 @@ def main() -> int:
         return result
     except (RuntimeError, OSError, ValueError, subprocess.SubprocessError) as error:
         message = str(error)
-        secret = os.environ.get("RESOLVEFLOW_MODEL_API_KEY", "")
-        if secret:
-            message = message.replace(secret, "[redacted]")
+        for name in ("RESOLVEFLOW_MODEL_API_KEY", "TYPESAFE_API_KEY"):
+            secret = os.environ.get(name, "")
+            if secret:
+                message = message.replace(secret, "[redacted]")
         if log is not None:
             log.step(message, False)
             log.flush("FAILED")

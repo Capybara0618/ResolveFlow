@@ -143,3 +143,45 @@ def test_exhausted_budget_or_large_evidence_is_explicitly_skipped(agent_db, budg
         saved = c.execute("SELECT response_json FROM support_agent_call WHERE kind='jev'").fetchone()["response_json"]
     assert saved["status"] == "SKIPPED" and saved["reason"] == reason
     assert result["spend"]["model_calls"] == 0
+
+
+def test_internal_http_dispatch_keeps_wire_contract_and_saves_check(agent_db, tmp_path):
+    from fastapi.testclient import TestClient
+
+    from resolveflow.api.app import create_app
+    from resolveflow.api.identity import mint_service_token
+    from tests.integration.test_support_staged_api import SECRET
+
+    req = request()
+    run = runtime(agent_db, lambda _: httpx.Response(200, json=response()))
+    app = create_app(provider_db=tmp_path / "provider.db", delivery_loop=False, worker_loop=False,
+                     migrate=False, jwt_secret=SECRET, support_runtime=run)
+    token = mint_service_token("case-service", SECRET, scope="support:run",
+                               merchant_id=req.merchant_id, customer_id=req.customer_id)
+    with TestClient(app) as api:
+        reply = api.post("/internal/v1/support-runs",
+                         json={**req.model_dump(mode="json"), "tool_token": "bound-test"},
+                         headers={"Authorization": "Bearer " + token})
+    assert reply.status_code == 200
+    assert reply.json()["status"] == "SUCCEEDED" and reply.json()["spend"]["model_calls"] == 3
+    assert "jev" not in reply.json()["answer"]
+    with agent_db.connection() as c:
+        saved = c.execute("SELECT response_json FROM support_agent_call WHERE kind='jev'").fetchone()["response_json"]
+    assert saved["verdict"] == "contradicted"
+
+
+def test_complete_application_guide_fits_the_existing_budget(agent_db):
+    from tests.unit.test_support_agent import GuideReads
+
+    config = JevConfig(enabled=True, api_key="test-secret")
+    run = SupportRuntime(agent_db, DeploymentConfig(mode="mock"), jev_config=config,
+                         model_factory=lambda: MockModelClient(script=[read("get_support_guide"),
+                             answer(text="你可以请商家协助核查。", citations=["O1"])]),
+                         sources_factory=lambda *_: GuideReads(),
+                         jev_client=JevClient(config, transport=httpx.MockTransport(
+                             lambda _: httpx.Response(200, json=response()))))
+    assert run.run(request(), "bound-test")["status"] == "SUCCEEDED"
+    with agent_db.connection() as c:
+        saved = c.execute("SELECT request_json,response_json FROM support_agent_call WHERE kind='jev'").fetchone()
+    assert saved["response_json"]["status"] == "COMPLETE"
+    assert saved["request_json"]["body"]["state"]["observations"][0]["data"]["authority"] == "APPLICATION_GUIDE"

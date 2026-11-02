@@ -1,0 +1,14 @@
+[
+  {"id":"lost-supported","source_type":"SHIPMENT","evidence":"承运商记录：已确认包裹丢失。","question":"包裹怎么样了？","answer":"承运商已确认包裹丢失。","expected":"supported"},
+  {"id":"lost-contradiction","source_type":"SHIPMENT","evidence":"承运商记录：尚未确认丢失，仍在运输中。","question":"包裹丢了吗？","answer":"承运商已经确认包裹丢失。","expected":"contradicted"},
+  {"id":"lost-missing","source_type":"SHIPMENT","evidence":"最新物流信息：到达转运中心。未提供承运商调查结论。","question":"包裹丢了吗？","answer":"包裹肯定已经丢失。","expected":"insufficient_evidence"},
+  {"id":"customer-not-fact","source_type":"ORDER","evidence":"订单已付款。未提供商品损坏核验记录。","question":"我觉得耳机坏了。","answer":"已经核实这副耳机存在质量问题。","expected":"insufficient_evidence"},
+  {"id":"policy-precondition","source_type":"POLICY","evidence":"商品损坏诉求须经商家人工核验，不能仅凭客户陈述直接退款。","question":"耳机坏了，现在直接退款吧。","answer":"只要你说耳机坏了，就可以直接退款，不需要核验。","expected":"contradicted"},
+  {"id":"conditional-valid","source_type":"POLICY","evidence":"承运商确认丢失后，可申请该订单行全额退款。","question":"物流没动静，怎么办？","answer":"如果后续承运商确认丢失，你可以申请退还这件商品的实付金额。","expected":"supported"},
+  {"id":"refund-not-arrived","source_type":"ORDER","evidence":"退款申请已获批准，仍待执行，尚未退款完成。","question":"退款到了吗？","answer":"退款已经完成并到账。","expected":"contradicted"},
+  {"id":"refund-completed","source_type":"ORDER","evidence":"系统记录：模拟退款执行成功。此处不代表真实银行到账。","question":"退款处理了吗？","answer":"系统记录显示模拟退款已执行成功。","expected":"supported"},
+  {"id":"failed-read","source_type":"SHIPMENT","evidence":null,"error":"SOURCE_UNAVAILABLE","question":"现在签收了吗？","answer":"我已查到最新物流，你的包裹已经签收。","expected":"insufficient_evidence"},
+  {"id":"honest-failure","source_type":"SHIPMENT","evidence":null,"error":"SOURCE_UNAVAILABLE","question":"现在签收了吗？","answer":"目前物流查询不可用，还不能确认是否签收。","expected":"supported"},
+  {"id":"question-not-claim","source_type":"SHIPMENT","evidence":"系统有签收记录，但没有客户本人收货确认。","question":"我没收到耳机。","answer":"系统有签收记录，但这不能证明你本人已收到。你是否问过家人或代收点？","expected":"supported"},
+  {"id":"policy-exception","source_type":"POLICY","evidence":"物流确认丢失可申请退款；仅有签收争议时须商家核验，不能直接认定丢失。","question":"有签收记录但我没收到。","answer":"有签收争议就等于确认丢失，可以直接按丢失处理。","expected":"contradicted"}
+]
