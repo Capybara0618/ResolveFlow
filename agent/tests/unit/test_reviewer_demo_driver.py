@@ -70,6 +70,22 @@ def test_stage_is_not_ready_when_project_redis_is_unhealthy(tmp_path, monkeypatc
     assert demo.stage_ready(current) is False
 
 
+def test_gateway_receives_both_service_addresses_in_isolated_runtime(tmp_path, monkeypatch):
+    current = settings_for(tmp_path)
+    monkeypatch.setattr(demo, "healthy_and_owned", lambda *_: False)
+    monkeypatch.setattr(demo, "stop_owned", lambda *a, **k: None)
+    monkeypatch.setattr(demo, "refuse_if_port_held", lambda *_: None)
+    monkeypatch.setattr(demo, "java_home", lambda: Path("C:/synthetic-jdk"))
+    monkeypatch.setattr(demo, "wait_for", lambda *a, **k: True)
+    monkeypatch.setattr(demo, "record_port_owner", lambda *_: None)
+    calls = []
+    monkeypatch.setattr(demo, "start_process", lambda *args: calls.append(args))
+    demo.start_gateway(current, demo.Log())
+    env = calls[0][-2]
+    assert env["RESOLVEFLOW_CASE_BASE_URL"] == current.case_url
+    assert env["RESOLVEFLOW_COMMERCE_BASE_URL"] == current.commerce_url
+
+
 def test_synthetic_claim_refuses_another_owner_without_stealing(tmp_path: Path, monkeypatch) -> None:
     calls = []
 

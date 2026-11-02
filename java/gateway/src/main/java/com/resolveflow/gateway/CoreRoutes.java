@@ -5,16 +5,37 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 
-/** The core public API lives in Case; its own bearer checks remain authoritative. */
+/** Public commerce routes are explicit; private and aftercare routes retain their own bearer checks. */
 @Configuration
 public class CoreRoutes {
 
     @Bean
     RouteLocator coreApiRoutes(
             RouteLocatorBuilder builder,
-            @Value("${resolveflow.case.base-url:http://127.0.0.1:8083}") String caseBaseUrl) {
+            @Value("${resolveflow.case.base-url:http://127.0.0.1:8083}") String caseBaseUrl,
+            @Value("${resolveflow.commerce.base-url:http://127.0.0.1:8081}") String commerceBaseUrl) {
         return builder.routes()
+                .route(
+                        "commerce-public-catalog",
+                        route -> route.method(HttpMethod.GET)
+                                .and()
+                                .path(
+                                        "/api/v1/shop/stores",
+                                        "/api/v1/shop/stores/{id}",
+                                        "/api/v1/shop/products",
+                                        "/api/v1/shop/products/{id}",
+                                        "/api/v1/shop/products/{id}/presentation",
+                                        "/api/v1/shop/stores/{id}/presentation",
+                                        "/api/v1/shop/products/{id}/reviews")
+                                .uri(commerceBaseUrl))
+                .route(
+                        "commerce-public-quote",
+                        route -> route.method(HttpMethod.POST)
+                                .and()
+                                .path("/api/v1/shop/quote")
+                                .uri(commerceBaseUrl))
                 .route("case-core-api", route -> route.path("/api/v1/**").uri(caseBaseUrl))
                 .build();
     }

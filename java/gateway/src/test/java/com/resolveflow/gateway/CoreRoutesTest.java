@@ -9,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,17 +32,104 @@ class CoreRoutesTest {
             new java.util.concurrent.atomic.AtomicBoolean();
     static final AtomicReference<String> supportForwarded = new AtomicReference<>();
     static final HttpServer upstream = startUpstream();
+    static final AtomicReference<String> commerceForwarded = new AtomicReference<>();
+    static final HttpServer commerce = startCommerce();
 
     @DynamicPropertySource
     static void caseAddress(DynamicPropertyRegistry properties) {
         properties.add(
                 "resolveflow.case.base-url",
                 () -> "http://127.0.0.1:" + upstream.getAddress().getPort());
+        properties.add(
+                "resolveflow.commerce.base-url",
+                () -> "http://127.0.0.1:" + commerce.getAddress().getPort());
     }
 
     @AfterAll
     static void stopUpstream() {
         upstream.stop(0);
+        commerce.stop(0);
+    }
+
+    private static HttpServer startCommerce() {
+        try {
+            var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+            server.createContext("/api/v1/", exchange -> {
+                commerceForwarded.set(exchange.getRequestMethod() + " " + exchange.getRequestURI() + " "
+                        + exchange.getRequestHeaders().getFirst("X-Merchant"));
+                byte[] body = "{\"owner\":\"commerce\"}".getBytes(StandardCharsets.UTF_8);
+                exchange.getResponseHeaders().set("Content-Type", "application/json");
+                exchange.sendResponseHeaders(200, body.length);
+                try (var out = exchange.getResponseBody()) {
+                    out.write(body);
+                }
+            });
+            server.start();
+            return server;
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "/api/v1/shop/stores",
+                "/api/v1/shop/stores/M-1001",
+                "/api/v1/shop/products?query=headphones&limit=12",
+                "/api/v1/shop/products/P-1001",
+                "/api/v1/shop/products/P-1001/presentation",
+                "/api/v1/shop/stores/M-1001/presentation",
+                "/api/v1/shop/products/P-1001/reviews?before=20&limit=5"
+            })
+    void publicCatalogGoesDirectlyToCommerceWithOriginalPathAndQuery(String path) {
+        webTestClient
+                .get()
+                .uri(path)
+                .header("X-Merchant", "forged")
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$.owner")
+                .isEqualTo("commerce");
+        assertThat(commerceForwarded.get()).isEqualTo("GET " + path + " null");
+    }
+
+    @Test
+    void quoteGoesToCommerceButPrivateAndMediaPathsAndWrongMethodsStayOnCase() {
+        webTestClient
+                .post()
+                .uri("/api/v1/shop/quote")
+                .bodyValue("{}")
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$.owner")
+                .isEqualTo("commerce");
+        for (String path : new String[] {
+            "/api/v1/shop/drafts",
+            "/api/v1/shop/cart",
+            "/api/v1/shop/media/image-1",
+            "/api/v1/shop/products/P-1001/private",
+            "/api/v1/shop/orders/lines/line-1/review"
+        }) {
+            webTestClient.get().uri(path).exchange().expectStatus().isNotFound();
+        }
+        webTestClient
+                .post()
+                .uri("/api/v1/shop/products")
+                .bodyValue("{}")
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+        webTestClient
+                .get()
+                .uri("/internal/v1/shop/products")
+                .exchange()
+                .expectStatus()
+                .isNotFound();
     }
 
     private static HttpServer startUpstream() {

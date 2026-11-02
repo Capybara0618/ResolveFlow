@@ -34,6 +34,7 @@ services:
         JAR_FILE: java/gateway/target/gateway-0.1.0-SNAPSHOT.jar
     environment:
       RESOLVEFLOW_CASE_BASE_URL: http://case-service:8083
+      RESOLVEFLOW_COMMERCE_BASE_URL: http://commerce-service:8081
     ports:
       - "127.0.0.1:${GATEWAY_PORT:-8080}:8080"
     depends_on:

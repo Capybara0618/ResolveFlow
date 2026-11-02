@@ -165,6 +165,15 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 
 政策路由同时发布每条规则的`chunk_id`与`content_hash`，因为方案引用的`PolicyRef`要求这两个成员：只有这条路由发布规则，run能引用的hash只能从这里抄。两者都由**已存正文派生**（chunk按规则在bundle中的位置编号，hash取bundle_id/chunk_id/title/text的规范JSON），不存库、不读导入文件，与bundle自身manifest hash同一构造；跨语言固定值在`contracts/fixtures`中冻结，Java与Python各自重算同一digest，否则引用核对不可验证。
 
+| Commerce | GET /api/v1/shop/stores | docs/service-boundary-plan.md；公共投影直接路由，Case 同名声明暂保留兼容 |
+| Commerce | GET /api/v1/shop/stores/{store_id} | docs/service-boundary-plan.md；公共投影直接路由，Case 同名声明暂保留兼容 |
+| Commerce | GET /api/v1/shop/products | docs/service-boundary-plan.md；公共投影直接路由，Case 同名声明暂保留兼容 |
+| Commerce | GET /api/v1/shop/products/{product_id} | docs/service-boundary-plan.md；公共投影直接路由，Case 同名声明暂保留兼容 |
+| Commerce | POST /api/v1/shop/quote | docs/service-boundary-plan.md；公共投影直接路由，Case 同名声明暂保留兼容 |
+| Commerce | GET /api/v1/shop/products/{product_id}/reviews | docs/service-boundary-plan.md；公共投影直接路由，Case 同名声明暂保留兼容 |
+| Commerce | GET /api/v1/shop/products/{id}/presentation | docs/service-boundary-plan.md；公共投影直接路由，Case 同名声明暂保留兼容 |
+| Commerce | GET /api/v1/shop/stores/{id}/presentation | docs/service-boundary-plan.md；公共投影直接路由，Case 同名声明暂保留兼容 |
+
 ## 4. 运行与回调
 
 run请求沿用run/case/input_revision、受控context(merchant/customer/order/line)、request、policy_manifest、deadline_at、traceparent；body主体必须与service JWT及Case绑定一致。

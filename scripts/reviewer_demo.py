@@ -1692,7 +1692,10 @@ def start_gateway(settings: Settings, log: Log) -> None:
             str(GATEWAY_JAR),
             f"--server.port={settings.ports['gateway']}",
         ],
-        child_env(RESOLVEFLOW_CASE_BASE_URL=settings.case_url),
+        child_env(
+            RESOLVEFLOW_CASE_BASE_URL=settings.case_url,
+            RESOLVEFLOW_COMMERCE_BASE_URL=settings.commerce_url,
+        ),
         settings.ports["gateway"],
     )
     ok = wait_for("gateway", lambda: health(settings.gateway_url), timeout=180.0)

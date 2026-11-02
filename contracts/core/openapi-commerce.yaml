@@ -31,6 +31,398 @@ tags:
   - name: refund
     description: Refund operation state and the reconciliation answer.
 paths:
+  /api/v1/shop/stores:
+    get:
+      operationId: commercePublicCaseShoppingGet_stores
+      summary: ShopStores
+      description: 'Authority: docs/service-boundary-plan.md. Direct public Commerce
+        projection. Authority: docs/catalog-checkout.md. Public catalog or trusted
+        buyer checkout; no payment publication. Draft routes require commerce:checkout
+        and case-service deployment identity internally.'
+      parameters: []
+      responses:
+        '200':
+          description: Persisted or public projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopStores'
+              example:
+              - store_id: M-1001
+                name: 松间数码
+                description: 日常工作与聆听的数码用品
+        '400':
+          description: Invalid documented input
+        '404':
+          description: Missing or not visible
+        '409':
+          description: Price changed or idempotency conflict
+        '503':
+          description: Unavailable; retry the same request/key
+      security: []
+  /api/v1/shop/stores/{store_id}:
+    get:
+      operationId: commercePublicCaseShoppingGet_stores_store_id
+      summary: ShopStore
+      description: 'Authority: docs/service-boundary-plan.md. Direct public Commerce
+        projection. Authority: docs/catalog-checkout.md. Public catalog or trusted
+        buyer checkout; no payment publication. Draft routes require commerce:checkout
+        and case-service deployment identity internally.'
+      parameters:
+      - name: store_id
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+      responses:
+        '200':
+          description: Persisted or public projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopStore'
+              example:
+                store_id: M-1001
+                name: 松间数码
+                description: 日常工作与聆听的数码用品
+        '400':
+          description: Invalid documented input
+        '404':
+          description: Missing or not visible
+        '409':
+          description: Price changed or idempotency conflict
+        '503':
+          description: Unavailable; retry the same request/key
+      security: []
+  /api/v1/shop/products:
+    get:
+      operationId: commercePublicCaseShoppingGet_products
+      summary: ShopProducts
+      description: 'Authority: docs/service-boundary-plan.md. Direct public Commerce
+        projection. Authority: docs/catalog-checkout.md. Public catalog or trusted
+        buyer checkout; no payment publication. Draft routes require commerce:checkout
+        and case-service deployment identity internally.'
+      parameters:
+      - name: query
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 80
+      - name: category
+        in: query
+        required: false
+        schema:
+          enum:
+          - electronics
+          - home
+          - outdoor
+      - name: store_id
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+      - name: after
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 48
+      responses:
+        '200':
+          description: Persisted or public projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopProducts'
+              example:
+                items:
+                - product_id: P-1001
+                  store_id: M-1001
+                  store_name: 松间数码
+                  name: 无线降噪耳机
+                  description: 包耳式设计，适合通勤与专注工作。
+                  category: electronics
+                  asset_key: headphones
+                  from_amount: 32900
+                  currency: CNY
+                  skus:
+                  - sku_id: SKU-1001-BLACK
+                    variant: 黑色
+                    unit_amount: 32900
+                    max_quantity: 10
+                    version: 1
+                next_after: null
+        '400':
+          description: Invalid documented input
+        '404':
+          description: Missing or not visible
+        '409':
+          description: Price changed or idempotency conflict
+        '503':
+          description: Unavailable; retry the same request/key
+      security: []
+  /api/v1/shop/products/{product_id}:
+    get:
+      operationId: commercePublicCaseShoppingGet_products_product_id
+      summary: ShopProduct
+      description: 'Authority: docs/service-boundary-plan.md. Direct public Commerce
+        projection. Authority: docs/catalog-checkout.md. Public catalog or trusted
+        buyer checkout; no payment publication. Draft routes require commerce:checkout
+        and case-service deployment identity internally.'
+      parameters:
+      - name: product_id
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+      responses:
+        '200':
+          description: Persisted or public projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopProduct'
+              example:
+                product_id: P-1001
+                store_id: M-1001
+                store_name: 松间数码
+                name: 无线降噪耳机
+                description: 包耳式设计，适合通勤与专注工作。
+                category: electronics
+                asset_key: headphones
+                from_amount: 32900
+                currency: CNY
+                skus:
+                - sku_id: SKU-1001-BLACK
+                  variant: 黑色
+                  unit_amount: 32900
+                  max_quantity: 10
+                  version: 1
+        '400':
+          description: Invalid documented input
+        '404':
+          description: Missing or not visible
+        '409':
+          description: Price changed or idempotency conflict
+        '503':
+          description: Unavailable; retry the same request/key
+      security: []
+  /api/v1/shop/quote:
+    post:
+      operationId: commercePublicCaseShoppingPost_quote
+      summary: ShopQuote
+      description: 'Authority: docs/service-boundary-plan.md. Direct public Commerce
+        projection. Authority: docs/catalog-checkout.md. Public catalog or trusted
+        buyer checkout; no payment publication. Draft routes require commerce:checkout
+        and case-service deployment identity internally.'
+      parameters: []
+      responses:
+        '200':
+          description: Persisted or public projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopQuote'
+              example:
+                product:
+                  product_id: P-1001
+                  store_id: M-1001
+                  store_name: 松间数码
+                  name: 无线降噪耳机
+                  description: 包耳式设计，适合通勤与专注工作。
+                  category: electronics
+                  asset_key: headphones
+                  from_amount: 32900
+                  currency: CNY
+                  skus:
+                  - sku_id: SKU-1001-BLACK
+                    variant: 黑色
+                    unit_amount: 32900
+                    max_quantity: 10
+                    version: 1
+                sku:
+                  sku_id: SKU-1001-BLACK
+                  variant: 黑色
+                  unit_amount: 32900
+                  max_quantity: 10
+                  version: 1
+                quantity: 2
+                total_amount: 65800
+                currency: CNY
+        '400':
+          description: Invalid documented input
+        '404':
+          description: Missing or not visible
+        '409':
+          description: Price changed or idempotency conflict
+        '503':
+          description: Unavailable; retry the same request/key
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShopQuoteRequest'
+            example:
+              sku_id: SKU-1001-BLACK
+              quantity: 2
+  /api/v1/shop/products/{product_id}/reviews:
+    get:
+      operationId: commercePublicCaseProductReviews0
+      summary: ProductReviewPage
+      description: 'Authority: docs/service-boundary-plan.md. Direct public Commerce
+        projection. Authority: docs/backend-deepening-v1.md. Commerce owns reviews.
+        Delivered purchased line only; one per line, same-content replay, CAS edits
+        and merchant reply. Refund never deletes a review; Agent cannot access private
+        writes. Public results never include account or order identifiers.'
+      security: []
+      parameters:
+      - name: product_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: \S
+      - name: before
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 10
+      responses:
+        '200':
+          description: Authoritative review projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductReviewPage'
+        '400':
+          description: Invalid or non-integer input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Wrong role, scope or deployment subject
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Unknown or outside trusted ownership
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not delivered or stale review version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Account write limit reached
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: Temporarily unavailable; retain input and query original resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /api/v1/shop/products/{id}/presentation:
+    get:
+      summary: 读取在售商品多图、参数及说明
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPresentation'
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+      security: []
+      operationId: commercePublicProductPresentation
+      description: 'Authority: docs/service-boundary-plan.md and docs/shopping-experience-plan.md.
+        Public published data only.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+  /api/v1/shop/stores/{id}/presentation:
+    get:
+      summary: 读取启用店铺资料
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorePresentation'
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+      security: []
+      operationId: commercePublicStorePresentation
+      description: 'Authority: docs/service-boundary-plan.md and docs/shopping-experience-plan.md.
+        Public published data only.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
   /internal/v1/shop/products/{product_id}/reviews:
     get:
       operationId: commerceProductReviews0
@@ -2092,6 +2484,94 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    Specification:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - value
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 40
+        value:
+          type: string
+          minLength: 1
+          maxLength: 160
+    ProductPresentation:
+      type: object
+      additionalProperties: false
+      required:
+      - product_id
+      - version
+      - images
+      - specifications
+      - shipping_note
+      - aftercare_note
+      properties:
+        product_id:
+          type: string
+          maxLength: 64
+        version:
+          type: integer
+          minimum: 0
+        variant_images:
+          type: object
+          maxProperties: 100
+          additionalProperties:
+            type: string
+            format: uuid
+          description: 款式名称到相册图片标识的显式关联，顺序变化不影响关联
+        images:
+          type: array
+          uniqueItems: true
+          maxItems: 8
+          items:
+            type: string
+            format: uuid
+        specifications:
+          type: array
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/Specification'
+        shipping_note:
+          type: string
+          maxLength: 500
+        aftercare_note:
+          type: string
+          maxLength: 1000
+    StorePresentation:
+      type: object
+      additionalProperties: false
+      required:
+      - store_id
+      - version
+      - introduction
+      - logo_id
+      - contact_phone
+      - service_hours
+      properties:
+        store_id:
+          type: string
+          maxLength: 64
+        version:
+          type: integer
+          minimum: 0
+        introduction:
+          type: string
+          maxLength: 500
+        logo_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        contact_phone:
+          type: string
+          maxLength: 32
+        service_hours:
+          type: string
+          maxLength: 80
     ProductReview:
       type: object
       additionalProperties: false
