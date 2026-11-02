@@ -8,7 +8,7 @@ import os
 from dataclasses import asdict
 from importlib.metadata import version
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from resolveflow.harness.budget import RunBudget
 from resolveflow.harness.live_model import LiveModelClient
@@ -21,6 +21,8 @@ from resolveflow.support.embeddings import SupportEmbeddings
 from resolveflow.support.engine import SYSTEM, SupportAgent
 from resolveflow.support.grounding import FACT_RENDERING_VERSION
 from resolveflow.support.guide import GUIDE_VERSION
+from resolveflow.support.jev import JevClient, JevConfig
+from resolveflow.support.jev_audit import audit_answer
 from resolveflow.support.orchestration import GoalReview, Response, TurnPlan
 from resolveflow.support.orchestration_prompts import (
     COMPOSE_SYSTEM,
@@ -55,12 +57,16 @@ class SupportRuntime:
         sources_factory: Any = None,
         embeddings: SupportEmbeddings | None = None,
         architecture: str = "single",
+        jev_config: JevConfig | None = None,
+        jev_client: JevClient | None = None,
     ) -> None:
         TurnStage(architecture)  # Refuse unknown configuration before constructing a model.
         self.architecture = architecture
         self.database, self.config = database, config
         self.model_factory, self.sources_factory = model_factory, sources_factory
         self.embeddings = embeddings if embeddings is not None else SupportEmbeddings()
+        self.jev_config = jev_config if jev_config is not None else JevConfig.from_environ()
+        self.jev_client = jev_client if jev_client is not None else JevClient(self.jev_config)
 
     def _model(self, streaming: bool = False) -> Any:
         config = self.config
@@ -122,6 +128,7 @@ class SupportRuntime:
             "model_id": self.config.model_id,
             "support_guide_version": GUIDE_VERSION,
             "endpoint": self.config.endpoint,
+            "jev": self.jev_config.manifest(),
             "retrieval": {
                 "version": RETRIEVAL_VERSION,
                 "candidate_k": CANDIDATE_K,
@@ -142,6 +149,8 @@ class SupportRuntime:
                     "sources.py",
                     "store.py",
                     "service.py",
+                    "jev.py",
+                    "jev_audit.py",
                     "progress.py",
                     "stream_projection.py",
                     "../harness/streaming_model.py",
@@ -178,7 +187,7 @@ class SupportRuntime:
         }
         journal, cached = SupportStore(self.database).claim(request, manifest)
         if cached is not None:
-            return cached
+            return cast(dict[str, Any], cached)
         assert journal is not None
         if self.sources_factory:
             sources = self.sources_factory(request, token, journal)
@@ -198,11 +207,13 @@ class SupportRuntime:
         if isinstance(model, StreamingLiveModelClient) and progress is not None:
             model.on_content = progress.content
         try:
-            result = SupportAgent(
+            agent = SupportAgent(
                 request, model, sources, journal=journal, provider_capacity=self.config.context_window_tokens,
                 architecture=self.architecture,
                 progress=progress,
-            ).run()
+            )
+            result = cast(dict[str, Any], agent.run())
+            audit_answer(agent, result, self.jev_config, self.jev_client)
             journal.finish(result)
             return result
         finally:
