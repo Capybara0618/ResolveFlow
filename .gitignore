@@ -71,6 +71,7 @@ tmp/
 !/docs/assets/readme/core-design-mobile.png
 /scripts/*
 !/scripts/agent_eval.py
+!/scripts/buyer_identity_migration.py
 !/scripts/c11_core_smoke.py
 !/scripts/c11_review_benchmark.ps1
 !/scripts/c11_review_benchmark.sh
