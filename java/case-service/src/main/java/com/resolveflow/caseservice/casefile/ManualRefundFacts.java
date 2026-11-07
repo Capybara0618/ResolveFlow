@@ -69,7 +69,7 @@ public class ManualRefundFacts {
                 || !row.orderId().equals(line.orderId())
                 || !row.lineId().equals(line.lineId())
                 || !row.merchantId().equals(line.merchantId())
-                || !row.customerId().equals(line.customerId())) return blocked(row, "无法核对本申请的订单与付款记录，请刷新后重试。");
+                || !row.buyerId().equals(line.buyerId())) return blocked(row, "无法核对本申请的订单与付款记录，请刷新后重试。");
         if (line.paidAt() == null
                 || line.linePaidAmount() <= 0
                 || !"CNY".equals(line.currency())
@@ -77,7 +77,7 @@ public class ManualRefundFacts {
             return blocked(row, "订单付款或可退款金额已变化，请先核对原退款记录。");
         final com.resolveflow.shared.shopping.FulfillmentWire.Fulfillment fulfillment;
         try {
-            fulfillment = shopping.fulfillment(row.orderId(), row.merchantId(), row.customerId());
+            fulfillment = shopping.fulfillment(row.orderId(), row.merchantId(), row.buyerId());
         } catch (CommerceShoppingClient.Refused error) {
             if (error.status != 404) throw error;
             return blocked(row, "无法读取发货记录，不能按未发货退款处理。");

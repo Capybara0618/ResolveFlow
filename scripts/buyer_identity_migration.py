@@ -1,7 +1,7 @@
-"""Read-only ownership plan for replacing shop customer identities with platform buyers.
+"""Ownership plan and explicit migration staging for replacing shop customer identities with platform buyers.
 
-Run against an explicitly named local Docker MySQL container. This planner does not start
-applications, change schema, rewrite signed messages, or mutate existing run snapshots.
+The default command is read-only against a named local Compose MySQL container.
+--stage-map stages the audited owner map without rewriting signed messages or run snapshots.
 """
 
 from __future__ import annotations
@@ -106,6 +106,33 @@ class DockerMysql:
             "START TRANSACTION READ ONLY;\n" + statement + ";\nROLLBACK;\n")
         return [json.loads(line) for line in result.splitlines() if line.strip()]
 
+    def stage_mapping(self, mapping: list[dict[str, str]]) -> None:
+        """Persist the audited cross-service map before the append-only Flyway cutover."""
+        statements = []
+        for schema in ("case_db", "commerce_db"):
+            statements.append(f"""CREATE TABLE IF NOT EXISTS {schema}.buyer_identity_legacy (
+                merchant_id VARCHAR(64) NOT NULL, customer_id VARCHAR(64) NOT NULL,
+                buyer_id VARCHAR(64) NOT NULL, PRIMARY KEY(merchant_id,customer_id),
+                UNIQUE KEY uq_migration_buyer_store(buyer_id,merchant_id))""")
+        self.execute(";\n".join(statements) + ";\n")
+        statements = ["START TRANSACTION"]
+        for schema in ("case_db", "commerce_db"):
+            existing = self.query(f"""SELECT JSON_OBJECT('merchant_id',merchant_id,
+                'customer_id',customer_id,'buyer_id',buyer_id) FROM {schema}.buyer_identity_legacy""")
+            expected = {(r["merchant_id"], r["customer_id"]): r["buyer_id"] for r in mapping}
+            if any(expected.get((r["merchant_id"], r["customer_id"])) != r["buyer_id"] for r in existing):
+                raise OwnershipConflict("已暂存的归属映射与本次检查不一致")
+            for row in mapping:
+                values = ",".join("CONVERT(0x" + row[key].encode().hex() + " USING utf8mb4)"
+                                  for key in ("merchant_id", "customer_id", "buyer_id"))
+                statements.append(f"INSERT IGNORE INTO {schema}.buyer_identity_legacy VALUES ({values})")
+        statements.append("COMMIT")
+        self.execute(";\n".join(statements) + ";\n")
+
+    def execute(self, statement: str) -> None:
+        self._run(["docker", "exec", "-i", self.container, "sh", "-c",
+                   'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -uroot --batch --default-character-set=utf8mb4'], statement)
+
 
 def inspect(database: DockerMysql) -> tuple[dict[str, Any], list[dict[str, str]]]:
     bindings = database.query("""SELECT JSON_OBJECT('merchant_id',merchant_id,'customer_id',customer_id,
@@ -136,12 +163,52 @@ def inspect(database: DockerMysql) -> tuple[dict[str, Any], list[dict[str, str]]
     return report, mapping
 
 
+def stage_postgres(container: str, mapping: list[dict[str, str]]) -> None:
+    """Stage only the historical owner map; SQL migration refuses active or unknown runs."""
+    details = json.loads(DockerMysql._run(["docker", "inspect", container]))
+    labels = details[0].get("Config", {}).get("Labels", {})
+    if labels.get("com.docker.compose.service") != "postgres" or not details[0]["State"]["Running"]:
+        raise OwnershipConflict("必须显式指定运行中的本地 Compose PostgreSQL 容器")
+    # Hex values avoid shell/SQL quoting of persisted identities.
+    values = ["(" + ",".join("convert_from(decode('" + row[key].encode().hex() + "','hex'),'UTF8')"
+                              for key in ("merchant_id", "customer_id", "buyer_id")) + ")" for row in mapping]
+    statement = """BEGIN;
+        CREATE TABLE IF NOT EXISTS buyer_identity_legacy (
+          merchant_id text NOT NULL, customer_id text NOT NULL, buyer_id text NOT NULL,
+          PRIMARY KEY(merchant_id,customer_id), UNIQUE(buyer_id,merchant_id));
+        CREATE TEMP TABLE incoming_buyer_map (LIKE buyer_identity_legacy INCLUDING ALL) ON COMMIT DROP;
+    """
+    if values:
+        statement += "INSERT INTO incoming_buyer_map VALUES " + ",".join(values) + ";\n"
+    statement += """DO $$ BEGIN
+        IF EXISTS(SELECT 1 FROM buyer_identity_legacy e LEFT JOIN incoming_buyer_map i
+          ON e.merchant_id=i.merchant_id AND e.customer_id=i.customer_id
+          WHERE i.buyer_id IS NULL OR e.buyer_id<>i.buyer_id) THEN
+          RAISE EXCEPTION 'Conflicting staged buyer ownership';
+        END IF;
+        END $$;
+        INSERT INTO buyer_identity_legacy SELECT * FROM incoming_buyer_map ON CONFLICT DO NOTHING;
+        COMMIT;
+    """
+    DockerMysql._run(["docker", "exec", "-i", container, "psql", "-v", "ON_ERROR_STOP=1",
+                      "-U", "agent", "-d", "agent_db"], statement)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="只读核对 customer_id 到 buyer_id 的资源归属")
     parser.add_argument("--mysql-container", required=True)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--stage-map", action="store_true", help="在应用停机维护窗口暂存已核对的迁移映射")
+    parser.add_argument("--postgres-container", help="与该 MySQL 配对的 PostgreSQL；仅在 --stage-map 时使用")
     args = parser.parse_args()
-    report, _ = inspect(DockerMysql(args.mysql_container))
+    database = DockerMysql(args.mysql_container)
+    report, mapping = inspect(database)
+    if args.stage_map:
+        if not report["ready"]:
+            raise OwnershipConflict("资源归属检查失败，拒绝暂存")
+        database.stage_mapping(mapping)
+        if args.postgres_container:
+            stage_postgres(args.postgres_container, mapping)
     encoded = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

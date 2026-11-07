@@ -50,8 +50,8 @@ class DemoAccountsTest {
         DemoAccounts.Login login = accounts().login("demo-customer", "demo-pass-1001", NOW);
 
         assertThat(login.role()).isEqualTo(Role.CUSTOMER);
-        assertThat(login.merchantId()).isEqualTo("M-1001");
-        assertThat(login.customerId()).isEqualTo("C-2002");
+        assertThat(login.merchantId()).isNull();
+        assertThat(login.buyerId()).isEqualTo("B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         assertThat(login.tokenType()).isEqualTo("Bearer");
         assertThat(login.expiresIn()).isPositive();
         assertThat(login.accessToken()).isNotBlank();
@@ -107,7 +107,7 @@ class DemoAccountsTest {
         for (DemoAccounts.Account account : accounts.all()) {
             DemoAccounts.Login login = accounts.login(account.username(), demoPasswords.get(account.username()), NOW);
             AuthenticatedPrincipal principal = codec.verifyAsUser(login.accessToken(), NOW);
-            assertThat(principal.merchantId()).isEqualTo(account.merchantId());
+            assertThat(principal.merchantId()).isEqualTo(account.role() == Role.CUSTOMER ? null : account.merchantId());
             assertThat(principal.role()).isEqualTo(account.role());
         }
     }
@@ -122,9 +122,9 @@ class DemoAccountsTest {
         DemoAccounts.Login second = accounts.login("demo-customer-2", "demo-pass-1002", NOW);
         DemoAccounts.Login other = accounts.login("demo-customer-m2", "demo-pass-2001", NOW);
 
-        assertThat(second.merchantId()).isEqualTo("M-1001");
-        assertThat(other.merchantId()).isEqualTo("M-1002");
-        assertThat(other.customerId()).isNotEqualTo(second.customerId());
+        assertThat(second.merchantId()).isNull();
+        assertThat(other.merchantId()).isNull();
+        assertThat(other.buyerId()).isNotEqualTo(second.buyerId());
     }
 
     @Test
@@ -136,6 +136,6 @@ class DemoAccountsTest {
 
         assertThat(operators).isNotEmpty();
         assertThat(operators)
-                .allSatisfy(account -> assertThat(account.customerId()).isNull());
+                .allSatisfy(account -> assertThat(account.buyerId()).isNull());
     }
 }

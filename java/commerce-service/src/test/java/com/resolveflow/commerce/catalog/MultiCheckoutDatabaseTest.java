@@ -107,8 +107,7 @@ class MultiCheckoutDatabaseTest extends CommerceDatabaseTest {
     void cleanup() {
         reset(provider);
         reset(jdbc);
-        for (var id :
-                jdbc.queryForList("SELECT draft_id FROM checkout_draft WHERE customer_id=?", String.class, BUYER)) {
+        for (var id : jdbc.queryForList("SELECT draft_id FROM checkout_draft WHERE buyer_id=?", String.class, BUYER)) {
             jdbc.update(
                     "DELETE FROM simulated_checkout_receipt WHERE attempt_id IN (SELECT attempt_id FROM checkout_payment_attempt WHERE draft_id=?)",
                     id);
@@ -119,7 +118,7 @@ class MultiCheckoutDatabaseTest extends CommerceDatabaseTest {
             jdbc.update("DELETE FROM checkout_draft_line WHERE draft_id=?", id);
             jdbc.update("DELETE FROM checkout_draft WHERE draft_id=?", id);
         }
-        for (var id : jdbc.queryForList("SELECT order_id FROM orders WHERE customer_id=?", String.class, BUYER)) {
+        for (var id : jdbc.queryForList("SELECT order_id FROM orders WHERE buyer_id=?", String.class, BUYER)) {
             jdbc.update(
                     "DELETE FROM shipment_event WHERE line_id IN (SELECT line_id FROM order_line WHERE order_id=?)",
                     id);
@@ -131,9 +130,9 @@ class MultiCheckoutDatabaseTest extends CommerceDatabaseTest {
             jdbc.update("DELETE FROM payment_ledger WHERE order_id=?", id);
             jdbc.update("DELETE FROM orders WHERE order_id=?", id);
         }
-        jdbc.update("DELETE FROM shopping_cart_item WHERE customer_id=?", BUYER);
-        jdbc.update("DELETE FROM shopping_cart_request WHERE customer_id=?", BUYER);
-        jdbc.update("DELETE FROM shopping_cart WHERE customer_id=?", BUYER);
+        jdbc.update("DELETE FROM shopping_cart_item WHERE buyer_id=?", BUYER);
+        jdbc.update("DELETE FROM shopping_cart_request WHERE buyer_id=?", BUYER);
+        jdbc.update("DELETE FROM shopping_cart WHERE buyer_id=?", BUYER);
         jdbc.update("UPDATE catalog_sku SET unit_amount=32900,version=1 WHERE sku_id='SKU-1001-BLACK'");
         jdbc.update("UPDATE catalog_product SET listed=TRUE WHERE product_id='P-1001'");
     }
@@ -321,7 +320,7 @@ class MultiCheckoutDatabaseTest extends CommerceDatabaseTest {
         assertThat(purchases.read(d.purchaseId(), STORE, BUYER).lines())
                 .extracting(Line::lineId)
                 .doesNotContainAnyElementsOf(old);
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM order_line WHERE customer_id=?", Integer.class, BUYER))
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM order_line WHERE buyer_id=?", Integer.class, BUYER))
                 .isEqualTo(2);
     }
 
@@ -345,7 +344,7 @@ class MultiCheckoutDatabaseTest extends CommerceDatabaseTest {
                 .isInstanceOf(org.springframework.dao.DataAccessException.class);
         assertThat(count("orders")).isEqualTo(orders);
         assertThat(count("payment_ledger")).isEqualTo(ledgers);
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM order_line WHERE customer_id=?", Integer.class, BUYER))
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM order_line WHERE buyer_id=?", Integer.class, BUYER))
                 .isZero();
         var original = payments.snapshot(d.draftId(), STORE, BUYER);
         assertThat(original.status()).isEqualTo("UNKNOWN");
@@ -403,9 +402,9 @@ class MultiCheckoutDatabaseTest extends CommerceDatabaseTest {
             var y = pool.submit(() -> payments.pay(d.draftId(), pay));
             assertThat(x.get()).isEqualTo(y.get());
         }
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM orders WHERE customer_id=?", Integer.class, BUYER))
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM orders WHERE buyer_id=?", Integer.class, BUYER))
                 .isEqualTo(1);
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM order_line WHERE customer_id=?", Integer.class, BUYER))
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM order_line WHERE buyer_id=?", Integer.class, BUYER))
                 .isEqualTo(2);
     }
 

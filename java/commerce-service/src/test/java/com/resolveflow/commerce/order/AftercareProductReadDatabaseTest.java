@@ -14,42 +14,57 @@ import tools.jackson.databind.ObjectMapper;
 /** Read display art from the paid immutable snapshot, never today's catalog or another scope. */
 @Transactional
 class AftercareProductReadDatabaseTest extends CommerceDatabaseTest {
-    @Autowired OrderLineReadService service;
-    @Autowired JdbcTemplate jdbc;
+    @Autowired
+    OrderLineReadService service;
+
+    @Autowired
+    JdbcTemplate jdbc;
 
     private String snapshot(String kind, String merchant, String customer) {
         String id = UUID.randomUUID().toString();
-        jdbc.update("""
-            INSERT INTO checkout_draft(draft_id,merchant_id,customer_id,idempotency_key,product_id,
+        jdbc.update(
+                """
+            INSERT INTO checkout_draft(draft_id,merchant_id,buyer_id,idempotency_key,product_id,
                 product_name,store_name,asset_key,sku_id,variant,quantity,unit_amount,total_amount,
                 sku_version,status,created_at,expires_at,category,kind,line_count,cart_revision,
                 multiline_request_hash,order_id,line_id,paid_at)
             VALUES(?,?,?,?, 'P-1001','历史商品','历史店铺','headphones','SKU-BLUE-L','蓝色',1,1999,1999,
                 1,'PAID','2026-09-10 08:00:00','2026-09-10 09:00:00','electronics',?,?,?,?,
                 '00000000-0000-4000-8000-0000000000aa','7002','2026-09-10 08:15:00')
-            """, id, merchant, customer, id, kind, kind.equals("SINGLE") ? 1 : 2,
-                kind.equals("SINGLE") ? null : 1L, kind.equals("SINGLE") ? null : "a".repeat(64));
+            """,
+                id,
+                merchant,
+                customer,
+                id,
+                kind,
+                kind.equals("SINGLE") ? 1 : 2,
+                kind.equals("SINGLE") ? null : 1L,
+                kind.equals("SINGLE") ? null : "a".repeat(64));
         return id;
     }
 
     private Object art(String line) {
-        var row = service.listByLine("M-1001", "C-2002", line).items().getFirst();
+        var row = service.listByLine("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", line)
+                .items()
+                .getFirst();
         return new ObjectMapper().convertValue(row, Map.class).get("assetKey");
     }
 
     @Test
     void singleSnapshotRemainsAfterCatalogArtChangesAndDoesNotDecorateOtherSkus() {
-        snapshot("SINGLE", "M-1001", "C-2002");
+        snapshot("SINGLE", "M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         jdbc.update("UPDATE catalog_product SET asset_key='keyboard',name='已改名' WHERE product_id='P-1001'");
         assertThat(art("7002")).isEqualTo("headphones");
         assertThat(art("7001")).isNull();
         assertThat(service.readContext("7002").orElseThrow().linePaidAmount()).isEqualTo(1999);
-        assertThat(service.listByLine("M-1002", "C-2002", "7002").items()).isEmpty();
+        assertThat(service.listByLine("M-1002", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", "7002")
+                        .items())
+                .isEmpty();
     }
 
     @Test
     void multilineSnapshotSelectsTheExactSkuAndNeverUsesTheFlattenedFirstArt() {
-        String id = snapshot("MULTI", "M-1001", "C-2002");
+        String id = snapshot("MULTI", "M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         jdbc.update("""
             INSERT INTO checkout_draft_line(draft_id,sku_id,product_id,product_name,variant,asset_key,
                 category,quantity,unit_amount,line_amount,sku_version)
@@ -62,7 +77,7 @@ class AftercareProductReadDatabaseTest extends CommerceDatabaseTest {
     @Test
     void missingAndConflictingOwnershipSnapshotsHaveNoInventedArt() {
         assertThat(art("7002")).isNull();
-        snapshot("SINGLE", "M-1002", "C-2004");
+        snapshot("SINGLE", "M-1002", "B-legacy-6f808772ade9cc75fd3896626db511b718eebaa2");
         assertThat(art("7002")).isNull();
     }
 }

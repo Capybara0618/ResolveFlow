@@ -200,7 +200,7 @@ def request_for(case: dict[str, Any], index: int, history: list[dict[str, Any]],
         if accepted.get("customer_memory"):
             context["previous_customer_memory"] = accepted["customer_memory"]
     return SupportInput(run_id=str(uuid.uuid4()), conversation_id=conversation, input_version=sequence,
-        merchant_id="M-1001", customer_id="C-SYNTHETIC-SMOKE", line_id="buyer-language-synthetic-line",
+        merchant_id="M-1001", buyer_id="C-SYNTHETIC-SMOKE", line_id="buyer-language-synthetic-line",
         deadline_at=datetime.now(UTC) + timedelta(seconds=120), context=context)
 
 

@@ -41,7 +41,7 @@ def test_parts_persist_raw_and_recover_identical_rendered_answer_with_no_new_cal
                          migrate=False, jwt_secret=SECRET, support_runtime=runtime)
         with TestClient(app) as api:
             token = mint_service_token('case-service', SECRET, scope='support:run',
-                                       merchant_id=req.merchant_id, customer_id=req.customer_id)
+                                       merchant_id=req.merchant_id, buyer_id=req.buyer_id)
             headers = {'Authorization': 'Bearer ' + token}
             body = {**req.model_dump(mode='json'), 'tool_token': 'synthetic-read-token'}
             response = api.post('/internal/v1/support-runs', json=body, headers=headers)

@@ -39,7 +39,7 @@ def test_platform_identity_contract_rejects_tenant_or_buyer_claims():
     profile = {"username": "platform", "role": "PLATFORM_ADMIN", "display_name": "平台管理员"}
     validator = component_validator("case", "UserProfile", "contracts/core")
     validator.validator.validate(profile)
-    for fields in ({"buyer_id": "B-1"}, {"merchant_id": "M-1", "merchant_name": "其他商家"}, {"customer_id": "C-1"}):
+    for fields in ({"buyer_id": "B-1"}, {"merchant_id": "M-1", "merchant_name": "其他商家"}, {"buyer_id": "C-1"}):
         with pytest.raises(ValidationError):
             validator.validator.validate({**profile, **fields})
 

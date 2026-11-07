@@ -14,13 +14,13 @@ import org.junit.jupiter.api.Test;
 
 class BuyerPurchaseReadsTest {
     Context actor(String buyer, List<Binding> bindings) {
-        return new Context(buyer, null, Role.CUSTOMER, null, buyer, 1, bindings, null);
+        return new Context(buyer, null, Role.CUSTOMER, buyer, 1, bindings, null);
     }
 
     @Test
     void tiedTimesPreserveNativeStoreOrderAndCursorBindsBuyerBindingsAndFilters() {
         var reads = mock(PurchaseReads.class);
-        var bindings = List.of(new Binding("M-1", "C-1", "one"), new Binding("M-2", "C-2", "two"));
+        var bindings = List.of(new Binding("M-1", "buyer", "one"), new Binding("M-2", "buyer", "two"));
         var owner = actor("buyer", bindings);
         var time = Instant.parse("2026-10-03T00:00:00.123456Z");
         when(reads.list(anyString(), anyString(), nullable(String.class), nullable(String.class), anyInt()))
@@ -85,7 +85,7 @@ class BuyerPurchaseReadsTest {
                 .thenReturn(new Purchases(List.of(), null));
         when(reads.list(eq("M-2"), anyString(), isNull(), isNull(), anyInt()))
                 .thenThrow(new ShoppingService.Refused(503, "UPSTREAM_UNAVAILABLE", "store unavailable"));
-        var owner = actor("buyer", List.of(new Binding("M-1", "C-1", "one"), new Binding("M-2", "C-2", "two")));
+        var owner = actor("buyer", List.of(new Binding("M-1", "buyer", "one"), new Binding("M-2", "buyer", "two")));
         assertThatThrownBy(() -> new BuyerPurchaseReads(reads).list(owner, null, null, null, 20))
                 .isInstanceOfSatisfying(
                         ShoppingService.Refused.class, e -> assertThat(e.status).isEqualTo(503));

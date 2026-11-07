@@ -208,13 +208,6 @@ public class PlatformManagementService {
                 .orElseThrow(() -> new CommerceShoppingClient.Refused(404, "NOT_FOUND", "买家不存在"));
     }
 
-    private void bindAll(String buyer) {
-        jdbc.update(
-                "INSERT INTO buyer_customer_binding(buyer_id,merchant_id,customer_id) SELECT ?,merchant_id,CONCAT('C-',SUBSTRING(SHA2(CONCAT(?,':',merchant_id),256),1,40)) FROM identity_merchant",
-                buyer,
-                buyer);
-    }
-
     public Buyer createBuyer(Session s, BuyerCreate r) {
         admin(s, false);
         if (r == null) throw invalid("请填写买家信息");
@@ -235,7 +228,6 @@ public class PlatformManagementService {
                     id,
                     r.display_name().trim(),
                     hashed);
-            bindAll(id);
             audit(s, r.username(), "BUYER_CREATED", r.reason());
             return buyer(r.username());
         });
@@ -307,10 +299,6 @@ public class PlatformManagementService {
                     r.merchant_id(),
                     r.display_name().trim(),
                     hashed);
-            jdbc.update(
-                    "INSERT INTO buyer_customer_binding(buyer_id,merchant_id,customer_id) SELECT buyer_id,?,CONCAT('C-',SUBSTRING(SHA2(CONCAT(buyer_id,':',?),256),1,40)) FROM platform_buyer",
-                    r.merchant_id(),
-                    r.merchant_id());
             audit(s, r.merchant_id(), "MERCHANT_CREATED", r.reason());
         });
         return synchronize(s, r.merchant_id());

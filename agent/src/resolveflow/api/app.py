@@ -109,7 +109,7 @@ class RunRequestContextShape(BaseModel):
     """The wire's ``context`` object. Nested exactly as the contract spells it."""
 
     merchant_id: str = Field(min_length=1, max_length=64)
-    customer_id: str = Field(min_length=1, max_length=64)
+    buyer_id: str = Field(min_length=1, max_length=64)
     order_id: str
     line_id: str = Field(min_length=1, max_length=64)
 
@@ -611,12 +611,12 @@ def create_app(
     @app.get("/internal/v1/runs/{run_id}/review-sources")
     async def read_review_sources(run_id: str, case_id: str, input_revision: int, request: Request) -> dict[str, Any]:
         token = service_token_of(request, required_scope="run:review")
-        if token.subject != CASE_SERVICE or not token.merchant_id or not token.customer_id:
+        if token.subject != CASE_SERVICE or not token.merchant_id or not token.buyer_id:
             raise HTTPException(status_code=403, detail="scoped case-service identity required")
         try:
             return review_sources(run_store_of(request).database, run_id, case_id=case_id,
                                   input_revision=input_revision, merchant_id=token.merchant_id,
-                                  customer_id=token.customer_id)
+                                  buyer_id=token.buyer_id)
         except RunNotFoundError as missing:
             raise HTTPException(status_code=404, detail=str(missing)) from missing
 
@@ -750,7 +750,7 @@ def _dispatch_refusal(token: VerifiedServiceToken) -> HTTPException | None:
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"the run dispatcher is {CASE_SERVICE}; this token's subject is {token.subject}",
         )
-    missing = [name for name in ("merchant_id", "customer_id") if getattr(token, name) is None]
+    missing = [name for name in ("merchant_id", "buyer_id") if getattr(token, name) is None]
     if missing:
         return HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -767,7 +767,7 @@ def _as_caller(token: VerifiedServiceToken) -> VerifiedCaller:
         service=token.subject,
         scope=token.scope,
         merchant_id=token.merchant_id,
-        customer_id=token.customer_id,
+        buyer_id=token.buyer_id,
     )
 
 
@@ -778,7 +778,7 @@ def _as_store_request(body: RunRequestShape) -> RunRequest:
         case_id=body.case_id,
         input_revision=body.input_revision,
         merchant_id=body.context.merchant_id,
-        customer_id=body.context.customer_id,
+        buyer_id=body.context.buyer_id,
         order_id=body.context.order_id,
         line_id=body.context.line_id,
         description=body.request.description,

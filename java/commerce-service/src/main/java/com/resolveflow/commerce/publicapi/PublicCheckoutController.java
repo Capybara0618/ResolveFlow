@@ -44,19 +44,19 @@ public class PublicCheckoutController {
             // Probe every trusted store before requesting mutable account data. This also replays
             // a second-store draft after the selected address has been deleted or changed.
             return CommerceAccess.owned(
-                    actor, s -> shopping.create(new DraftCommand(s.merchantId(), s.customerId(), key, request)));
+                    actor, s -> shopping.create(new DraftCommand(s.merchantId(), s.buyerId(), key, request)));
         } catch (ShoppingService.Refused e) {
             if (e.status != 404) throw e;
         }
         var snapshot = access.shipping(auth, request.shipping());
         return CommerceAccess.owned(
-                actor, s -> shopping.create(new DraftCommand(s.merchantId(), s.customerId(), key, request, snapshot)));
+                actor, s -> shopping.create(new DraftCommand(s.merchantId(), s.buyerId(), key, request, snapshot)));
     }
 
     @GetMapping("/drafts/{draft_id}")
     public Draft read(
             @RequestHeader(name = "Authorization", required = false) String auth, @PathVariable("draft_id") String id) {
-        return CommerceAccess.owned(access.buyer(auth), s -> shopping.read(id, s.merchantId(), s.customerId()));
+        return CommerceAccess.owned(access.buyer(auth), s -> shopping.read(id, s.merchantId(), s.buyerId()));
     }
 
     @PostMapping("/drafts/{draft_id}/payment")
@@ -67,14 +67,14 @@ public class PublicCheckoutController {
             @RequestBody EmptyRequest body) {
         var actor = access.buyer(auth);
         CommerceAccess.key(key);
-        return CommerceAccess.owned(actor, s -> payments.pay(id, new PayCommand(s.merchantId(), s.customerId(), key)));
+        return CommerceAccess.owned(actor, s -> payments.pay(id, new PayCommand(s.merchantId(), s.buyerId(), key)));
     }
 
     @GetMapping("/drafts/{draft_id}/payment")
     public Lookup payment(
             @RequestHeader(name = "Authorization", required = false) String auth, @PathVariable("draft_id") String id) {
         return CommerceAccess.owned(
-                access.buyer(auth), s -> new Lookup(payments.inspect(id, s.merchantId(), s.customerId())));
+                access.buyer(auth), s -> new Lookup(payments.inspect(id, s.merchantId(), s.buyerId())));
     }
 
     @PostMapping("/drafts/{draft_id}/cancel")
@@ -83,7 +83,7 @@ public class PublicCheckoutController {
             @PathVariable("draft_id") String id,
             @RequestBody EmptyRequest body) {
         return CommerceAccess.owned(
-                access.buyer(auth), s -> payments.cancel(id, new ScopeCommand(s.merchantId(), s.customerId())));
+                access.buyer(auth), s -> payments.cancel(id, new ScopeCommand(s.merchantId(), s.buyerId())));
     }
 
     @GetMapping("/purchases")
@@ -100,13 +100,13 @@ public class PublicCheckoutController {
     public Purchase purchase(
             @RequestHeader(name = "Authorization", required = false) String auth,
             @PathVariable("purchase_id") String id) {
-        return CommerceAccess.owned(access.buyer(auth), s -> purchases.read(id, s.merchantId(), s.customerId()));
+        return CommerceAccess.owned(access.buyer(auth), s -> purchases.read(id, s.merchantId(), s.buyerId()));
     }
 
     @GetMapping("/purchases/{purchase_id}/shipping")
     public ShippingWire.View shipping(
             @RequestHeader(name = "Authorization", required = false) String auth,
             @PathVariable("purchase_id") String id) {
-        return CommerceAccess.owned(access.buyer(auth), s -> shipping.buyer(id, s.merchantId(), s.customerId()));
+        return CommerceAccess.owned(access.buyer(auth), s -> shipping.buyer(id, s.merchantId(), s.buyerId()));
     }
 }

@@ -106,7 +106,7 @@ class PublicCatalogApiTest extends CommerceDatabaseTest {
                 .isEqualTo("NOT_FOUND");
         rest.get().uri("/internal/v1/shop/products").exchange().expectStatus().isUnauthorized();
         rest.get()
-                .uri("/internal/v1/shop/cart/M-1001?customer_id=OTHER")
+                .uri("/internal/v1/shop/cart/M-1001?buyer_id=OTHER")
                 .exchange()
                 .expectStatus()
                 .isUnauthorized();

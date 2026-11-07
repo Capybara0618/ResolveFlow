@@ -14,11 +14,11 @@ public final class CheckoutWire {
 
     public record ScopeCommand(
             @JsonProperty("merchant_id") String merchantId,
-            @JsonProperty("customer_id") String customerId) {}
+            @JsonProperty("buyer_id") String buyerId) {}
 
     public record PayCommand(
             @JsonProperty("merchant_id") String merchantId,
-            @JsonProperty("customer_id") String customerId,
+            @JsonProperty("buyer_id") String buyerId,
             @JsonProperty("idempotency_key") String idempotencyKey) {}
 
     public record Payment(

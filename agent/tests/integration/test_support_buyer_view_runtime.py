@@ -42,7 +42,7 @@ def test_api_and_fenced_saved_call_recovery_keep_buyer_projection_without_new_ca
     app = create_app(provider_db=tmp_path / 'provider.db', delivery_loop=False, worker_loop=False,
                      migrate=False, jwt_secret=SECRET, support_runtime=runtime)
     token = mint_service_token('case-service', SECRET, scope='support:run',
-                               merchant_id=req.merchant_id, customer_id=req.customer_id)
+                               merchant_id=req.merchant_id, buyer_id=req.buyer_id)
     headers = {'Authorization': 'Bearer ' + token}
     body = {**req.model_dump(mode='json'), 'tool_token': 'test-bound'}
     with TestClient(app) as api:

@@ -158,6 +158,11 @@ def strict_replay(directory: Path) -> dict[str, Any]:
         raise ReplayMiss("REPLAY_MISS: no model response")
     if any(row["response"].get("mode") != "mock" for row in pack["model_calls"]):
         raise UnsupportedRecord("UNSUPPORTED_RECORD: selected packs are mock trajectories")
+    if "customer_id" in pack["facts"]:
+        raise UnsupportedRecord(
+            "UNSUPPORTED_RECORD: legacy customer identity requires its frozen runtime; "
+            "strict replay does not rewrite archived identities or request hashes"
+        )
     facts = RunFacts(**pack["facts"])
     budget = RunBudget(**pack["budget"])
     model = RecordedModel(model_alias=pack["model_calls"][0]["response"]["model_alias"])

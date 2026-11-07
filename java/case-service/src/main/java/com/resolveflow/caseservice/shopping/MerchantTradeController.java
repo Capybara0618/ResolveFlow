@@ -76,10 +76,10 @@ public class MerchantTradeController {
         if (!p.isPlatformBuyer()) throw new CommerceShoppingClient.Refused(403, "FORBIDDEN_SCOPE", "请使用平台买家账号查看本人履约");
         for (var s : scopes.list(p))
             try {
-                var purchase = commerce.purchase(id, s.merchantId(), s.customerId());
+                var purchase = commerce.purchase(id, s.merchantId(), s.buyerId());
                 if (!purchase.status().equals("PAID") || purchase.orderId() == null)
                     throw new CommerceShoppingClient.Refused(404, "NOT_FOUND", "履约记录不存在");
-                return commerce.fulfillment(purchase.orderId(), s.merchantId(), s.customerId());
+                return commerce.fulfillment(purchase.orderId(), s.merchantId(), s.buyerId());
             } catch (CommerceShoppingClient.Refused e) {
                 if (e.status != 404) throw e;
             }

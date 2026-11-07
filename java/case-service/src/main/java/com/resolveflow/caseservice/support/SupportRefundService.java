@@ -28,7 +28,7 @@ import tools.jackson.databind.ObjectMapper;
 public class SupportRefundService {
     public record View(Draft draft, CustomerCaseService.Detail application) {}
 
-    private record Conversation(String id, String merchant, String customer, String line, long version) {}
+    private record Conversation(String id, String merchant, String buyer, String line, long version) {}
 
     private final JdbcTemplate db;
     private final CustomerCaseService customerCases;
@@ -92,25 +92,24 @@ public class SupportRefundService {
                 (rs, n) -> new Conversation(
                         rs.getString("conversation_id"),
                         rs.getString("merchant_id"),
-                        rs.getString("customer_id"),
+                        rs.getString("buyer_id"),
                         rs.getString("line_id"),
                         rs.getLong("version")),
                 id,
                 s.principal().buyerId());
         if (rows.isEmpty()) throw refused(404, "咨询记录不存在");
         var c = rows.getFirst();
-        if (db.queryForList(
-                        "SELECT b.buyer_id FROM buyer_customer_binding b JOIN identity_merchant m ON m.merchant_id=b.merchant_id WHERE b.buyer_id=? AND b.merchant_id=? AND b.customer_id=? AND m.enabled=TRUE"
-                                + (lock ? " FOR SHARE" : ""),
-                        s.principal().buyerId(),
-                        c.merchant(),
-                        c.customer())
-                .isEmpty()) throw refused(404, "咨询记录不存在");
+        if (!s.principal().buyerId().equals(c.buyer())
+                || db.queryForList(
+                                "SELECT merchant_id FROM identity_merchant WHERE merchant_id=? AND enabled=TRUE"
+                                        + (lock ? " FOR SHARE" : ""),
+                                c.merchant())
+                        .isEmpty()) throw refused(404, "咨询记录不存在");
         return c;
     }
 
     private AuthenticatedPrincipal scope(Session s, Conversation c) {
-        return new AuthenticatedPrincipal(s.principal().subject(), c.merchant(), Role.CUSTOMER, c.customer());
+        return new AuthenticatedPrincipal(s.principal().subject(), c.merchant(), Role.CUSTOMER, c.buyer());
     }
 
     private Draft draft(Conversation c) {
@@ -140,7 +139,7 @@ public class SupportRefundService {
     }
 
     private View view(Session s, Conversation c) {
-        var related = lists.related(c.merchant(), c.customer(), c.line());
+        var related = lists.related(c.merchant(), c.buyer(), c.line());
         return new View(draft(c), related == null ? null : customerCases.read(scope(s, c), related.caseId()));
     }
 
@@ -208,7 +207,7 @@ public class SupportRefundService {
             var current = conversation(s, id, true);
             return receipt(current, s, key, "R_DRAFT", body, () -> {
                 version(current, body.expectedVersion());
-                var related = lists.related(current.merchant(), current.customer(), current.line());
+                var related = lists.related(current.merchant(), current.buyer(), current.line());
                 if (related != null
                         && (!related.status().isTerminal()
                                 || related.status() == com.resolveflow.caseservice.casefile.CaseStatus.CLOSED_SUCCESS))
@@ -326,7 +325,7 @@ public class SupportRefundService {
                 return receipt(current, s, key, "R_CONFIRM", request, () -> {
                     version(current, body.expectedVersion());
                     var confirmedReason = editable(current, draftId, body.revision());
-                    var existing = lists.related(current.merchant(), current.customer(), current.line());
+                    var existing = lists.related(current.merchant(), current.buyer(), current.line());
                     if (existing != null
                             && (!existing.status().isTerminal()
                                     || existing.status()
@@ -375,7 +374,7 @@ public class SupportRefundService {
                 caseId,
                 UUID.randomUUID().toString(),
                 "CUSTOMER_STATEMENT",
-                "customer:" + c.customer() + ":support-refund:" + c.id() + ":" + d.draftId(),
+                "customer:" + c.buyer() + ":support-refund:" + c.id() + ":" + d.draftId(),
                 "conversation-" + c.version() + ":draft-" + d.revision(),
                 CanonicalJson.contentHash(provenance),
                 1,

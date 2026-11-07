@@ -21,7 +21,7 @@ class PublicReviewLimiterApiTest {
             var reviews = mock(ProductReviewService.class);
             var limiter = mock(ReviewWriteLimiter.class);
             var actor = new Context(
-                    "buyer", null, Role.CUSTOMER, null, "B-1", 1, List.of(new Binding("M-1", "C-1", "store")), null);
+                    "buyer", null, Role.CUSTOMER, "B-1", 1, List.of(new Binding("M-1", "B-1", "store")), null);
             when(access.buyer("Bearer user")).thenReturn(actor);
             doThrow(error).when(limiter).check(actor.principal(), ReviewWriteLimiter.Action.WRITE);
             var mvc = MockMvcBuilders.standaloneSetup(new PublicReviewController(access, reviews, limiter))

@@ -1,7 +1,6 @@
 package com.resolveflow.caseservice.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.resolveflow.caseservice.CaseDatabaseTest;
 import com.resolveflow.caseservice.casefile.CaseRepository;
@@ -25,7 +24,6 @@ import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTe
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.springframework.web.client.RestClient;
@@ -71,9 +69,9 @@ class PlatformBuyerApiTest extends CaseDatabaseTest {
             assertThat(p.isPlatformBuyer()).isFalse();
             if (failSecondStore && p.merchantId().equals("M-1002"))
                 throw new CommerceUnavailableException("offline", null);
-            if (p.merchantId().equals("M-1001") && p.customerId().equals("C-B3001-M1001"))
+            if (p.merchantId().equals("M-1001") && p.buyerId().equals("B-3001"))
                 return List.of(line("A1", "M-1001", 458), line("A2", "M-1001", 456));
-            if (p.merchantId().equals("M-1002") && p.customerId().equals("C-B3001-M1002"))
+            if (p.merchantId().equals("M-1002") && p.buyerId().equals("B-3001"))
                 return List.of(line("B1", "M-1002", 457));
             return List.of();
         }
@@ -139,7 +137,7 @@ class PlatformBuyerApiTest extends CaseDatabaseTest {
                     line.orderId(),
                     id,
                     merchant,
-                    "C-B3001-" + merchant.replace("-", ""),
+                    "B-3001",
                     line.sku(),
                     line.category(),
                     1,
@@ -162,7 +160,6 @@ class PlatformBuyerApiTest extends CaseDatabaseTest {
 
     @AfterEach
     void restore() {
-        jdbc.update("DELETE FROM buyer_customer_binding WHERE buyer_id='B-other'");
         jdbc.update("DELETE FROM platform_buyer WHERE buyer_id='B-other'");
         jdbc.update("UPDATE identity_account SET enabled=TRUE,identity_version=0 WHERE username='demo-buyer'");
         jdbc.update("UPDATE identity_merchant SET enabled=TRUE WHERE merchant_id='M-1002'");
@@ -223,24 +220,26 @@ class PlatformBuyerApiTest extends CaseDatabaseTest {
         assertThat(profile.get("buyer_id").stringValue()).isEqualTo("B-3001");
         assertThat(profile.has("merchant_id")).isFalse();
         assertThat(profile.has("customer_id")).isFalse();
-        var page = read("/api/v1/orders?merchant_id=M-OTHER&customer_id=C-2002&scope=all", token);
+        var page = read(
+                "/api/v1/orders?merchant_id=M-OTHER&buyer_id=B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80&scope=all",
+                token);
         assertThat(page.get("items")).hasSize(3);
         assertThat(page.get("items").get(0).get("merchant_id").stringValue()).isEqualTo("M-1001");
         assertThat(page.get("items").get(1).get("merchant_id").stringValue()).isEqualTo("M-1002");
         assertThat(commerce.seen).allSatisfy(p -> {
             assertThat(p.subject()).isEqualTo("demo-buyer");
-            assertThat(p.customerId()).startsWith("C-B3001-");
+            assertThat(p.buyerId()).isEqualTo("B-3001");
         });
-        String forged = codec.issue(
-                new AuthenticatedPrincipal("demo-buyer", "M-1001", Role.CUSTOMER, "C-B3001-M1001"), Instant.now());
+        String forged =
+                codec.issue(new AuthenticatedPrincipal("demo-buyer", "M-1001", Role.CUSTOMER, "B-3001"), Instant.now());
         rest.get()
                 .uri("/api/v1/auth/me")
                 .header("Authorization", "Bearer " + forged)
                 .exchange()
                 .expectStatus()
                 .isUnauthorized();
-        String wrongBuyer = codec.issue(
-                new AuthenticatedPrincipal("demo-buyer", null, Role.CUSTOMER, null, "B-other"), Instant.now());
+        String wrongBuyer =
+                codec.issue(new AuthenticatedPrincipal("demo-buyer", null, Role.CUSTOMER, "B-other"), Instant.now());
         rest.get()
                 .uri("/api/v1/auth/me")
                 .header("Authorization", "Bearer " + wrongBuyer)
@@ -293,10 +292,11 @@ class PlatformBuyerApiTest extends CaseDatabaseTest {
     @Test
     void globalApplicationsUseCompositeOwnershipAndAllowOnlyOwnDetailAndMaterial() {
         var time = Instant.parse("2026-10-03T02:00:00.123456Z");
-        String a = row("M-1001", "C-B3001-M1001", "QUEUED", time.plusNanos(1000));
-        String b = row("M-1002", "C-B3001-M1002", "QUEUED", time);
-        String collision = row("M-1002", "C-B3001-M1001", "QUEUED", time.plusSeconds(1));
-        String legacy = row("M-1001", "C-2002", "QUEUED", time.plusSeconds(1));
+        String a = row("M-1001", "B-3001", "QUEUED", time.plusNanos(1000));
+        String b = row("M-1002", "B-3001", "QUEUED", time);
+        String collision = row("M-1002", "B-other", "QUEUED", time.plusSeconds(1));
+        String legacy =
+                row("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", "QUEUED", time.plusSeconds(1));
         String token = buyer();
         var first = read("/api/v1/customer/cases?limit=1", token);
         assertThat(first.get("items").get(0).get("case_id").stringValue()).isEqualTo(a);
@@ -364,8 +364,8 @@ class PlatformBuyerApiTest extends CaseDatabaseTest {
             String merchant = line.startsWith("A") ? "M-1001" : "M-1002";
             assertThat(jdbc.queryForObject("SELECT merchant_id FROM aftersale_case WHERE case_id=?", String.class, id))
                     .isEqualTo(merchant);
-            assertThat(jdbc.queryForObject("SELECT customer_id FROM aftersale_case WHERE case_id=?", String.class, id))
-                    .startsWith("C-B3001-");
+            assertThat(jdbc.queryForObject("SELECT buyer_id FROM aftersale_case WHERE case_id=?", String.class, id))
+                    .isEqualTo("B-3001");
             assertThat(jdbc.queryForObject(
                             "SELECT merchant_id FROM case_policy_manifest WHERE case_id=?", String.class, id))
                     .isEqualTo(merchant);
@@ -449,7 +449,7 @@ class PlatformBuyerApiTest extends CaseDatabaseTest {
 
     @Test
     void buyerAnswersTheCurrentQuestionInTheActualStoreAndCannotReuseStaleVersion() {
-        String id = row("M-1002", "C-B3001-M1002", "WAITING_CUSTOMER", Instant.now());
+        String id = row("M-1002", "B-3001", "WAITING_CUSTOMER", Instant.now());
         String question = UUID.randomUUID().toString();
         cases.insertTimeline(
                 id,
@@ -484,26 +484,17 @@ class PlatformBuyerApiTest extends CaseDatabaseTest {
     }
 
     @Test
-    void databaseRejectsHybridIdentityAndDuplicateCompositeOwner() {
-        assertThatThrownBy(() ->
-                        jdbc.update("UPDATE identity_account SET merchant_id='M-1001' WHERE username='demo-buyer'"))
-                .isInstanceOf(org.springframework.dao.DataAccessException.class)
-                .hasMessageContaining("ck_identity_binding");
-        assertThatThrownBy(() -> jdbc.update("UPDATE identity_account SET role='REVIEWER' WHERE username='demo-buyer'"))
-                .isInstanceOf(org.springframework.dao.DataAccessException.class)
-                .hasMessageContaining("ck_identity_binding");
-        jdbc.update("INSERT INTO platform_buyer (buyer_id) VALUES ('B-other')");
-        assertThatThrownBy(
-                        () -> jdbc.update(
-                                "INSERT INTO buyer_customer_binding (buyer_id,merchant_id,customer_id) VALUES ('B-other','M-1001','C-B3001-M1001')"))
-                .isInstanceOf(DataIntegrityViolationException.class)
-                .hasMessageContaining("uq_buyer_resource_owner");
-        assertThatThrownBy(
-                        () -> jdbc.update(
-                                "INSERT INTO buyer_customer_binding (buyer_id,merchant_id,customer_id) VALUES ('B-3001','M-1001','C-2002')"))
-                .isInstanceOf(DataIntegrityViolationException.class);
+    void legacyBindingsAreGoneAndEveryBuyerHasOneGlobalIdentity() {
         assertThat(jdbc.queryForObject(
-                        "SELECT customer_id FROM identity_account WHERE username='demo-customer'", String.class))
-                .isEqualTo("C-2002");
+                        "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='buyer_customer_binding'",
+                        Integer.class))
+                .isZero();
+        assertThat(jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM identity_account WHERE role='CUSTOMER' AND (merchant_id IS NOT NULL OR buyer_id IS NULL)",
+                        Integer.class))
+                .isZero();
+        assertThat(jdbc.queryForObject(
+                        "SELECT buyer_id FROM identity_account WHERE username='demo-customer'", String.class))
+                .isEqualTo("B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
     }
 }

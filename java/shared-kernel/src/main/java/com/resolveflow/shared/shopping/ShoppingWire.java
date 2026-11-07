@@ -101,15 +101,15 @@ public final class ShoppingWire {
 
     public record DraftCommand(
             @JsonProperty("merchant_id") String merchantId,
-            @JsonProperty("customer_id") String customerId,
+            @JsonProperty("buyer_id") String buyerId,
             @JsonProperty("idempotency_key") String idempotencyKey,
             DraftRequest request,
 
             @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
             @JsonProperty("shipping_snapshot")
             ShippingWire.Snapshot shippingSnapshot) {
-        public DraftCommand(String merchantId, String customerId, String idempotencyKey, DraftRequest request) {
-            this(merchantId, customerId, idempotencyKey, request, null);
+        public DraftCommand(String merchantId, String buyerId, String idempotencyKey, DraftRequest request) {
+            this(merchantId, buyerId, idempotencyKey, request, null);
         }
     }
 }

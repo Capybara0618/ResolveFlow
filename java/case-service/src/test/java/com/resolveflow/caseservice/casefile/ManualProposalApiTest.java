@@ -52,7 +52,7 @@ class ManualProposalApiTest extends CaseDatabaseTest {
     private static final String BUNDLE = "policy-logistics-2026.09";
     private static final String VERSION = "2026.09";
     private static final String MERCHANT = "M-1001";
-    private static final String CUSTOMER = "C-2002";
+    private static final String CUSTOMER = "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80";
     private static final long AMOUNT = 2599L;
 
     @TestConfiguration
@@ -533,9 +533,11 @@ class ManualProposalApiTest extends CaseDatabaseTest {
         throw new IllegalStateException("fixtures/policies/bundles not found");
     }
 
-    private String token(String subject, Role role, String customerId) {
+    private String token(String subject, Role role, String buyerId) {
         return new JwtCodec(secret, Duration.ofHours(1))
-                .issue(new AuthenticatedPrincipal(subject, MERCHANT, role, customerId), Instant.now());
+                .issue(
+                        new AuthenticatedPrincipal(subject, role == Role.CUSTOMER ? null : MERCHANT, role, buyerId),
+                        Instant.now());
     }
 
     private String reviewer() {

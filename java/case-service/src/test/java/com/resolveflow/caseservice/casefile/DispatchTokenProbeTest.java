@@ -21,7 +21,7 @@ class DispatchTokenProbeTest {
         JwtCodec codec = new JwtCodec("resolveflow-core-demo-identity-secret", Duration.ofHours(1));
         AgentRunClient client = new AgentRunClient(
                 org.springframework.web.client.RestClient.builder(), codec, "http://unused.stub", "case-service");
-        String token = client.mintDispatchToken("M-1001", "C-2002");
+        String token = client.mintDispatchToken("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         System.out.println("DISPATCH_TOKEN=" + token);
         System.out.println("DISPATCH_TOKEN_IAT=" + Instant.now().getEpochSecond());
     }

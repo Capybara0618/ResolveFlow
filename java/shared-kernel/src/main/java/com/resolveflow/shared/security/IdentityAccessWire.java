@@ -17,11 +17,12 @@ public final class IdentityAccessWire {
 
     public record Binding(
             @JsonProperty("merchant_id") String merchantId,
-            @JsonProperty("customer_id") String customerId,
+            @JsonProperty("buyer_id") String buyerId,
             @JsonProperty("merchant_name") String merchantName) {
         public AuthenticatedPrincipal principal(AuthenticatedPrincipal buyer) {
-            if (!buyer.isPlatformBuyer()) throw new IllegalArgumentException("platform buyer required");
-            return new AuthenticatedPrincipal(buyer.subject(), merchantId, Role.CUSTOMER, customerId);
+            if (!buyer.isPlatformBuyer() || !buyer.buyerId().equals(buyerId))
+                throw new IllegalArgumentException("scope must retain the authenticated buyer");
+            return new AuthenticatedPrincipal(buyer.subject(), merchantId, Role.CUSTOMER, buyerId);
         }
     }
 
@@ -29,13 +30,12 @@ public final class IdentityAccessWire {
             String subject,
             String merchant_id,
             Role role,
-            String customer_id,
             String buyer_id,
             long identity_version,
             List<Binding> bindings,
             ShippingWire.Snapshot shipping) {
         public AuthenticatedPrincipal principal() {
-            return new AuthenticatedPrincipal(subject, merchant_id, role, customer_id, buyer_id);
+            return new AuthenticatedPrincipal(subject, merchant_id, role, buyer_id);
         }
     }
 }

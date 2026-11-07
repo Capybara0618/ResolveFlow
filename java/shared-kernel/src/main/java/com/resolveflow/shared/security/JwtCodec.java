@@ -92,12 +92,11 @@ public final class JwtCodec {
         if (identityVersion < 0) throw new IllegalArgumentException("identity version must be nonnegative");
         var claims = MAPPER.createObjectNode();
         claims.put("sub", principal.subject());
-        if (principal.isPlatformBuyer()) claims.put("buyer_id", principal.buyerId());
-        else if (principal.merchantId() != null) claims.put("merchant_id", principal.merchantId());
+        if (principal.merchantId() != null) claims.put("merchant_id", principal.merchantId());
         claims.put("role", principal.role().name());
         claims.put("identity_version", identityVersion);
-        if (principal.customerId() != null) {
-            claims.put("customer_id", principal.customerId());
+        if (principal.buyerId() != null) {
+            claims.put("buyer_id", principal.buyerId());
         }
         claims.put("aud", USER_AUDIENCE);
         claims.put("iss", ISSUER);
@@ -115,7 +114,7 @@ public final class JwtCodec {
      * Issue a service token that states a scope and the subjects it was minted for (C06.1c).
      *
      * <p>Run dispatch needs more than "some service is calling": the Agent's verifier requires the token to
-     * carry {@code scope=run:dispatch} and the {@code merchant_id}/{@code customer_id} the run is about, and
+     * carry {@code scope=run:dispatch} and the {@code merchant_id}/{@code buyer_id} the run is about, and
      * it refuses a token that forgot them rather than skipping the check
      * (agent/src/resolveflow/api/identity.py, docs/core-contracts.md:60 — body 必须与 service JWT、Case 绑定一致).
      * That refusal is deliberate: a token without subjects would let a dispatch investigate a line it never
@@ -126,8 +125,7 @@ public final class JwtCodec {
      * member is omitted rather than written as empty: an empty {@code sub} is a token that claims an identity
      * it does not have, and the verifier refuses those anyway.
      */
-    public String issueServiceToken(
-            String serviceName, String merchantId, String customerId, String scope, Instant now) {
+    public String issueServiceToken(String serviceName, String merchantId, String buyerId, String scope, Instant now) {
         if (serviceName == null || serviceName.isBlank()) {
             throw new TokenException("a service token needs a service name");
         }
@@ -136,8 +134,8 @@ public final class JwtCodec {
         if (merchantId != null && !merchantId.isBlank()) {
             claims.put("merchant_id", merchantId);
         }
-        if (customerId != null && !customerId.isBlank()) {
-            claims.put("customer_id", customerId);
+        if (buyerId != null && !buyerId.isBlank()) {
+            claims.put("buyer_id", buyerId);
         }
         if (scope != null && !scope.isBlank()) {
             claims.put("scope", scope);
@@ -155,7 +153,7 @@ public final class JwtCodec {
      * <p>A separate method rather than more optional parameters on {@link #issueServiceToken}, because this
      * token is a different thing: it is minted for one run and is worthless without the run context it was
      * minted for. {@code docs/contracts.md:96} lists exactly the claims that make "which line may this token
-     * read" answerable — {@code case_id, run_id, input_revision, merchant_id, customer_id, line_id, aud, scopes,
+     * read" answerable — {@code case_id, run_id, input_revision, merchant_id, buyer_id, line_id, aud, scopes,
      * exp} — and {@code docs/core-contracts.md:74} adds the bound: the credential is bound to
      * run/case/revision/merchant/customer/line/aud/scope, and only Case may renew it after confirming the
      * revision is still valid.
@@ -174,7 +172,7 @@ public final class JwtCodec {
                 credential.caseId(),
                 credential.runId(),
                 credential.merchantId(),
-                credential.customerId(),
+                credential.buyerId(),
                 credential.lineId())) {
             if (required == null || required.isBlank()) {
                 throw new TokenException("a tool credential needs its whole run context");
@@ -194,7 +192,7 @@ public final class JwtCodec {
         claims.put("run_id", credential.runId());
         claims.put("input_revision", credential.inputRevision());
         claims.put("merchant_id", credential.merchantId());
-        claims.put("customer_id", credential.customerId());
+        claims.put("buyer_id", credential.buyerId());
         claims.put("line_id", credential.lineId());
         return signRaw(claims.toString());
     }
@@ -212,7 +210,7 @@ public final class JwtCodec {
             long inputVersion,
             long fence,
             String merchantId,
-            String customerId,
+            String buyerId,
             String lineId) {}
 
     /** Consultation-only token: no case_id, refund scope or authority to read arbitrary lines. */
@@ -237,7 +235,7 @@ public final class JwtCodec {
         claims.put("input_version", bound.inputVersion());
         claims.put("dispatch_fence", bound.fence());
         claims.put("merchant_id", bound.merchantId());
-        claims.put("customer_id", bound.customerId());
+        claims.put("buyer_id", bound.buyerId());
         claims.put("line_id", bound.lineId());
         return signRaw(claims.toString());
     }
@@ -265,7 +263,7 @@ public final class JwtCodec {
                 claims.path("input_version").asLong(),
                 claims.path("dispatch_fence").asLong(),
                 requiredText(claims, "merchant_id"),
-                requiredText(claims, "customer_id"),
+                requiredText(claims, "buyer_id"),
                 requiredText(claims, "line_id"));
     }
 
@@ -275,7 +273,7 @@ public final class JwtCodec {
             String runId,
             int inputRevision,
             String merchantId,
-            String customerId,
+            String buyerId,
             String lineId,
             List<String> scopes,
             Duration timeToLive) {}
@@ -299,13 +297,13 @@ public final class JwtCodec {
         String subject = requiredText(claims, "sub");
         boolean platformBuyer = claims.has("buyer_id");
         String buyerId = platformBuyer ? requiredText(claims, "buyer_id") : null;
-        if (platformBuyer && (claims.has("merchant_id") || claims.has("customer_id"))) {
-            throw new TokenException("buyer_id cannot be combined with merchant/customer claims");
-        }
         String roleText = requiredText(claims, "role");
         boolean platformAdmin = "PLATFORM_ADMIN".equals(roleText);
-        if (platformAdmin && (claims.has("merchant_id") || claims.has("customer_id") || platformBuyer))
-            throw new TokenException("platform admin must not carry tenant claims");
+        if ((platformBuyer && claims.has("merchant_id"))
+                || (platformAdmin && (claims.has("merchant_id") || platformBuyer))
+                || claims.has("customer_id")) {
+            throw new TokenException("invalid merchant_id/buyer_id user identity scope");
+        }
         String merchant = platformBuyer || platformAdmin ? null : requiredText(claims, "merchant_id");
         Role role;
         try {
@@ -313,12 +311,10 @@ public final class JwtCodec {
         } catch (IllegalArgumentException error) {
             throw new TokenException("unknown role '" + roleText + "'; the token's role decides visibility");
         }
-        JsonNode customer = claims.get("customer_id");
-        String customerId = customer == null || customer.isNull() ? null : customer.stringValue();
         try {
-            return new AuthenticatedPrincipal(subject, merchant, role, customerId, buyerId);
+            return new AuthenticatedPrincipal(subject, merchant, role, buyerId);
         } catch (IllegalArgumentException error) {
-            throw new TokenException("customer_id does not match the role: " + error.getMessage());
+            throw new TokenException("buyer_id does not match the role: " + error.getMessage());
         }
     }
 

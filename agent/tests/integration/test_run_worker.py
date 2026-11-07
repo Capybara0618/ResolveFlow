@@ -35,7 +35,7 @@ CASE_DISPATCHER = VerifiedCaller(
     service="case-service",
     scope="run:dispatch",
     merchant_id="M-1001",
-    customer_id="C-2002",
+    buyer_id="C-2002",
 )
 
 STARTED_AT = dt.datetime(2026, 9, 26, 10, 0, tzinfo=dt.UTC)
@@ -49,7 +49,7 @@ def a_run(**overrides: Any) -> RunRequest:
         "case_id": CASE_ID,
         "input_revision": 1,
         "merchant_id": "M-1001",
-        "customer_id": "C-2002",
+        "buyer_id": "C-2002",
         "order_id": "00000000-0000-4000-8000-0000000000aa",
         "line_id": "7001",
         "description": "包裹丢了，希望退款",

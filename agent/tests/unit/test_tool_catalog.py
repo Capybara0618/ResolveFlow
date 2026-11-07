@@ -271,7 +271,7 @@ def test_the_evidence_route_reads_case_evidence_with_its_own_revisions() -> None
 
 def valid_order():
     return {"order_id": "00000000-0000-4000-8000-000000000001", "line_id": "7001",
-            "merchant_id": "M-1001", "customer_id": "C-2002", "sku": "test",
+            "merchant_id": "M-1001", "buyer_id": "C-2002", "sku": "test",
             "category": "electronics", "quantity": 1, "line_paid_amount": 32900,
             "refunded_amount": 0, "reserved_refund_amount": 0, "currency": "CNY",
             "paid_at": "2026-10-03T04:00:00Z", "order_status": "PAID", "version": 3}

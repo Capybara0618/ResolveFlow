@@ -50,7 +50,7 @@ def build(directory: Path = CALIBRATED_DATA):
             # This is an injected pre-Java-boundary probe, not a normal dispatched refund.
             order = case["backend"]["order"]
             case["backend"]["order"] = {k: order[k] for k in
-                                         ("order_id", "line_id", "merchant_id", "customer_id")}
+                                         ("order_id", "line_id", "merchant_id", "buyer_id")}
             case["backend"]["errors"] = {"get_order_context": 404, "get_shipment_trace": 404,
                                           "get_refund_status": 404}
             gold[case["id"]] = {**gold[case["id"]], "must_tools": [],

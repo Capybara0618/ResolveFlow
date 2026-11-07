@@ -2064,7 +2064,7 @@ paths:
           minLength: 1
           maxLength: 64
           pattern: \S
-      - name: customer_id
+      - name: buyer_id
         in: query
         required: true
         schema:
@@ -2417,7 +2417,7 @@ paths:
               $ref: '#/components/schemas/CartQuoteCommand'
             example:
               merchant_id: M-1001
-              customer_id: C-B3001-M1001
+              buyer_id: C-B3001-M1001
               request:
                 expected_revision: 2
                 sku_ids:
@@ -2465,7 +2465,7 @@ paths:
               $ref: '#/components/schemas/CartDraftCommand'
             example:
               merchant_id: M-1001
-              customer_id: C-B3001-M1001
+              buyer_id: C-B3001-M1001
               idempotency_key: cart-draft-demo
               request:
                 expected_revision: 2
@@ -2491,7 +2491,7 @@ paths:
         schema: &id001
           type: string
           pattern: ^[A-Za-z0-9_-]{1,64}$
-      - name: customer_id
+      - name: buyer_id
         in: query
         required: true
         schema: *id001
@@ -2575,7 +2575,7 @@ paths:
               $ref: '#/components/schemas/CartCommand'
             example:
               merchant_id: M-1001
-              customer_id: C-B3001-M1001
+              buyer_id: C-B3001-M1001
               idempotency_key: cart-demo
               request:
                 sku_id: SKU-1001-BLACK
@@ -2894,7 +2894,7 @@ paths:
               $ref: '#/components/schemas/ShopDraftCommand'
             example:
               merchant_id: M-1001
-              customer_id: C-B3001-M1001
+              buyer_id: C-B3001-M1001
               idempotency_key: demo-shopping-key
               request:
                 sku_id: SKU-1001-BLACK
@@ -2922,7 +2922,7 @@ paths:
           minLength: 1
           maxLength: 64
           pattern: ^[A-Za-z0-9_-]+$
-      - name: customer_id
+      - name: buyer_id
         in: query
         required: true
         schema:
@@ -2989,7 +2989,7 @@ paths:
         answer 404 without disclosing that it exists (docs/core-contracts.md:27).
       parameters:
         - $ref: '#/components/parameters/MerchantId'
-        - $ref: '#/components/parameters/CustomerId'
+        - $ref: '#/components/parameters/BuyerId'
         - $ref: '#/components/parameters/OrderId'
         - $ref: '#/components/parameters/LineId'
         - $ref: '#/components/parameters/Cursor'
@@ -3041,7 +3041,7 @@ paths:
                 order_id: 00000000-0000-4000-8000-0000000000aa
                 line_id: '7001'
                 merchant_id: M-1001
-                customer_id: C-2002
+                buyer_id: C-2002
                 sku: SKU-RED-M
                 category: apparel
                 quantity: 2
@@ -3249,7 +3249,7 @@ paths:
           type: string
           minLength: 1
           maxLength: 64
-      - name: customer_id
+      - name: buyer_id
         in: query
         required: true
         schema:
@@ -3374,7 +3374,7 @@ paths:
           type: string
           minLength: 1
           maxLength: 64
-      - name: customer_id
+      - name: buyer_id
         in: query
         required: true
         schema:
@@ -3475,7 +3475,7 @@ paths:
           type: string
           minLength: 1
           maxLength: 64
-      - name: customer_id
+      - name: buyer_id
         in: query
         required: true
         schema:
@@ -3691,7 +3691,7 @@ paths:
           type: string
           minLength: 1
           maxLength: 64
-      - name: customer_id
+      - name: buyer_id
         in: query
         required: true
         schema:
@@ -3953,8 +3953,8 @@ components:
         type: string
         minLength: 1
         maxLength: 64
-    CustomerId:
-      name: customer_id
+    BuyerId:
+      name: buyer_id
       in: query
       required: false
       schema:
@@ -4469,7 +4469,7 @@ components:
       additionalProperties: false
       required:
       - merchant_id
-      - customer_id
+      - buyer_id
       - request
       properties:
         merchant_id:
@@ -4477,7 +4477,7 @@ components:
           minLength: 1
           maxLength: 64
           pattern: \S
-        customer_id:
+        buyer_id:
           type: string
           minLength: 1
           maxLength: 64
@@ -4629,13 +4629,13 @@ components:
       additionalProperties: false
       required:
       - merchant_id
-      - customer_id
+      - buyer_id
       - request
       properties:
         merchant_id:
           type: string
           pattern: ^[A-Za-z0-9_-]{1,64}$
-        customer_id:
+        buyer_id:
           type: string
           pattern: ^[A-Za-z0-9_-]{1,64}$
         request:
@@ -4645,7 +4645,7 @@ components:
       additionalProperties: false
       required:
       - merchant_id
-      - customer_id
+      - buyer_id
       - idempotency_key
       - request
       properties:
@@ -4654,7 +4654,7 @@ components:
         merchant_id:
           type: string
           pattern: ^[A-Za-z0-9_-]{1,64}$
-        customer_id:
+        buyer_id:
           type: string
           pattern: ^[A-Za-z0-9_-]{1,64}$
         idempotency_key:
@@ -4708,14 +4708,14 @@ components:
       additionalProperties: false
       required:
       - merchant_id
-      - customer_id
+      - buyer_id
       - idempotency_key
       - request
       properties:
         merchant_id:
           type: string
           pattern: ^[A-Za-z0-9_-]{1,64}$
-        customer_id:
+        buyer_id:
           type: string
           pattern: ^[A-Za-z0-9_-]{1,64}$
         idempotency_key:
@@ -4847,13 +4847,13 @@ components:
       additionalProperties: false
       required:
       - merchant_id
-      - customer_id
+      - buyer_id
       properties:
         merchant_id:
           type: string
           minLength: 1
           maxLength: 64
-        customer_id:
+        buyer_id:
           type: string
           minLength: 1
           maxLength: 64
@@ -4862,14 +4862,14 @@ components:
       additionalProperties: false
       required:
       - merchant_id
-      - customer_id
+      - buyer_id
       - idempotency_key
       properties:
         merchant_id:
           type: string
           minLength: 1
           maxLength: 64
-        customer_id:
+        buyer_id:
           type: string
           minLength: 1
           maxLength: 64
@@ -5476,7 +5476,7 @@ components:
       additionalProperties: false
       required:
       - merchant_id
-      - customer_id
+      - buyer_id
       - idempotency_key
       - request
       properties:
@@ -5487,7 +5487,7 @@ components:
           minLength: 1
           maxLength: 64
           pattern: ^[A-Za-z0-9_-]+$
-        customer_id:
+        buyer_id:
           type: string
           minLength: 1
           maxLength: 64
@@ -5691,7 +5691,7 @@ components:
         fulfillment_status: [fulfillment_version]
         fulfillment_version: [fulfillment_status]
       required:
-        [order_id, line_id, merchant_id, customer_id, sku, category, quantity,
+        [order_id, line_id, merchant_id, buyer_id, sku, category, quantity,
          line_paid_amount, refunded_amount, reserved_refund_amount, currency, paid_at,
          order_status, version]
       description: |
@@ -5709,7 +5709,7 @@ components:
           type: string
           minLength: 1
           maxLength: 64
-        customer_id:
+        buyer_id:
           type: string
           minLength: 1
           maxLength: 64

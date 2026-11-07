@@ -66,13 +66,13 @@ class MerchantTradeApiTest extends CommerceDatabaseTest {
                     .isForbidden();
         }
         rest.get()
-                .uri("/internal/v1/shop/orders/unknown/fulfillment?merchant_id=M-1001&customer_id=OTHER")
+                .uri("/internal/v1/shop/orders/unknown/fulfillment?merchant_id=M-1001&buyer_id=OTHER")
                 .header("Authorization", token("agent-service", "commerce:checkout"))
                 .exchange()
                 .expectStatus()
                 .isForbidden();
         rest.get()
-                .uri("/internal/v1/shop/orders/unknown/fulfillment?merchant_id=M-1001&customer_id=OTHER")
+                .uri("/internal/v1/shop/orders/unknown/fulfillment?merchant_id=M-1001&buyer_id=OTHER")
                 .header("Authorization", token("case-service", "commerce:fulfillment"))
                 .exchange()
                 .expectStatus()
@@ -138,7 +138,7 @@ class MerchantTradeApiTest extends CommerceDatabaseTest {
                 .isNotFound();
         for (var customer : java.util.List.of("MERCHANT-API-TEST", "FOREIGN"))
             rest.get()
-                    .uri("/internal/v1/shop/orders/" + id + "/fulfillment?merchant_id=M-1001&customer_id=" + customer)
+                    .uri("/internal/v1/shop/orders/" + id + "/fulfillment?merchant_id=M-1001&buyer_id=" + customer)
                     .header("Authorization", token("case-service", "commerce:checkout"))
                     .exchange()
                     .expectStatus()

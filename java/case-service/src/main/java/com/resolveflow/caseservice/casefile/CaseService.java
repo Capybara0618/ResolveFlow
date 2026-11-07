@@ -191,7 +191,7 @@ public class CaseService {
                         caseId,
                         1,
                         principal.merchantId(),
-                        principal.customerId(),
+                        principal.buyerId(),
                         line.orderId(),
                         lineId,
                         actions,

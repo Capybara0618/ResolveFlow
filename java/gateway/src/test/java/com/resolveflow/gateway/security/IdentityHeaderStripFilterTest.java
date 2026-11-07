@@ -41,7 +41,7 @@ class IdentityHeaderStripFilterTest {
         headers.add("X-User", "someone-else");
         headers.add("X-Role", "OPERATOR");
         headers.add("X-Merchant", "M-1002");
-        headers.add("X-Customer", "C-2004");
+        headers.add("X-Customer", "B-legacy-6f808772ade9cc75fd3896626db511b718eebaa2");
 
         ServerWebExchange filtered = exchangeAfterFilter(headers);
 

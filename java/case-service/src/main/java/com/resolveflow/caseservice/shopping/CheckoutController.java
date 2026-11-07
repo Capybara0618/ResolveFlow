@@ -25,7 +25,7 @@ public class CheckoutController {
     public com.resolveflow.shared.shopping.ShippingWire.View shipping(
             @RequestHeader(name = "Authorization", required = false) String auth,
             @PathVariable("purchase_id") String id) {
-        return owned(buyer(auth), s -> commerce.shipping(id, s.merchantId(), s.customerId()));
+        return owned(buyer(auth), s -> commerce.shipping(id, s.merchantId(), s.buyerId()));
     }
 
     public CheckoutController(
@@ -64,13 +64,13 @@ public class CheckoutController {
         var p = buyer(auth);
         if (key == null || !key.matches("[A-Za-z0-9_-]{1,128}"))
             throw new CommerceShoppingClient.Refused(400, "INVALID_ARGUMENT", "需要有效的付款请求标识");
-        return owned(p, s -> commerce.pay(id, new PayCommand(s.merchantId(), s.customerId(), key)));
+        return owned(p, s -> commerce.pay(id, new PayCommand(s.merchantId(), s.buyerId(), key)));
     }
 
     @GetMapping("/drafts/{draft_id}/payment")
     public Lookup payment(
             @RequestHeader(name = "Authorization", required = false) String auth, @PathVariable("draft_id") String id) {
-        return owned(buyer(auth), s -> commerce.payment(id, s.merchantId(), s.customerId()));
+        return owned(buyer(auth), s -> commerce.payment(id, s.merchantId(), s.buyerId()));
     }
 
     @PostMapping("/drafts/{draft_id}/cancel")
@@ -78,7 +78,7 @@ public class CheckoutController {
             @RequestHeader(name = "Authorization", required = false) String auth,
             @PathVariable("draft_id") String id,
             @RequestBody EmptyRequest body) {
-        return owned(buyer(auth), s -> commerce.cancel(id, new ScopeCommand(s.merchantId(), s.customerId())));
+        return owned(buyer(auth), s -> commerce.cancel(id, new ScopeCommand(s.merchantId(), s.buyerId())));
     }
 
     @GetMapping("/purchases")
@@ -95,7 +95,7 @@ public class CheckoutController {
     public Purchase read(
             @RequestHeader(name = "Authorization", required = false) String auth,
             @PathVariable("purchase_id") String id) {
-        return owned(buyer(auth), s -> commerce.purchase(id, s.merchantId(), s.customerId()));
+        return owned(buyer(auth), s -> commerce.purchase(id, s.merchantId(), s.buyerId()));
     }
 
     @ExceptionHandler(CommerceShoppingClient.Refused.class)

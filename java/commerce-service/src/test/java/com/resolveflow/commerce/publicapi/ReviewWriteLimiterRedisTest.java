@@ -51,7 +51,7 @@ class ReviewWriteLimiterRedisTest {
     }
 
     private AuthenticatedPrincipal buyer() {
-        return new AuthenticatedPrincipal("rate-" + UUID.randomUUID(), null, Role.CUSTOMER, null, "B-1");
+        return new AuthenticatedPrincipal("rate-" + UUID.randomUUID(), null, Role.CUSTOMER, "B-1");
     }
 
     @Test

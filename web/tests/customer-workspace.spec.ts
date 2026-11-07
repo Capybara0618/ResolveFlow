@@ -4,7 +4,7 @@ import CustomerWorkspace from '../src/ui/CustomerWorkspace.vue'
 import { ApiError, coreApi, type CustomerCaseDetail, type LoginResponse, type OrderLine } from '../src/client'
 
 const account: LoginResponse = { access_token: 'customer-token', role: 'CUSTOMER', merchant_id: 'M-1001',
-  customer_id: 'C-2002', expires_in: 3600, display_name: '客户甲' }
+  buyer_id: 'C-2002', expires_in: 3600, display_name: '客户甲' }
 const line: OrderLine = { order_id: 'order-1', line_id: '7001', sku: 'SKU-CUP', product_name: '保温杯',
   variant_text: '蓝色', category: 'home', quantity: 1, line_paid_amount: 2599, currency: 'CNY', status: 'PAID' }
 function detail(id = 'case-1'): CustomerCaseDetail {
@@ -161,7 +161,7 @@ describe('customer application workspace', () => {
     let finish!: (d: CustomerCaseDetail) => void
     vi.mocked(coreApi.customerCase).mockReturnValue(new Promise(resolve => { finish = resolve }))
     const w = open(); await flushPromises()
-    await w.get('[data-test="nav-applications"]').trigger('click'); await flushPromises()
+    await w.get('.customer-back').trigger('click'); await flushPromises()
     finish(detail()); await flushPromises()
     expect(w.find('[data-test="application-detail"]').exists()).toBe(false)
     expect(w.find('[data-test="applications-list"]').exists()).toBe(true)

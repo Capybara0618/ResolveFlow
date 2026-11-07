@@ -7,7 +7,8 @@ from pydantic import ValidationError
 
 from resolveflow.support.dialogue import DialogueState
 from resolveflow.support.engine import SupportAgent
-from resolveflow.support.protocol import DECISION, SupportInput
+from resolveflow.support.protocol import DECISION
+from tests.recorded_sources import ProjectedSupportInput as SupportInput
 from resolveflow.support.tasks import render_answer
 from tests.integration.test_support_dialogue_api import TokenizedScript
 from tests.unit.test_support_agent import Reads, read, request

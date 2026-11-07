@@ -39,7 +39,7 @@ def test_consultation_route_requires_its_scope_and_exact_case_dispatch_subjects(
     body = {**request().model_dump(mode="json"), "tool_token": "per-run-read-token"}
 
     def headers(scope="support:run", merchant="M-A", subject="case-service"):
-        token = mint_service_token(subject, SECRET, scope=scope, merchant_id=merchant, customer_id="C-A")
+        token = mint_service_token(subject, SECRET, scope=scope, merchant_id=merchant, buyer_id="C-A")
         return {"Authorization": "Bearer " + token}
 
     with TestClient(app) as client:
@@ -83,7 +83,7 @@ def test_default_runtime_receives_app_encoder_pool_but_separate_run_state(monkey
         jwt_secret=SECRET,
         run_store=SimpleNamespace(database=object()),
     )
-    token = mint_service_token("case-service", SECRET, scope="support:run", merchant_id="M-A", customer_id="C-A")
+    token = mint_service_token("case-service", SECRET, scope="support:run", merchant_id="M-A", buyer_id="C-A")
     body = {**request().model_dump(mode="json"), "tool_token": "per-run-read-token"}
     with TestClient(app) as client:
         assert client.get('/health').json()['support_architecture'] == architecture

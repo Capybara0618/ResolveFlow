@@ -44,12 +44,12 @@ public class OrderLineController {
     @GetMapping
     public ResponseEntity<OrderLinePageResponse> list(
             @RequestParam("merchant_id") String merchantId,
-            @RequestParam(name = "customer_id", required = false) String customerId,
+            @RequestParam(name = "buyer_id", required = false) String buyerId,
             @RequestParam(name = "order_id", required = false) String orderId,
             @RequestParam(name = "line_id", required = false) String lineId,
             @RequestParam(name = "cursor", required = false) String cursor,
             @RequestParam(name = "limit", required = false) Integer limit) {
-        OrderLineReadService.Page page = service.list(merchantId, customerId, orderId, lineId, cursor, limit);
+        OrderLineReadService.Page page = service.list(merchantId, buyerId, orderId, lineId, cursor, limit);
         return ResponseEntity.ok(new OrderLinePageResponse(
                 page.items().stream().map(OrderLineSummaryResponse::from).toList(),
                 new PageMetaResponse(page.nextCursor(), page.limit())));
@@ -78,7 +78,7 @@ public class OrderLineController {
             @JsonProperty("order_id") String orderId,
             @JsonProperty("line_id") String lineId,
             @JsonProperty("merchant_id") String merchantId,
-            @JsonProperty("customer_id") String customerId,
+            @JsonProperty("buyer_id") String buyerId,
             String sku,
             String category,
             int quantity,
@@ -100,7 +100,7 @@ public class OrderLineController {
                     row.orderId(),
                     row.lineId(),
                     row.merchantId(),
-                    row.customerId(),
+                    row.buyerId(),
                     row.sku(),
                     row.category(),
                     row.quantity(),

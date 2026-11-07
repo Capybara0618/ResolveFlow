@@ -2153,7 +2153,7 @@ paths:
                 expires_in: 3600
                 role: CUSTOMER
                 merchant_id: M-1001
-                customer_id: C-2002
+                buyer_id: C-2002
         '401':
           $ref: '#/components/responses/Unauthenticated'
         '422':
@@ -4913,20 +4913,19 @@ components:
     IdentityBinding:
       type: object
       additionalProperties: false
-      required: [merchant_id, customer_id, merchant_name]
+      required: [merchant_id, buyer_id, merchant_name]
       properties:
         merchant_id: {type: string, minLength: 1, maxLength: 64}
-        customer_id: {type: string, minLength: 1, maxLength: 64}
+        buyer_id: {type: string, minLength: 1, maxLength: 64}
         merchant_name: {type: string}
     IdentityContext:
       type: object
       additionalProperties: false
-      required: [subject, merchant_id, role, customer_id, buyer_id, identity_version, bindings, shipping]
+      required: [subject, merchant_id, role, buyer_id, identity_version, bindings, shipping]
       properties:
         subject: {type: string, minLength: 1}
         merchant_id: {type: [string, 'null']}
         role: {type: string, enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR]}
-        customer_id: {type: [string, 'null']}
         buyer_id: {type: [string, 'null']}
         identity_version: {type: integer, minimum: 0}
         bindings:
@@ -5154,7 +5153,7 @@ components:
       additionalProperties: false
       required:
       - merchant_id
-      - customer_id
+      - buyer_id
       - request
       properties:
         merchant_id:
@@ -5162,7 +5161,7 @@ components:
           minLength: 1
           maxLength: 64
           pattern: \S
-        customer_id:
+        buyer_id:
           type: string
           minLength: 1
           maxLength: 64
@@ -5823,13 +5822,13 @@ components:
       additionalProperties: false
       required:
       - merchant_id
-      - customer_id
+      - buyer_id
       - request
       properties:
         merchant_id:
           type: string
           pattern: ^[A-Za-z0-9_-]{1,64}$
-        customer_id:
+        buyer_id:
           type: string
           pattern: ^[A-Za-z0-9_-]{1,64}$
         request:
@@ -5839,7 +5838,7 @@ components:
       additionalProperties: false
       required:
       - merchant_id
-      - customer_id
+      - buyer_id
       - idempotency_key
       - request
       properties:
@@ -5848,7 +5847,7 @@ components:
         merchant_id:
           type: string
           pattern: ^[A-Za-z0-9_-]{1,64}$
-        customer_id:
+        buyer_id:
           type: string
           pattern: ^[A-Za-z0-9_-]{1,64}$
         idempotency_key:
@@ -5902,14 +5901,14 @@ components:
       additionalProperties: false
       required:
       - merchant_id
-      - customer_id
+      - buyer_id
       - idempotency_key
       - request
       properties:
         merchant_id:
           type: string
           pattern: ^[A-Za-z0-9_-]{1,64}$
-        customer_id:
+        buyer_id:
           type: string
           pattern: ^[A-Za-z0-9_-]{1,64}$
         idempotency_key:
@@ -6041,13 +6040,13 @@ components:
       additionalProperties: false
       required:
       - merchant_id
-      - customer_id
+      - buyer_id
       properties:
         merchant_id:
           type: string
           minLength: 1
           maxLength: 64
-        customer_id:
+        buyer_id:
           type: string
           minLength: 1
           maxLength: 64
@@ -6056,14 +6055,14 @@ components:
       additionalProperties: false
       required:
       - merchant_id
-      - customer_id
+      - buyer_id
       - idempotency_key
       properties:
         merchant_id:
           type: string
           minLength: 1
           maxLength: 64
-        customer_id:
+        buyer_id:
           type: string
           minLength: 1
           maxLength: 64
@@ -6670,7 +6669,7 @@ components:
       additionalProperties: false
       required:
       - merchant_id
-      - customer_id
+      - buyer_id
       - idempotency_key
       - request
       properties:
@@ -6681,7 +6680,7 @@ components:
           minLength: 1
           maxLength: 64
           pattern: ^[A-Za-z0-9_-]+$
-        customer_id:
+        buyer_id:
           type: string
           minLength: 1
           maxLength: 64
@@ -7285,7 +7284,6 @@ components:
           not:
             anyOf:
               - required: [merchant_id]
-              - required: [customer_id]
               - required: [buyer_id]
               - required: [merchant_name]
         - required: [buyer_id]
@@ -7294,11 +7292,10 @@ components:
           not:
             anyOf:
               - required: [merchant_id]
-              - required: [customer_id]
               - required: [merchant_name]
         - required: [merchant_id]
           properties:
-            role: {enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR]}
+            role: {enum: [REVIEWER, MERCHANT_ADMIN, OPERATOR]}
           not: {required: [buyer_id]}
       allOf:
         - if: {required: [single_operator]}
@@ -7325,8 +7322,6 @@ components:
         merchant_id:
           type: string
           minLength: 1
-        customer_id:
-          type: [string, 'null']
         display_name:
           type: string
           minLength: 1
@@ -7345,7 +7340,6 @@ components:
           not:
             anyOf:
               - required: [merchant_id]
-              - required: [customer_id]
               - required: [buyer_id]
               - required: [merchant_name]
         - required: [buyer_id]
@@ -7354,11 +7348,10 @@ components:
           not:
             anyOf:
               - required: [merchant_id]
-              - required: [customer_id]
               - required: [merchant_name]
         - required: [merchant_id, merchant_name]
           properties:
-            role: {enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR]}
+            role: {enum: [REVIEWER, MERCHANT_ADMIN, OPERATOR]}
           not: {required: [buyer_id]}
       allOf:
         - if: {required: [single_operator]}
@@ -7371,7 +7364,6 @@ components:
         buyer_id: {type: string, minLength: 1, maxLength: 64}
         merchant_id: {type: string, minLength: 1}
         role: {type: string, enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR, PLATFORM_ADMIN]}
-        customer_id: {type: string, minLength: 1}
         display_name: {type: string, minLength: 1, maxLength: 120}
         merchant_name: {type: string, minLength: 1, maxLength: 120}
     OrderLineSummary:

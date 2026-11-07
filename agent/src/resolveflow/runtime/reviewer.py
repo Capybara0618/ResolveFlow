@@ -12,14 +12,14 @@ MAX_BODY_BYTES = 32768
 
 
 def review_sources(database: Database, run_id: str, *, case_id: str, input_revision: int,
-                   merchant_id: str, customer_id: str) -> dict[str, Any]:
+                   merchant_id: str, buyer_id: str) -> dict[str, Any]:
     _require_uuid("run_id", run_id, not_found=True)
     _require_uuid("case_id", case_id, not_found=True)
     with database.connection() as connection:
         row = connection.execute(
             "SELECT run_id,case_id,input_revision,status FROM agent_run WHERE run_id=%s AND case_id=%s "
-            "AND input_revision=%s AND merchant_id=%s AND customer_id=%s",
-            (run_id, case_id, input_revision, merchant_id, customer_id),
+            "AND input_revision=%s AND merchant_id=%s AND buyer_id=%s",
+            (run_id, case_id, input_revision, merchant_id, buyer_id),
         ).fetchone()
         if row is None:
             raise RunNotFoundError("no reviewable run for this case revision")

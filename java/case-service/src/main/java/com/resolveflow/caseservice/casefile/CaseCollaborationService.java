@@ -242,7 +242,7 @@ public class CaseCollaborationService {
         for (String name : names) {
             var accounts = jdbc.query(
                     """
-                    SELECT merchant_id,role,customer_id,enabled,identity_version FROM identity_account
+                    SELECT merchant_id,role,buyer_id,enabled,identity_version FROM identity_account
                      WHERE username=? FOR SHARE
                     """,
                     (rs, n) -> new Account(
@@ -259,7 +259,7 @@ public class CaseCollaborationService {
                         || account.version() != identityVersion
                         || !principal.merchantId().equals(account.merchant())
                         || principal.role() != account.role()
-                        || !Objects.equals(principal.customerId(), account.customer())) throw inactive();
+                        || !Objects.equals(principal.buyerId(), account.customer())) throw inactive();
             } else if (account == null
                     || !account.enabled()
                     || !principal.merchantId().equals(account.merchant())

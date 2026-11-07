@@ -45,7 +45,7 @@ public final class ProductReviewWire {
 
     public record Command(
             @JsonProperty("merchant_id") String merchantId,
-            @JsonProperty("customer_id") String customerId,
+            @JsonProperty("buyer_id") String buyerId,
             Write request) {}
 
     public record Reply(

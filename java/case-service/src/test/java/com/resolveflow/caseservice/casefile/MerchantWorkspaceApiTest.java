@@ -21,7 +21,7 @@ class MerchantWorkspaceApiTest extends CaseDatabaseTest {
     @Autowired
     RestTestClient rest;
 
-    String merchant, admin, worker, customer, other, bundle;
+    String merchant, admin, worker, customer, other, bundle, buyer;
 
     @BeforeEach
     void prepare() {
@@ -34,7 +34,8 @@ class MerchantWorkspaceApiTest extends CaseDatabaseTest {
         bundle = "overview-policy-" + suffix;
         registerTestAccount(admin, merchant, "MERCHANT_ADMIN", null);
         registerTestAccount(worker, merchant, "REVIEWER", null);
-        registerTestAccount(customer, merchant, "CUSTOMER", "C-overview");
+        buyer = "B-overview-" + suffix;
+        registerTestAccount(customer, merchant, "CUSTOMER", buyer);
         registerTestAccount(other, merchant + "-other", "MERCHANT_ADMIN", null);
         jdbc.update(
                 "INSERT INTO policy_bundle(bundle_id,merchant_id,version,manifest_hash,safety_epoch,effective_from,effective_to,imported_at,source_path) VALUES (?,?,'v1',?,1,'2026-01-01',NULL,NOW(6),'private/source')",
@@ -76,9 +77,10 @@ class MerchantWorkspaceApiTest extends CaseDatabaseTest {
     String create(String status) {
         String id = UUID.randomUUID().toString();
         jdbc.update(
-                "INSERT INTO aftersale_case(case_id,merchant_id,customer_id,order_id,line_id,description,status,input_revision,version,created_at,updated_at) VALUES (?,?,'C-overview','O-overview','L-overview','合成工单',?,1,1,NOW(6),NOW(6))",
+                "INSERT INTO aftersale_case(case_id,merchant_id,buyer_id,order_id,line_id,description,status,input_revision,version,created_at,updated_at) VALUES (?,?,?,'O-overview','L-overview','合成工单',?,1,1,NOW(6),NOW(6))",
                 id,
                 merchant,
+                buyer,
                 status);
         return id;
     }

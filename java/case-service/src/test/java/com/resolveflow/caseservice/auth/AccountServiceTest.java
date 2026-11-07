@@ -18,7 +18,7 @@ class AccountServiceTest extends CaseDatabaseTest {
     AccountService service;
 
     private Session session(String user) {
-        return new Session(new AuthenticatedPrincipal(user, null, Role.CUSTOMER, null, user), 1);
+        return new Session(new AuthenticatedPrincipal(user, null, Role.CUSTOMER, user), 1);
     }
 
     private AccountService.EditAddress address(boolean primary, Long version) {

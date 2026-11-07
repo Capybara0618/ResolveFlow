@@ -57,7 +57,7 @@ public class MultiCheckoutService {
         if (c == null || c.request() == null) throw new IllegalArgumentException("报价请求无效");
         revision(c.request().expectedRevision());
         var ids = skus(c.request().skuIds());
-        var g = cart.read(c.merchantId(), c.customerId());
+        var g = cart.read(c.merchantId(), c.buyerId());
         if (g.revision() != c.request().expectedRevision()) throw changed("CART_CHANGED", "购物车已更新，请重新读取");
         var lines = ids.stream()
                 .map(id -> {
@@ -112,15 +112,15 @@ public class MultiCheckoutService {
 
     private Purchase replay(Command c, String hash) {
         var rows = jdbc.queryForList(
-                "SELECT draft_id,kind,multiline_request_hash FROM checkout_draft WHERE merchant_id=? AND customer_id=? AND idempotency_key=?",
+                "SELECT draft_id,kind,multiline_request_hash FROM checkout_draft WHERE merchant_id=? AND buyer_id=? AND idempotency_key=?",
                 c.merchantId(),
-                c.customerId(),
+                c.buyerId(),
                 c.idempotencyKey());
         if (rows.isEmpty()) return null;
         var row = rows.getFirst();
         if (!"MULTI".equals(row.get("kind")) || !hash.equals(row.get("multiline_request_hash")))
             throw changed("IDEMPOTENCY_CONFLICT", "请求标识已用于另一份订单，请查阅原订单");
-        return reads.read("draft:" + row.get("draft_id"), c.merchantId(), c.customerId());
+        return reads.read("draft:" + row.get("draft_id"), c.merchantId(), c.buyerId());
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
@@ -128,7 +128,7 @@ public class MultiCheckoutService {
         if (c == null
                 || c.request() == null
                 || c.merchantId() == null
-                || c.customerId() == null
+                || c.buyerId() == null
                 || c.idempotencyKey() == null
                 || !c.idempotencyKey().matches("[A-Za-z0-9_-]{1,128}")) throw new IllegalArgumentException("下单请求无效");
         var r = c.request();
@@ -156,10 +156,10 @@ public class MultiCheckoutService {
         }
         shipping.requireSnapshot(r.shipping(), c.shippingSnapshot());
         var locked = jdbc.queryForList(
-                "SELECT revision FROM shopping_cart WHERE merchant_id=? AND customer_id=? FOR UPDATE",
+                "SELECT revision FROM shopping_cart WHERE merchant_id=? AND buyer_id=? FOR UPDATE",
                 Long.class,
                 c.merchantId(),
-                c.customerId());
+                c.buyerId());
         if (locked.isEmpty()) throw changed("CART_CHANGED", "购物车已更新，请重新读取");
         prior = replay(c, hash);
         if (prior != null) {
@@ -172,7 +172,7 @@ public class MultiCheckoutService {
                     "SELECT k.sku_id FROM catalog_sku k JOIN catalog_product p ON p.product_id=k.product_id JOIN catalog_store s ON s.store_id=p.store_id WHERE k.sku_id=? FOR UPDATE",
                     String.class,
                     sku);
-        var q = quote(new QuoteCommand(c.merchantId(), c.customerId(), new QuoteRequest(r.expectedRevision(), ids)));
+        var q = quote(new QuoteCommand(c.merchantId(), c.buyerId(), new QuoteRequest(r.expectedRevision(), ids)));
         for (int i = 0; i < sorted.size(); i++) {
             var original = sorted.get(i);
             var current = q.lines().get(i);
@@ -184,12 +184,12 @@ public class MultiCheckoutService {
         var now = Instant.now(clock).truncatedTo(ChronoUnit.MICROS);
         jdbc.update(
                 """
-            INSERT INTO checkout_draft(draft_id,merchant_id,customer_id,idempotency_key,product_id,product_name,store_name,asset_key,sku_id,variant,quantity,unit_amount,total_amount,sku_version,created_at,expires_at,category,kind,line_count,cart_revision,multiline_request_hash)
+            INSERT INTO checkout_draft(draft_id,merchant_id,buyer_id,idempotency_key,product_id,product_name,store_name,asset_key,sku_id,variant,quantity,unit_amount,total_amount,sku_version,created_at,expires_at,category,kind,line_count,cart_revision,multiline_request_hash)
             VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'MULTI',?,?,?)
             """,
                 id,
                 c.merchantId(),
-                c.customerId(),
+                c.buyerId(),
                 c.idempotencyKey(),
                 first.productId(),
                 first.productName(),
@@ -222,18 +222,18 @@ public class MultiCheckoutService {
                     line.lineAmount(),
                     line.skuVersion());
             if (jdbc.update(
-                            "DELETE FROM shopping_cart_item WHERE merchant_id=? AND customer_id=? AND sku_id=? AND quantity=?",
+                            "DELETE FROM shopping_cart_item WHERE merchant_id=? AND buyer_id=? AND sku_id=? AND quantity=?",
                             c.merchantId(),
-                            c.customerId(),
+                            c.buyerId(),
                             line.skuId(),
                             line.quantity())
                     != 1) throw changed("CART_CHANGED", "购物车已更新，请重新读取");
         }
         jdbc.update(
-                "UPDATE shopping_cart SET revision=revision+1 WHERE merchant_id=? AND customer_id=?",
+                "UPDATE shopping_cart SET revision=revision+1 WHERE merchant_id=? AND buyer_id=?",
                 c.merchantId(),
-                c.customerId());
+                c.buyerId());
         shipping.freeze(id, r.shipping(), c.shippingSnapshot(), true);
-        return reads.read("draft:" + id, c.merchantId(), c.customerId());
+        return reads.read("draft:" + id, c.merchantId(), c.buyerId());
     }
 }

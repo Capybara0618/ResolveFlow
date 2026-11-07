@@ -76,7 +76,7 @@ def test_mcp_peer_cannot_bypass_business_payload_validation():
     assert refused.value.code == "TOOL_RESULT_INVALID"
 
 
-@pytest.mark.parametrize("change", ["merchant_id", "customer_id", "source_ref", "input_revision"])
+@pytest.mark.parametrize("change", ["merchant_id", "buyer_id", "source_ref", "input_revision"])
 def test_executor_verifies_bound_tenant_and_revision(monkeypatch, change):
     import resolveflow.harness.mcp_client as module
     tool = "get_case_evidence" if change == "input_revision" else "get_order_context"
@@ -93,7 +93,7 @@ def test_executor_verifies_bound_tenant_and_revision(monkeypatch, change):
 
     monkeypatch.setattr(module, "_run_sync", answered)
     executor = module.McpToolExecutor(line_id="7001", run_id="run-1", case_id=context().case_id,
-                                     merchant_id="M-1001", customer_id="C-2002", input_revision=1)
+                                     merchant_id="M-1001", buyer_id="C-2002", input_revision=1)
     result = executor.call_tool(run_id="run-1", tool_name=tool, arguments={})
     assert result.error.code == "SOURCE_MISMATCH" and result.result is None and result.content_hash is None
 

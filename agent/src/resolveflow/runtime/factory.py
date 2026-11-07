@@ -270,7 +270,7 @@ def _mcp_executor(config: DeploymentConfig, facts: RunFacts, *, identity_token: 
         service_token=None,
         input_revision=facts.input_revision,
         merchant_id=facts.merchant_id,
-        customer_id=facts.customer_id,
+        buyer_id=facts.buyer_id,
         credential_source=credential_source(
             case_base_url=config.case_base_url,
             run_id=facts.run_id,

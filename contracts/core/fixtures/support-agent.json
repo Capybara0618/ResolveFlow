@@ -4,7 +4,7 @@
     "conversation_id": "00000000-0000-4000-8000-000000000002",
     "input_version": 2,
     "merchant_id": "M-A",
-    "customer_id": "C-A",
+    "buyer_id": "C-A",
     "line_id": "line-A",
     "deadline_at": "2030-01-01T00:00:00Z",
     "context": {
@@ -40,7 +40,7 @@
       "conversation_id": "00000000-0000-4000-8000-000000000002",
       "input_version": 2,
       "merchant_id": "M-A",
-      "customer_id": "C-A",
+      "buyer_id": "C-A",
       "line_id": "line-A",
       "task_state": {
         "origin": "MODEL",
@@ -53,7 +53,7 @@
         "conversation_id": "00000000-0000-4000-8000-000000000002",
         "input_version": 2,
         "merchant_id": "M-A",
-        "customer_id": "C-A",
+        "buyer_id": "C-A",
         "line_id": "line-A",
         "entries": []
       },

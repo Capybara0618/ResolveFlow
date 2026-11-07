@@ -36,12 +36,30 @@ public abstract class CommerceDatabaseTest {
         MYSQL.start();
     }
 
+    /** Seed-only read tests share the container, but not the checkout fixtures written by other classes. */
+    public static void isolatedReadSchema(DynamicPropertyRegistry registry, String schema) throws Exception {
+        if (!schema.matches("commerce_read_[a-z]+")) throw new IllegalArgumentException("test schema required");
+        var result = MYSQL.execInContainer(
+                "mysql",
+                "-uroot",
+                "-p" + MYSQL.getPassword(),
+                "-e",
+                "CREATE DATABASE IF NOT EXISTS " + schema + "; GRANT ALL PRIVILEGES ON " + schema
+                        + ".* TO 'commerce'@'%'");
+        if (result.getExitCode() != 0) throw new IllegalStateException("Could not create isolated read fixture schema");
+        datasourceProperties(registry, schema);
+    }
+
     @DynamicPropertySource
     static void datasourceProperties(DynamicPropertyRegistry registry) {
+        datasourceProperties(registry, "commerce_db");
+    }
+
+    private static void datasourceProperties(DynamicPropertyRegistry registry, String schema) {
         // connectionTimeZone=UTC mirrors application.yml: the protocol carries UTC instants
         // (docs/core-contracts.md:17), so the tests would catch a driver that shifted them.
         String url = "jdbc:mysql://" + MYSQL.getHost() + ":" + MYSQL.getMappedPort(MySQLContainer.MYSQL_PORT)
-                + "/commerce_db?connectionTimeZone=UTC&preserveInstants=true"
+                + "/" + schema + "?connectionTimeZone=UTC&preserveInstants=true"
                 + "&allowPublicKeyRetrieval=true&useSSL=false";
         registry.add("spring.datasource.url", () -> url);
         registry.add("spring.datasource.username", MYSQL::getUsername);

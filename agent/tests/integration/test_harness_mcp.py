@@ -57,7 +57,7 @@ def facts(line_id: str = LINE_ID) -> RunFacts:
         input_revision=1,
         line_id=line_id,
         merchant_id="M-1001",
-        customer_id="C-2002",
+        buyer_id="C-2002",
         description="the parcel never arrived",
     )
 

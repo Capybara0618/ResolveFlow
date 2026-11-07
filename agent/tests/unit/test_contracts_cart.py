@@ -13,7 +13,7 @@ def test_cart_wire_shared_and_strict(name):
     for service in ['case', 'commerce']:
         v = component_validator(service, name, 'contracts/core')
         assert v.accepts(FIXTURES[name]), v.error_messages(FIXTURES[name])
-        assert not v.accepts({**FIXTURES[name], 'buyer_id': 'other'})
+        assert not v.accepts({**FIXTURES[name], 'customer_id': 'removed-identity'})
     assert load_openapi('case', 'contracts/core')['components']['schemas'][name] == (
         load_openapi('commerce', 'contracts/core')['components']['schemas'][name]
     )
@@ -25,7 +25,7 @@ def test_absolute_write_bounds_and_removal():
     assert v.accepts({**body, 'quantity': 0, 'expected_sku_version': None})
     for patch in [{'quantity': -1}, {'quantity': 101}, {'quantity': 1.5}, {'expected_revision': -1},
                   {'expected_revision': 9007199254740991}, {'expected_sku_version': None},
-                  {'quantity': 0}, {'total_amount': 1}, {'customer_id': 'other'}]:
+                  {'quantity': 0}, {'total_amount': 1}, {'buyer_id': 'other'}]:
         assert not v.accepts({**body, **patch})
     delisted = copy.deepcopy(FIXTURES['CartItem'])
     delisted['availability'] = 'DELISTED'
@@ -39,4 +39,4 @@ def test_cart_never_anonymous_and_internal_customer_only_for_read():
         assert {'401', '403', '409', '503'} <= set(public[path][method]['responses'])
     private = load_openapi('commerce', 'contracts/core')['paths']
     op = private['/internal/v1/shop/cart/{store_id}']['get']
-    assert any(p['name'] == 'customer_id' and p['required'] for p in op['parameters'])
+    assert any(p['name'] == 'buyer_id' and p['required'] for p in op['parameters'])

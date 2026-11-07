@@ -137,7 +137,7 @@ public final class SupportWire {
             Ticket ticket,
             List<Message> messages,
             @JsonProperty("next_before_sequence") Long nextBeforeSequence,
-            BuyerIdentity buyer) {}
+            @JsonInclude(JsonInclude.Include.NON_NULL) BuyerIdentity buyer) {}
 
     public record Page<T>(
             List<T> items,

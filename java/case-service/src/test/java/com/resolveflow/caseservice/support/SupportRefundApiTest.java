@@ -191,7 +191,7 @@ class SupportRefundApiTest extends SupportApiTest {
                         "order-" + i.getArgument(0),
                         i.getArgument(0),
                         "M-1001",
-                        "C-B3001-M1001",
+                        "B-3001",
                         "SKU",
                         "electronics",
                         1,

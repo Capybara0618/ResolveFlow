@@ -44,12 +44,15 @@ class CustomerWorkspaceApiTest extends CaseDatabaseTest {
     private String token(String username, String merchant, String customer) {
         return codec.issue(
                 new AuthenticatedPrincipal(
-                        username, merchant, customer == null ? Role.REVIEWER : Role.CUSTOMER, customer),
+                        username,
+                        customer == null ? merchant : null,
+                        customer == null ? Role.REVIEWER : Role.CUSTOMER,
+                        customer),
                 Instant.now());
     }
 
     private String own() {
-        return token("demo-customer", "M-1001", "C-2002");
+        return token("demo-customer", "M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
     }
 
     private String row(String merchant, String customer, String status, Instant time) {
@@ -84,7 +87,8 @@ class CustomerWorkspaceApiTest extends CaseDatabaseTest {
 
     @Test
     void pendingReviewSeparatesValidMerchantVerificationFromFailedInvestigationAndStaleHistory() {
-        String normal = row("M-1001", "C-2002", "PENDING_REVIEW", Instant.now());
+        String normal =
+                row("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", "PENDING_REVIEW", Instant.now());
         proposals.insert(
                 UUID.randomUUID().toString(),
                 normal,
@@ -104,7 +108,8 @@ class CustomerWorkspaceApiTest extends CaseDatabaseTest {
         assertThat(detail.path("result").path("message").asString()).isEqualTo("等待商家核验申请情况");
         assertThat(detail.toString()).doesNotContain("private investigation text", "MANUAL_REVIEW", "proposal");
 
-        String failed = row("M-1001", "C-2002", "PENDING_REVIEW", Instant.now());
+        String failed =
+                row("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", "PENDING_REVIEW", Instant.now());
         cases.insertTimeline(
                 failed,
                 UUID.randomUUID().toString(),
@@ -124,12 +129,16 @@ class CustomerWorkspaceApiTest extends CaseDatabaseTest {
 
     @Test
     void listIsOwnedAndSupportsStages() {
-        String mine = row("M-1001", "C-2002", "WAITING_CUSTOMER", Instant.now());
-        String another = row("M-1001", "C-2003", "WAITING_CUSTOMER", Instant.now());
-        String tenant = row("M-1002", "C-2004", "WAITING_CUSTOMER", Instant.now());
-        String closed = row("M-1001", "C-2002", "CANCELLED", Instant.now());
+        String mine =
+                row("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", "WAITING_CUSTOMER", Instant.now());
+        String another =
+                row("M-1001", "B-legacy-085a244f8f8acaf20c76a2191b6ebde0ea6d70df", "WAITING_CUSTOMER", Instant.now());
+        String tenant =
+                row("M-1002", "B-legacy-6f808772ade9cc75fd3896626db511b718eebaa2", "WAITING_CUSTOMER", Instant.now());
+        String closed = row("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", "CANCELLED", Instant.now());
         String body = read("/api/v1/customer/cases?view=WAITING", own());
-        assertThat(body).contains(mine).doesNotContain(another, tenant, closed, "merchant_id", "customer_id");
+        assertThat(body).contains(mine).doesNotContain(another, tenant, closed, "buyer_id");
+        assertThat(json.readTree(body).at("/items/0/merchant_id").asString()).isEqualTo("M-1001");
         assertThat(read("/api/v1/customer/cases?view=CLOSED", own()))
                 .contains(closed)
                 .doesNotContain(mine);
@@ -138,8 +147,9 @@ class CustomerWorkspaceApiTest extends CaseDatabaseTest {
     @Test
     void cursorKeepsMicrosecondsAndRejectsChangedFilter() {
         Instant time = Instant.parse("2026-10-01T10:00:00.123456Z");
-        String first = row("M-1001", "C-2002", "QUEUED", time.plusNanos(1000));
-        String second = row("M-1001", "C-2002", "QUEUED", time);
+        String first =
+                row("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", "QUEUED", time.plusNanos(1000));
+        String second = row("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", "QUEUED", time);
         var page = json.readTree(read("/api/v1/customer/cases?limit=1", own()));
         assertThat(page.get("items").get(0).get("case_id").stringValue()).isEqualTo(first);
         String cursor = page.get("page").get("next_cursor").stringValue();
@@ -156,7 +166,7 @@ class CustomerWorkspaceApiTest extends CaseDatabaseTest {
 
     @Test
     void detailIsPrivateAndContainsNoStaffProjection() {
-        String id = row("M-1001", "C-2002", "PENDING_REVIEW", Instant.now());
+        String id = row("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", "PENDING_REVIEW", Instant.now());
         cases.insertTimeline(
                 id,
                 UUID.randomUUID().toString(),
@@ -177,7 +187,8 @@ class CustomerWorkspaceApiTest extends CaseDatabaseTest {
                         "run_id",
                         "source_ref");
         for (String other : new String[] {
-            token("demo-customer-2", "M-1001", "C-2003"), token("demo-customer-m2", "M-1002", "C-2004")
+            token("demo-customer-2", "M-1001", "B-legacy-085a244f8f8acaf20c76a2191b6ebde0ea6d70df"),
+            token("demo-customer-m2", "M-1002", "B-legacy-6f808772ade9cc75fd3896626db511b718eebaa2")
         })
             rest.get()
                     .uri("/api/v1/customer/cases/" + id)
@@ -195,7 +206,8 @@ class CustomerWorkspaceApiTest extends CaseDatabaseTest {
 
     @Test
     void currentSecondQuestionDoesNotDisplayAnEarlierDecisionReason() {
-        String id = row("M-1001", "C-2002", "WAITING_CUSTOMER", Instant.now());
+        String id =
+                row("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", "WAITING_CUSTOMER", Instant.now());
         cases.insertTimeline(
                 id,
                 UUID.randomUUID().toString(),
@@ -218,7 +230,8 @@ class CustomerWorkspaceApiTest extends CaseDatabaseTest {
 
     @Test
     void directAnswerIsVersionedAndAssociatesCurrentQuestion() {
-        String id = row("M-1001", "C-2002", "WAITING_CUSTOMER", Instant.now());
+        String id =
+                row("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", "WAITING_CUSTOMER", Instant.now());
         String q = UUID.randomUUID().toString();
         cases.insertTimeline(
                 id,
@@ -257,7 +270,8 @@ class CustomerWorkspaceApiTest extends CaseDatabaseTest {
 
     @Test
     void expiredQuestionCannotBeAnsweredThroughEitherCustomerEntry() {
-        String id = row("M-1001", "C-2002", "WAITING_CUSTOMER", Instant.now());
+        String id =
+                row("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", "WAITING_CUSTOMER", Instant.now());
         String q = UUID.randomUUID().toString();
         cases.insertTimeline(
                 id,
@@ -293,7 +307,7 @@ class CustomerWorkspaceApiTest extends CaseDatabaseTest {
 
     @Test
     void consumedInputIsReadOnlyEvenWhenItReturnsToReviewOrWaiting() {
-        String id = row("M-1001", "C-2002", "PENDING_REVIEW", Instant.now());
+        String id = row("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", "PENDING_REVIEW", Instant.now());
         String proposal = UUID.randomUUID().toString(),
                 operation = UUID.randomUUID().toString();
         proposals.insert(
@@ -390,7 +404,8 @@ class CustomerWorkspaceApiTest extends CaseDatabaseTest {
 
     @Test
     void questionDeadlineIsCappedByThePersistedCaseExpiry() {
-        String id = row("M-1001", "C-2002", "WAITING_CUSTOMER", Instant.now());
+        String id =
+                row("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", "WAITING_CUSTOMER", Instant.now());
         Instant expiry = Instant.now().minusSeconds(1);
         jdbc.update("UPDATE aftersale_case SET expires_at=? WHERE case_id=?", java.sql.Timestamp.from(expiry), id);
         String q = UUID.randomUUID().toString();

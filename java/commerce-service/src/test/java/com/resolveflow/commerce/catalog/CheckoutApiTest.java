@@ -30,7 +30,7 @@ class CheckoutApiTest extends CommerceDatabaseTest {
                 token("agent-service", "commerce:checkout"),
                 token("case-service", "commerce:read"))) {
             rest.get()
-                    .uri("/internal/v1/shop/purchases?merchant_id=M-1001&customer_id=C-1001")
+                    .uri("/internal/v1/shop/purchases?merchant_id=M-1001&buyer_id=C-1001")
                     .header("Authorization", token)
                     .exchange()
                     .expectStatus()
@@ -45,7 +45,7 @@ class CheckoutApiTest extends CommerceDatabaseTest {
                     .isForbidden();
         }
         rest.get()
-                .uri("/internal/v1/shop/purchases?merchant_id=M-1001&customer_id=C-1001")
+                .uri("/internal/v1/shop/purchases?merchant_id=M-1001&buyer_id=C-1001")
                 .header("Authorization", token("case-service", "commerce:checkout"))
                 .exchange()
                 .expectStatus()
@@ -60,7 +60,7 @@ class CheckoutApiTest extends CommerceDatabaseTest {
                 .header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(
-                        "{\"merchant_id\":\"M-1001\",\"customer_id\":\"other\",\"idempotency_key\":\"key\",\"total_amount\":1}")
+                        "{\"merchant_id\":\"M-1001\",\"buyer_id\":\"other\",\"idempotency_key\":\"key\",\"total_amount\":1}")
                 .exchange()
                 .expectStatus()
                 .isBadRequest();
@@ -68,12 +68,12 @@ class CheckoutApiTest extends CommerceDatabaseTest {
                 .uri("/internal/v1/shop/drafts/foreign/payment")
                 .header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body("{\"merchant_id\":\"M-1001\",\"customer_id\":\"other\",\"idempotency_key\":\"key\"}")
+                .body("{\"merchant_id\":\"M-1001\",\"buyer_id\":\"other\",\"idempotency_key\":\"key\"}")
                 .exchange()
                 .expectStatus()
                 .isNotFound();
         rest.get()
-                .uri("/internal/v1/shop/drafts/foreign/payment?merchant_id=M-1001&customer_id=other")
+                .uri("/internal/v1/shop/drafts/foreign/payment?merchant_id=M-1001&buyer_id=other")
                 .header("Authorization", token)
                 .exchange()
                 .expectStatus()

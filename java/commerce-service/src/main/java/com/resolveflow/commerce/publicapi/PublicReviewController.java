@@ -20,7 +20,7 @@ public class PublicReviewController {
     public Own own(
             @RequestHeader(name = "Authorization", required = false) String auth,
             @PathVariable("line_id") String line) {
-        return CommerceAccess.owned(access.buyer(auth), s -> reviews.own(line, s.merchantId(), s.customerId()));
+        return CommerceAccess.owned(access.buyer(auth), s -> reviews.own(line, s.merchantId(), s.buyerId()));
     }
 
     @PostMapping("/api/v1/shop/orders/lines/{line_id}/review")
@@ -30,7 +30,7 @@ public class PublicReviewController {
             @RequestBody Write body) {
         var actor = access.buyer(auth);
         limiter.check(actor.principal(), ReviewWriteLimiter.Action.WRITE);
-        return CommerceAccess.owned(actor, s -> reviews.save(line, new Command(s.merchantId(), s.customerId(), body)));
+        return CommerceAccess.owned(actor, s -> reviews.save(line, new Command(s.merchantId(), s.buyerId(), body)));
     }
 
     @GetMapping("/api/v1/merchant/reviews")

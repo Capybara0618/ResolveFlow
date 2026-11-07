@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from scripts.evaluation.identity_projection import project_identity
+
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "evals/current"
 ALIGNED_DATA = ROOT / "evals/aligned-v2"
@@ -28,7 +30,7 @@ GOLD_KEYS = frozenset(
 
 
 def read(name: str, directory: Path = DATA) -> Any:
-    return json.loads((directory / name).read_text(encoding="utf-8"))
+    return project_identity(json.loads((directory / name).read_text(encoding="utf-8")))
 
 
 def check_input(value: Any) -> None:
@@ -88,7 +90,7 @@ def validate(directory: Path = DATA) -> dict[str, int]:
         if families.setdefault(case["family"], case["split"]) != case["split"]:
             raise ValueError("Semantic family crosses split")
         pairs.setdefault(case["pair_id"], []).append(case)
-        for key in ("merchant_id", "customer_id", "line_id"):
+        for key in ("merchant_id", "buyer_id", "line_id"):
             if case["backend"]["order"].get(key) != case["scope"][key]:
                 raise ValueError("Backend order subject differs from scope")
         if not gold[case["id"]]["allowed_actions"]:

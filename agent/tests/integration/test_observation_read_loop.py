@@ -48,7 +48,7 @@ def facts(**overrides: object) -> RunFacts:
         "line_id": "7001",
         "description": "包裹丢了，希望退款",
         "merchant_id": "M-1001",
-        "customer_id": "C-2002",
+        "buyer_id": "C-2002",
     }
     fields.update(overrides)
     return RunFacts(**fields)  # type: ignore[arg-type]

@@ -146,7 +146,7 @@ def test_focus_ledger_and_phase_rebuild_after_each_turn_with_no_new_calls(agent_
                 models.append(active[0])
                 bound[0] = req
                 token = mint_service_token('case-service', SECRET, scope='support:run',
-                                           merchant_id=req.merchant_id, customer_id=req.customer_id)
+                                           merchant_id=req.merchant_id, buyer_id=req.buyer_id)
                 headers = {'Authorization': 'Bearer ' + token}
                 body = {**req.model_dump(mode='json'), 'tool_token': 'bound-test-token'}
                 response = api.post('/internal/v1/support-runs', json=body, headers=headers)

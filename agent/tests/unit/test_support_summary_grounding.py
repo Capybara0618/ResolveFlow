@@ -7,7 +7,7 @@ import pytest
 
 from resolveflow.support.engine import SupportAgent
 from resolveflow.support.orchestration import Orchestration, Response
-from resolveflow.support.protocol import SupportInput
+from tests.recorded_sources import ProjectedSupportInput as SupportInput
 from tests.integration.test_support_dialogue_api import TokenizedScript
 from tests.recorded_sources import SavedSources
 from tests.support_request_checks import approve_requests, checked_script

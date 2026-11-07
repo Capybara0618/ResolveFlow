@@ -30,7 +30,7 @@ class ReviewLimiterDualProcessTest extends CaseDatabaseTest {
 
     Identity identity(String username, String buyer) {
         var role = buyer == null ? Role.MERCHANT_ADMIN : Role.CUSTOMER;
-        var principal = new AuthenticatedPrincipal(username, buyer == null ? "M-1001" : null, role, null, buyer);
+        var principal = new AuthenticatedPrincipal(username, buyer == null ? "M-1001" : null, role, buyer);
         String token = new JwtCodec("resolveflow-core-demo-identity-secret", Duration.ofMinutes(10))
                 .issue(principal, Instant.now());
         return new Identity(
@@ -147,6 +147,7 @@ class ReviewLimiterDualProcessTest extends CaseDatabaseTest {
                             "--resolveflow.commerce.base-url=http://127.0.0.1:"
                                     + server.getAddress().getPort(),
                             "--resolveflow.product-reviews.rate-limit-enabled=true",
+                            "--resolveflow.compat.commerce-facade-enabled=true",
                             "--resolveflow.dispatch.enabled=false",
                             "--resolveflow.support-agent.enabled=false");
                     var process = new ProcessBuilder(command)

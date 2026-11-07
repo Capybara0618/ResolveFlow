@@ -21,12 +21,12 @@ def test_shopping_fixtures_and_wire_equality(name: str) -> None:
 
 def test_money_scope_and_draft_state_cannot_be_forged() -> None:
     validator = component_validator("case", "ShopDraftRequest", "contracts/core")
-    for field in ["customer_id", "merchant_id", "buyer_id", "total_amount", "unit_amount"]:
+    for field in ["buyer_id", "merchant_id", "buyer_id", "total_amount", "unit_amount"]:
         assert not validator.accepts({**FIXTURES["ShopDraftRequest"], field: "forged"})
     for quantity in [0, 101, 1.5]:
         assert not validator.accepts({**FIXTURES["ShopDraftRequest"], "quantity": quantity})
     draft = component_validator("case", "ShopDraft", "contracts/core")
-    for field in ["paid_at", "customer_id", "idempotency_key"]:
+    for field in ["paid_at", "buyer_id", "idempotency_key"]:
         assert not draft.accepts({**FIXTURES["ShopDraft"], field: "private"})
     invalid = copy.deepcopy(FIXTURES["ShopDraft"])
     invalid["status"] = "SHIPPED"

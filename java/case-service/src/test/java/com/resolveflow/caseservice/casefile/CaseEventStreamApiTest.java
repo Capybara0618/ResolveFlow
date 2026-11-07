@@ -72,11 +72,18 @@ class CaseEventStreamApiTest extends CaseDatabaseTest {
     }
 
     private static String token(JwtCodec codec, String user, String merchant, Role role, String customer) {
-        return codec.issue(new AuthenticatedPrincipal(user, merchant, role, customer), Instant.now());
+        return codec.issue(
+                new AuthenticatedPrincipal(user, role == Role.CUSTOMER ? null : merchant, role, customer),
+                Instant.now());
     }
 
     private String customer() {
-        return token(jwtCodec, "demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        return token(
+                jwtCodec,
+                "demo-customer",
+                "M-1001",
+                Role.CUSTOMER,
+                "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
     }
 
     private String openCase(String line) {
@@ -229,7 +236,12 @@ class CaseEventStreamApiTest extends CaseDatabaseTest {
     @DisplayName("a refusal before the stream starts is the ordinary error body")
     void refusalsHappenBeforeTheStreamStarts() {
         String caseId = openCase(LINE);
-        String otherCustomer = token(jwtCodec, "demo-customer-2", "M-1001", Role.CUSTOMER, "C-2003");
+        String otherCustomer = token(
+                jwtCodec,
+                "demo-customer-2",
+                "M-1001",
+                Role.CUSTOMER,
+                "B-legacy-085a244f8f8acaf20c76a2191b6ebde0ea6d70df");
         String otherMerchant = token(jwtCodec, "demo-reviewer-m2", "M-1002", Role.REVIEWER, null);
 
         rest.get()

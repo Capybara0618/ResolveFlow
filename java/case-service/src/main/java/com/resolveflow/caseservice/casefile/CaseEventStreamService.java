@@ -83,7 +83,7 @@ public class CaseEventStreamService {
         if (!row.merchantId().equals(principal.merchantId())) {
             return false;
         }
-        return principal.role().isMerchantStaff() || row.customerId().equals(principal.customerId());
+        return principal.role().isMerchantStaff() || row.buyerId().equals(principal.buyerId());
     }
 
     /**

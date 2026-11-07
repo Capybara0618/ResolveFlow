@@ -144,7 +144,7 @@ class StubUpstream:
                     "order_id": "00000000-0000-4000-8000-0000000000aa",
                     "line_id": line,
                     "merchant_id": "M-1001",
-                    "customer_id": "C-2002",
+                    "buyer_id": "C-2002",
                     "sku": "SKU-RED-M",
                     "category": "apparel",
                     "quantity": 2,

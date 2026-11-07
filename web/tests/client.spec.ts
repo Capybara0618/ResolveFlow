@@ -17,7 +17,7 @@ describe('authenticated API client', () => {
       expect(init.headers.get('If-Match')).toBe('"7"')
       expect(init.method).toBe('POST')
       expect(JSON.parse(init.body)).not.toHaveProperty('merchant_id')
-      expect(JSON.parse(init.body)).not.toHaveProperty('customer_id')
+      expect(JSON.parse(init.body)).not.toHaveProperty('buyer_id')
     }
   })
   it('uses the private customer projection and versions a question answer', async () => {

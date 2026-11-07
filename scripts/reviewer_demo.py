@@ -1113,19 +1113,19 @@ def seed_line(settings: Settings, scenario: Scenario, index: int) -> str:
     sku, category = mysql_rows("SELECT sku, category FROM commerce_db.order_line WHERE line_id = '7001'", settings)[0]
     now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S.%f")
     # The customer the seeded line belongs to matches the demo account that will open the case.
-    customer_id = {
-        "demo-customer": "C-2002",
-        "demo-customer-2": "C-2003",
-        "demo-customer-m2": "C-2004",
+    buyer_id = {
+        "demo-customer": "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80",
+        "demo-customer-2": "B-legacy-085a244f8f8acaf20c76a2191b6ebde0ea6d70df",
+        "demo-customer-m2": "B-legacy-6f808772ade9cc75fd3896626db511b718eebaa2",
     }[scenario.customer_username]
     statements = [
         "START TRANSACTION",
-        "INSERT INTO commerce_db.orders (order_id, merchant_id, customer_id, order_status, currency, paid_at,"
-        f" created_at) VALUES ('{order_id}', '{scenario.merchant_id}', '{customer_id}', 'PAID', 'CNY', '{now}',"
+        "INSERT INTO commerce_db.orders (order_id, merchant_id, buyer_id, order_status, currency, paid_at,"
+        f" created_at) VALUES ('{order_id}', '{scenario.merchant_id}', '{buyer_id}', 'PAID', 'CNY', '{now}',"
         f" '{now}')",
-        "INSERT INTO commerce_db.order_line (line_id, order_id, merchant_id, customer_id, sku, product_name,"
+        "INSERT INTO commerce_db.order_line (line_id, order_id, merchant_id, buyer_id, sku, product_name,"
         " variant_text, category, quantity, line_paid_amount, currency, paid_at, order_status, version) VALUES"
-        f" ('{line_id}', '{order_id}', '{scenario.merchant_id}', '{customer_id}', '{sku}-DEMO-{line_id}',"
+        f" ('{line_id}', '{order_id}', '{scenario.merchant_id}', '{buyer_id}', '{sku}-DEMO-{line_id}',"
         f" {_sql_text(scenario.product_name)}, {_sql_text(scenario.variant_text)},"
         f" '{category}', 1, {scenario.amount_minor}, 'CNY', '{now}', 'PAID', 1)",
         "INSERT INTO commerce_db.payment_ledger (order_id, paid_amount, refunded_amount,"

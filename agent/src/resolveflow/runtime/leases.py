@@ -81,7 +81,7 @@ class RunLease:
                                 RunFacts(run_id=str(row["run_id"]), case_id=str(row["case_id"]),
                                          input_revision=row["input_revision"], line_id=row["line_id"],
                                          description=row["request_description"], merchant_id=row["merchant_id"],
-                                         customer_id=row["customer_id"], active_deadline_at=window.isoformat(),
+                                         buyer_id=row["buyer_id"], active_deadline_at=window.isoformat(),
                                          policy_manifest=row["policy_manifest"], fence=fence, lease_owner=self.owner,
                                          review_context=row["review_context"]),
                                 str(row["case_id"]), row["traceparent"],

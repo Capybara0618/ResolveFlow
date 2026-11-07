@@ -34,6 +34,17 @@ docker compose -f infra/compose.reviewer-demo.yaml up -d
 
 初始化导入三店商品、14账号和政策并建立索引，不需要真实模型密钥。运行标记、数据库和索引留本地。缺少基础标记或索引时日常启动明确失败，不自动清库。
 
+## 从旧买家身份升级
+
+已有旧版数据时，先用旧版本处理完在途调查和咨询，再停止应用并备份 MySQL 与 PostgreSQL。只启动同一环境的两个数据库；下面示例使用原演示环境，拍摄环境须将两个容器名一起替换为 `resolveflow-recording-v1-*`。不要执行 reset。
+
+```powershell
+agent/.venv/Scripts/python.exe scripts/buyer_identity_migration.py --mysql-container resolveflow-review-demo-mysql-1
+agent/.venv/Scripts/python.exe scripts/buyer_identity_migration.py --mysql-container resolveflow-review-demo-mysql-1 --postgres-container resolveflow-review-demo-postgres-1 --stage-map
+```
+
+首条命令只检查归属。确认 `ready: true` 后，第二条把同一份旧身份映射写入两个 MySQL schema 与 PostgreSQL。用新源码重新构建并启动，Case V38、Commerce V22 和 Agent 015 会追加迁移。遇到未知归属或活动 run 时先停在维护窗口核对，不要清库、跳过 Flyway 或混用旧应用。升级后买家用原账号重新登录；当前协议使用 `buyer_id`，所有启用的商家都可购物。旧映射只用于审计与接续旧咨询记忆。历史 strict 回放包仍使用生成它的运行版本；新运行不会替换旧包或重算请求哈希。
+
 ## 日常启停
 
 ```powershell

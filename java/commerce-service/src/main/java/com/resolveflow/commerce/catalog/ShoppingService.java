@@ -201,7 +201,7 @@ public class ShoppingService {
 
     public Draft read(String id, String merchant, String customer) {
         var rows = jdbc.query(
-                "SELECT * FROM checkout_draft WHERE draft_id=? AND merchant_id=? AND customer_id=?",
+                "SELECT * FROM checkout_draft WHERE draft_id=? AND merchant_id=? AND buyer_id=?",
                 (rs, n) -> saved(rs),
                 id,
                 merchant,
@@ -224,7 +224,7 @@ public class ShoppingService {
         if (command == null
                 || command.request() == null
                 || command.merchantId() == null
-                || command.customerId() == null
+                || command.buyerId() == null
                 || command.idempotencyKey() == null
                 || !command.idempotencyKey().matches("[A-Za-z0-9_-]{1,128}"))
             throw new IllegalArgumentException("创建订单参数无效");
@@ -236,10 +236,10 @@ public class ShoppingService {
                 || r.expectedSkuVersion() < 1
                 || r.expectedSkuVersion() > 9007199254740991L) throw new IllegalArgumentException("数量或规格版本无效");
         var existing = jdbc.query(
-                "SELECT * FROM checkout_draft WHERE merchant_id=? AND customer_id=? AND idempotency_key=?",
+                "SELECT * FROM checkout_draft WHERE merchant_id=? AND buyer_id=? AND idempotency_key=?",
                 (rs, n) -> saved(rs),
                 command.merchantId(),
-                command.customerId(),
+                command.buyerId(),
                 command.idempotencyKey());
         var shipping = new CheckoutShipping(jdbc);
         if (!existing.isEmpty()) {
@@ -260,12 +260,12 @@ public class ShoppingService {
         Instant now = Instant.now(clock).truncatedTo(ChronoUnit.MICROS), expires = now.plusSeconds(900);
         jdbc.update(
                 """
-            INSERT INTO checkout_draft(draft_id,merchant_id,customer_id,idempotency_key,product_id,product_name,store_name,asset_key,sku_id,variant,quantity,unit_amount,total_amount,sku_version,created_at,expires_at,category)
+            INSERT INTO checkout_draft(draft_id,merchant_id,buyer_id,idempotency_key,product_id,product_name,store_name,asset_key,sku_id,variant,quantity,unit_amount,total_amount,sku_version,created_at,expires_at,category)
             VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE draft_id=draft_id
             """,
                 UUID.randomUUID().toString(),
                 command.merchantId(),
-                command.customerId(),
+                command.buyerId(),
                 command.idempotencyKey(),
                 q.product().productId(),
                 q.product().name(),
@@ -281,10 +281,10 @@ public class ShoppingService {
                 Timestamp.from(expires),
                 q.product().category());
         var finalRow = jdbc.query(
-                        "SELECT * FROM checkout_draft WHERE merchant_id=? AND customer_id=? AND idempotency_key=? FOR UPDATE",
+                        "SELECT * FROM checkout_draft WHERE merchant_id=? AND buyer_id=? AND idempotency_key=? FOR UPDATE",
                         (rs, n) -> saved(rs),
                         command.merchantId(),
-                        command.customerId(),
+                        command.buyerId(),
                         command.idempotencyKey())
                 .getFirst();
         var result = replay(finalRow, r);

@@ -12,7 +12,6 @@ export interface LoginResponse {
   role: 'CUSTOMER' | 'REVIEWER' | 'MERCHANT_ADMIN' | 'OPERATOR' | 'PLATFORM_ADMIN'
   merchant_id?: string
   buyer_id?: string
-  customer_id?: string
   expires_in: number
   display_name?: string
   merchant_name?: string

@@ -33,7 +33,7 @@ public class IdentityAccessController {
         if (p.role() == Role.PLATFORM_ADMIN) throw new Refused(403, "FORBIDDEN_SCOPE", "平台管理员无交易权限");
         var bindings = p.isPlatformBuyer()
                 ? scopes.list(p).stream()
-                        .map(s -> new Binding(s.merchantId(), s.customerId(), s.merchantName()))
+                        .map(s -> new Binding(s.merchantId(), s.buyerId(), s.merchantName()))
                         .toList()
                 : List.<Binding>of();
         if (bindings.size() > 20) throw new Refused(503, "UPSTREAM_UNAVAILABLE", "账号关联范围超出支持上限");
@@ -44,7 +44,6 @@ public class IdentityAccessController {
                         p.subject(),
                         p.merchantId(),
                         p.role(),
-                        p.customerId(),
                         p.buyerId(),
                         session.identityVersion(),
                         bindings,

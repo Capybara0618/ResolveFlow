@@ -69,11 +69,11 @@ public class PurchaseReads {
             SELECT id FROM (
                 SELECT CONCAT('draft:',draft_id) AS id,created_at,order_id,
                     CASE WHEN close_reason='EXPIRED' OR (status='WAITING_PAYMENT' AND expires_at<=?) THEN 'EXPIRED' ELSE status END AS state
-                FROM checkout_draft WHERE merchant_id=? AND customer_id=?
+                FROM checkout_draft WHERE merchant_id=? AND buyer_id=?
                 UNION ALL
                 SELECT CONCAT('order:',o.order_id) AS id,o.created_at,o.order_id,'PAID' AS state
                 FROM orders o JOIN payment_ledger g ON g.order_id=o.order_id
-                WHERE o.merchant_id=? AND o.customer_id=?
+                WHERE o.merchant_id=? AND o.buyer_id=?
                     AND NOT EXISTS(SELECT 1 FROM checkout_draft d WHERE d.order_id=o.order_id)
             ) t LEFT JOIN (""" + PurchaseStages.TABLE + """
 ) shopping ON shopping.order_id=t.order_id WHERE 1=1
@@ -114,7 +114,7 @@ public class PurchaseReads {
             var p = payments.snapshot(draftId, merchant, customer);
             String order = p != null && p.status().equals("SUCCEEDED") ? p.orderId() : null;
             var snapshot = jdbc.queryForList(
-                            "SELECT * FROM checkout_draft WHERE draft_id=? AND merchant_id=? AND customer_id=?",
+                            "SELECT * FROM checkout_draft WHERE draft_id=? AND merchant_id=? AND buyer_id=?",
                             draftId,
                             merchant,
                             customer)
@@ -150,7 +150,7 @@ public class PurchaseReads {
         if (id == null || !id.startsWith("order:")) throw missing();
         String orderId = id.substring(6);
         var rows = jdbc.query(
-                "SELECT o.*,g.paid_amount,COALESCE(s.name,o.merchant_id) AS store_name FROM orders o JOIN payment_ledger g ON g.order_id=o.order_id LEFT JOIN catalog_store s ON s.store_id=o.merchant_id WHERE o.order_id=? AND o.merchant_id=? AND o.customer_id=? AND NOT EXISTS(SELECT 1 FROM checkout_draft d WHERE d.order_id=o.order_id)",
+                "SELECT o.*,g.paid_amount,COALESCE(s.name,o.merchant_id) AS store_name FROM orders o JOIN payment_ledger g ON g.order_id=o.order_id LEFT JOIN catalog_store s ON s.store_id=o.merchant_id WHERE o.order_id=? AND o.merchant_id=? AND o.buyer_id=? AND NOT EXISTS(SELECT 1 FROM checkout_draft d WHERE d.order_id=o.order_id)",
                 (rs, n) -> paid(rs, id),
                 orderId,
                 merchant,
@@ -158,7 +158,7 @@ public class PurchaseReads {
         if (rows.isEmpty()) throw missing();
         var order = rows.getFirst();
         var lines = jdbc.query(
-                "SELECT * FROM order_line WHERE order_id=? AND merchant_id=? AND customer_id=? ORDER BY line_id",
+                "SELECT * FROM order_line WHERE order_id=? AND merchant_id=? AND buyer_id=? ORDER BY line_id",
                 (rs, n) -> new Line(
                         rs.getString("line_id"),
                         rs.getString("sku"),
@@ -190,7 +190,7 @@ public class PurchaseReads {
 
     private String refundStatus(String id, String merchant, String customer) {
         var rows = jdbc.queryForList(
-                "SELECT g.paid_amount,g.refunded_amount,g.reserved_refund_amount FROM payment_ledger g JOIN orders o ON o.order_id=g.order_id WHERE g.order_id=? AND o.merchant_id=? AND o.customer_id=?",
+                "SELECT g.paid_amount,g.refunded_amount,g.reserved_refund_amount FROM payment_ledger g JOIN orders o ON o.order_id=g.order_id WHERE g.order_id=? AND o.merchant_id=? AND o.buyer_id=?",
                 id,
                 merchant,
                 customer);

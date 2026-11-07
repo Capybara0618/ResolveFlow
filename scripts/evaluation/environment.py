@@ -139,7 +139,7 @@ def business_tools(case, pin, *, run_id, case_id):
         case_id=case_id,
         input_revision=case.get("input_revision", 1),
         merchant_id=case["scope"]["merchant_id"],
-        customer_id=case["scope"]["customer_id"],
+        buyer_id=case["scope"]["buyer_id"],
         case_base_url=url,
         commerce_base_url=url,
         credential_source=lambda: token,

@@ -35,7 +35,7 @@ public class CaseWriter {
              */
             int inputRevision,
             String merchantId,
-            String customerId,
+            String buyerId,
             String orderId,
             String lineId,
             List<RequestedAction> actions,
@@ -67,7 +67,7 @@ public class CaseWriter {
         cases.insertCase(
                 write.caseId(),
                 write.merchantId(),
-                write.customerId(),
+                write.buyerId(),
                 write.orderId(),
                 write.lineId(),
                 write.description(),

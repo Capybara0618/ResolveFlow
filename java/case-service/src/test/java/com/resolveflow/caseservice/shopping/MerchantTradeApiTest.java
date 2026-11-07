@@ -50,9 +50,11 @@ class MerchantTradeApiTest extends CaseDatabaseTest {
         when(commerce.merchantOrder(anyString(), eq("M-1002")))
                 .thenThrow(new CommerceShoppingClient.Refused(404, "NOT_FOUND", "订单不存在"));
         when(commerce.ship(anyString(), any())).thenReturn(trade.fulfillment());
-        when(commerce.purchase(anyString(), eq("M-1001"), eq("C-B3001-M1001"))).thenReturn(trade.purchase());
-        when(commerce.fulfillment(anyString(), eq("M-1001"), eq("C-B3001-M1001")))
-                .thenReturn(trade.fulfillment());
+        when(commerce.purchase(anyString(), anyString(), anyString())).thenAnswer(inv -> {
+            if ("M-1001".equals(inv.getArgument(1)) && "B-3001".equals(inv.getArgument(2))) return trade.purchase();
+            throw new CommerceShoppingClient.Refused(404, "NOT_FOUND", "订单不存在");
+        });
+        when(commerce.fulfillment(anyString(), eq("M-1001"), eq("B-3001"))).thenReturn(trade.fulfillment());
     }
 
     private String auth(String user, String password) {
@@ -173,20 +175,20 @@ class MerchantTradeApiTest extends CaseDatabaseTest {
 
     @Test
     void buyerUsesOwnedPaidPurchaseAndOtherActorCannotReadFulfillment() {
-        String path = "/api/v1/shop/purchases/draft%3Aowned/fulfillment";
+        String path = "/api/v1/shop/purchases/draft:owned/fulfillment";
         rest.get()
-                .uri(path + "?customer_id=FOREIGN&merchant_id=M-1002")
+                .uri(path + "?buyer_id=FOREIGN&merchant_id=M-1002")
                 .header("Authorization", auth("demo-buyer", "demo-pass-4001"))
                 .exchange()
                 .expectStatus()
                 .isOk();
-        verify(commerce).fulfillment(trade.purchase().orderId(), "M-1001", "C-B3001-M1001");
+        verify(commerce).fulfillment(trade.purchase().orderId(), "M-1001", "B-3001");
         rest.get()
                 .uri(path)
                 .header("Authorization", auth("demo-customer", "demo-pass-1001"))
                 .exchange()
                 .expectStatus()
-                .isForbidden();
+                .isNotFound();
         rest.get()
                 .uri(path)
                 .header("Authorization", auth("demo-admin", "demo-pass-1100"))
@@ -206,10 +208,10 @@ class MerchantTradeApiTest extends CaseDatabaseTest {
                 .exchange()
                 .expectStatus()
                 .isEqualTo(503);
-        when(commerce.purchase(anyString(), anyString(), anyString()))
-                .thenThrow(new CommerceShoppingClient.Refused(404, "NOT_FOUND", "订单不存在"));
+        doThrow(new CommerceShoppingClient.Refused(404, "NOT_FOUND", "订单不存在"))
+                .when(commerce).purchase(anyString(), anyString(), anyString());
         rest.get()
-                .uri("/api/v1/shop/purchases/draft%3Aforeign/fulfillment")
+                .uri("/api/v1/shop/purchases/draft:foreign/fulfillment")
                 .header("Authorization", auth("demo-buyer", "demo-pass-4001"))
                 .exchange()
                 .expectStatus()

@@ -113,7 +113,7 @@ public class CommerceOrderLineClient {
      *
      * <p>This is the one read that is not scoped by the principal: the contract declares it that way and the
      * scope check moves to the caller, which is why the response carries {@code merchant_id} and
-     * {@code customer_id} — the caller confirms the line belongs to the case it is re-checking instead of
+     * {@code buyer_id} — the caller confirms the line belongs to the case it is re-checking instead of
      * trusting that it does. An empty answer means Commerce does not have the line, which is a refusal this
      * service records rather than an outage it retries.
      */
@@ -165,7 +165,7 @@ public class CommerceOrderLineClient {
                                 .path("/internal/v1/order-lines")
                                 .queryParam("merchant_id", principal.merchantId());
                         if (principal.role() == Role.CUSTOMER) {
-                            builder.queryParam("customer_id", principal.customerId());
+                            builder.queryParam("buyer_id", principal.buyerId());
                         }
                         if (orderId != null && !orderId.isBlank()) {
                             builder.queryParam("order_id", orderId);
@@ -343,8 +343,8 @@ public class CommerceOrderLineClient {
             @com.fasterxml.jackson.annotation.JsonProperty("merchant_id")
             String merchantId,
 
-            @com.fasterxml.jackson.annotation.JsonProperty("customer_id")
-            String customerId,
+            @com.fasterxml.jackson.annotation.JsonProperty("buyer_id")
+            String buyerId,
 
             String sku,
             String category,
@@ -388,7 +388,7 @@ public class CommerceOrderLineClient {
                 String orderId,
                 String lineId,
                 String merchantId,
-                String customerId,
+                String buyerId,
                 String sku,
                 String category,
                 int quantity,
@@ -405,7 +405,7 @@ public class CommerceOrderLineClient {
                     orderId,
                     lineId,
                     merchantId,
-                    customerId,
+                    buyerId,
                     sku,
                     category,
                     quantity,
@@ -427,7 +427,7 @@ public class CommerceOrderLineClient {
                 String orderId,
                 String lineId,
                 String merchantId,
-                String customerId,
+                String buyerId,
                 String sku,
                 String category,
                 int quantity,
@@ -442,7 +442,7 @@ public class CommerceOrderLineClient {
                     orderId,
                     lineId,
                     merchantId,
-                    customerId,
+                    buyerId,
                     sku,
                     category,
                     quantity,

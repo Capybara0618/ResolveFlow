@@ -15,7 +15,7 @@ public final class CartWire {
 
     public record Command(
             @JsonProperty("merchant_id") String merchantId,
-            @JsonProperty("customer_id") String customerId,
+            @JsonProperty("buyer_id") String buyerId,
             @JsonProperty("idempotency_key") String idempotencyKey,
             Request request) {}
 

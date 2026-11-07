@@ -17,7 +17,7 @@ def ask(field):
         {"question_id": "q1", "field": field, "prompt": "请提供该信息"}], "reason_codes": ["NEEDS_EVIDENCE"]}
 
 
-@pytest.mark.parametrize("field", ["order_id", "line_id", "case_id", "merchant_id", "customer_id", "run_id"])
+@pytest.mark.parametrize("field", ["order_id", "line_id", "case_id", "merchant_id", "buyer_id", "run_id"])
 def test_bound_identity_question_is_repaired_before_customer_callback(field):
     model = MockModelClient(script=[ask(field), read("get_order_context"), propose("MANUAL_REVIEW")])
     tools = StubTools(observation())

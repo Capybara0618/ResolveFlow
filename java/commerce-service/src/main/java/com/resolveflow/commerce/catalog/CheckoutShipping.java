@@ -51,7 +51,7 @@ public class CheckoutShipping {
         if (!(purchase.startsWith("draft:") || purchase.startsWith("order:")))
             throw new IllegalArgumentException("订单标识无效");
         var rows = db.queryForList(
-                "SELECT draft_id FROM checkout_draft WHERE " + column + "=? AND merchant_id=? AND customer_id=?",
+                "SELECT draft_id FROM checkout_draft WHERE " + column + "=? AND merchant_id=? AND buyer_id=?",
                 String.class,
                 purchase.substring(6),
                 merchant,
@@ -59,7 +59,7 @@ public class CheckoutShipping {
         if (rows.isEmpty()) {
             if (purchase.startsWith("order:")
                     && !db.queryForList(
-                                    "SELECT order_id FROM orders WHERE order_id=? AND merchant_id=? AND customer_id=?",
+                                    "SELECT order_id FROM orders WHERE order_id=? AND merchant_id=? AND buyer_id=?",
                                     String.class,
                                     purchase.substring(6),
                                     merchant,
@@ -72,7 +72,7 @@ public class CheckoutShipping {
 
     public View merchant(String order, String merchant) {
         var customers = db.queryForList(
-                "SELECT customer_id FROM orders WHERE order_id=? AND merchant_id=?", String.class, order, merchant);
+                "SELECT buyer_id FROM orders WHERE order_id=? AND merchant_id=?", String.class, order, merchant);
         if (customers.isEmpty()) throw new ShoppingService.Refused(404, "NOT_FOUND", "订单不存在");
         return buyer("order:" + order, merchant, customers.getFirst());
     }

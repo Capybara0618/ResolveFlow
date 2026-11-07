@@ -83,7 +83,6 @@ class PublicShoppingApiTest extends CommerceDatabaseTest {
                                 p.subject(),
                                 p.merchantId(),
                                 p.role(),
-                                p.customerId(),
                                 p.buyerId(),
                                 1,
                                 p.isPlatformBuyer()
@@ -113,7 +112,7 @@ class PublicShoppingApiTest extends CommerceDatabaseTest {
 
     String token(String owner) {
         return "Bearer "
-                + TOKENS.issue(new AuthenticatedPrincipal(owner, null, Role.CUSTOMER, null, owner), 1, Instant.now());
+                + TOKENS.issue(new AuthenticatedPrincipal(owner, null, Role.CUSTOMER, owner), 1, Instant.now());
     }
 
     String shipping() {
@@ -181,7 +180,7 @@ class PublicShoppingApiTest extends CommerceDatabaseTest {
                         "/api/v1/shop/cart/M-1001/items",
                         buyer,
                         UUID.randomUUID().toString(),
-                        body.replace("}", ",\"customer_id\":\"other\"}"))
+                        body.replace("}", ",\"buyer_id\":\"other\"}"))
                 .expectStatus()
                 .isBadRequest();
         disabled.set(true);
@@ -230,7 +229,7 @@ class PublicShoppingApiTest extends CommerceDatabaseTest {
         post("/api/v1/shop/drafts/" + id + "/payment", buyer, key, "{}")
                 .expectStatus()
                 .isOk();
-        assertThat(db.queryForObject("SELECT COUNT(*) FROM orders WHERE customer_id=?", Integer.class, buyer))
+        assertThat(db.queryForObject("SELECT COUNT(*) FROM orders WHERE buyer_id=?", Integer.class, buyer))
                 .isEqualTo(1);
         rest.get()
                 .uri("/api/v1/shop/purchases/draft:" + id + "/shipping")
@@ -275,7 +274,7 @@ class PublicShoppingApiTest extends CommerceDatabaseTest {
                 .jsonPath("$.total_amount")
                 .isEqualTo(32900);
         post("/api/v1/shop/cart/M-1001/drafts", buyer, key, body).expectStatus().isOk();
-        assertThat(db.queryForObject("SELECT COUNT(*) FROM checkout_draft WHERE customer_id=?", Integer.class, buyer))
+        assertThat(db.queryForObject("SELECT COUNT(*) FROM checkout_draft WHERE buyer_id=?", Integer.class, buyer))
                 .isEqualTo(1);
     }
 
@@ -513,7 +512,7 @@ class PublicShoppingApiTest extends CommerceDatabaseTest {
                 .expectStatus()
                 .isOk();
         var page = JSON.readTree(rest.get()
-                .uri("/api/v1/orders?limit=1&customer_id=other")
+                .uri("/api/v1/orders?limit=1&buyer_id=other")
                 .header("Authorization", token(buyer))
                 .exchange()
                 .expectStatus()
@@ -541,7 +540,7 @@ class PublicShoppingApiTest extends CommerceDatabaseTest {
         assertThat(next.path("items").get(0).path("line_id").asString())
                 .isNotEqualTo(page.path("items").get(0).path("line_id").asString());
         String legacy = "Bearer "
-                + TOKENS.issue(new AuthenticatedPrincipal("legacy", "M-1001", Role.CUSTOMER, buyer), 1, Instant.now());
+                + TOKENS.issue(new AuthenticatedPrincipal("legacy", null, Role.CUSTOMER, buyer), 1, Instant.now());
         rest.get()
                 .uri("/api/v1/orders/lines/" + line)
                 .header("Authorization", legacy)
@@ -550,7 +549,7 @@ class PublicShoppingApiTest extends CommerceDatabaseTest {
                 .isOk()
                 .expectBody()
                 .jsonPath("$.merchant_id")
-                .doesNotExist();
+                .isEqualTo("M-1001");
         rest.get().uri("/api/v1/orders").exchange().expectStatus().isUnauthorized();
     }
 }

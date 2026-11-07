@@ -26,7 +26,7 @@ def test_support_writes_refuse_invalid_versions_and_user_authority(name):
     validator = component_validator('case', 'Support' + name, 'contracts/core')
     for version in [None, 0, -1, 1.5]:
         assert not validator.accepts({**FIXTURES[name], 'expected_version': version})
-    for field in ['merchant_id', 'customer_id', 'run_id', 'refund_amount', 'author']:
+    for field in ['merchant_id', 'buyer_id', 'run_id', 'refund_amount', 'author']:
         assert not validator.accepts({**FIXTURES[name], field: 'forged'})
 
 

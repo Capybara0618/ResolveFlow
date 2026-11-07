@@ -36,7 +36,7 @@ public class MerchantTradeController {
     public Fulfillment buyer(
             @PathVariable("order_id") String id,
             @RequestParam("merchant_id") String merchant,
-            @RequestParam("customer_id") String customer) {
+            @RequestParam("buyer_id") String customer) {
         return trades.buyer(id, merchant, customer);
     }
 

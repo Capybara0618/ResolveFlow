@@ -12,7 +12,7 @@ from tests.integration.test_run_api import dispatcher_token as dispatcher_token 
 
 
 def token(merchant="M-1001", customer="C-2002", subject="case-service"):
-    return mint_service_token(subject, SECRET, scope="run:review", merchant_id=merchant, customer_id=customer)
+    return mint_service_token(subject, SECRET, scope="run:review", merchant_id=merchant, buyer_id=customer)
 
 
 def read(client: Any, auth: str, **params):

@@ -127,7 +127,7 @@ def test_new_twenty_request_authorization_does_not_inherit_the_old_thirty_reques
 def test_recorded_failed_logistics_answer_can_use_observed_order_without_claiming_logistics_success():
     from resolveflow.harness.model import MockModelClient
     from resolveflow.support.engine import SupportAgent
-    from resolveflow.support.protocol import SupportInput
+    from tests.recorded_sources import ProjectedSupportInput as SupportInput
 
     class Script(MockModelClient):
         provider = "deepseek"

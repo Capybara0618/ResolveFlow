@@ -103,7 +103,9 @@ class ToolCredentialApiTest extends CaseDatabaseTest {
 
     private String userToken() {
         return jwtCodec.issue(
-                new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002"), Instant.now());
+                new AuthenticatedPrincipal(
+                        "demo-customer", null, Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"),
+                Instant.now());
     }
 
     /** The service token a tool would present when asking for its own credential. */
@@ -172,13 +174,13 @@ class ToolCredentialApiTest extends CaseDatabaseTest {
         assertThat(claims.get("iss").stringValue()).isEqualTo("resolveflow-demo-identity");
         assertThat(claims.get("aud").stringValue()).isEqualTo("resolveflow-service");
 
-        // docs/contracts.md:96: 工具凭证 case_id, run_id, input_revision, merchant_id, customer_id, line_id,
+        // docs/contracts.md:96: 工具凭证 case_id, run_id, input_revision, merchant_id, buyer_id, line_id,
         // aud, scopes, exp. Every one of these is what makes "which line may this token read" answerable.
         assertThat(claims.get("case_id").stringValue()).isEqualTo(caseId);
         assertThat(claims.get("run_id").stringValue()).isEqualTo(runId);
         assertThat(claims.get("input_revision").asInt()).isEqualTo(1);
         assertThat(claims.get("merchant_id").stringValue()).isEqualTo("M-1001");
-        assertThat(claims.get("customer_id").stringValue()).isEqualTo("C-2002");
+        assertThat(claims.get("buyer_id").stringValue()).isEqualTo("B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         assertThat(claims.get("line_id").stringValue()).isNotBlank();
 
         // The scopes are the contract's example, and they are a list on the wire.

@@ -84,7 +84,7 @@ class TokenScopeError(TokenRefusedError):
 class VerifiedServiceToken:
     """The claims of a token that passed every rule.
 
-    The body-agreement facts (``merchant_id``/``customer_id``) are carried through rather than dropped:
+    The body-agreement facts (``merchant_id``/``buyer_id``) are carried through rather than dropped:
     docs/core-contracts.md:60 makes the body agree with the token, and it cannot agree with a token that
     forgot what it was minted for. ``scope`` is the raw claim (``None`` when the token named none) and what it
     *permits* is decided per call by ``verify``'s ``required_scope`` — a token that reached this point either
@@ -96,7 +96,7 @@ class VerifiedServiceToken:
     audience: str
     scope: str | None
     merchant_id: str | None
-    customer_id: str | None
+    buyer_id: str | None
     expires_at: int
     issued_at: int | None
 
@@ -208,7 +208,7 @@ class ServiceTokenVerifier:
             audience=audience,
             scope=scope,
             merchant_id=_optional_text(claims, "merchant_id"),
-            customer_id=_optional_text(claims, "customer_id"),
+            buyer_id=_optional_text(claims, "buyer_id"),
             expires_at=expiry,
             issued_at=claims.get("iat") if isinstance(claims.get("iat"), int) else None,
         )
@@ -220,7 +220,7 @@ def mint_service_token(
     *,
     scope: str | None = RUN_DISPATCH_SCOPE,
     merchant_id: str | None = None,
-    customer_id: str | None = None,
+    buyer_id: str | None = None,
     issuer: str = ISSUER,
     audience: str = SERVICE_AUDIENCE,
     ttl_seconds: int = 300,
@@ -244,8 +244,8 @@ def mint_service_token(
         claims["scope"] = scope
     if merchant_id is not None:
         claims["merchant_id"] = merchant_id
-    if customer_id is not None:
-        claims["customer_id"] = customer_id
+    if buyer_id is not None:
+        claims["buyer_id"] = buyer_id
     header = _b64url_encode(b'{"alg":"HS256","typ":"JWT"}')
     payload = _b64url_encode(json.dumps(claims, ensure_ascii=False).encode("utf-8"))
     signing_input = f"{header}.{payload}".encode("ascii")

@@ -72,21 +72,23 @@ class ReviewedEvidenceApiTest extends CaseDatabaseTest {
     }
 
     private static String token(JwtCodec codec, String user, String merchant, Role role, String customer) {
-        return codec.issue(new AuthenticatedPrincipal(user, merchant, role, customer), Instant.now());
+        return codec.issue(
+                new AuthenticatedPrincipal(user, role == Role.CUSTOMER ? null : merchant, role, customer),
+                Instant.now());
     }
 
-    private String customer(String merchant, String customerId) {
-        return token(jwtCodec, "demo-customer", merchant, Role.CUSTOMER, customerId);
+    private String customer(String merchant, String buyerId) {
+        return token(jwtCodec, "demo-customer", merchant, Role.CUSTOMER, buyerId);
     }
 
     private String reviewer(String username, String merchant) {
         return token(jwtCodec, username, merchant, Role.REVIEWER, null);
     }
 
-    private String openCase(String merchant, String customerId, String line) {
+    private String openCase(String merchant, String buyerId, String line) {
         String body = rest.post()
                 .uri("/api/v1/cases")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + customer(merchant, customerId))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + customer(merchant, buyerId))
                 .header("Idempotency-Key", "reviewed-key-" + System.nanoTime())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Map.of("line_id", line, "description", "包裹疑似丢失", "requested_actions", List.of("REFUND")))
@@ -161,9 +163,9 @@ class ReviewedEvidenceApiTest extends CaseDatabaseTest {
     @Test
     @DisplayName("a verification is a new record: the verified material keeps its text and its hash")
     void aVerificationIsANewRecord() {
-        String customerToken = customer("M-1001", "C-2002");
+        String customerToken = customer("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         String reviewerToken = reviewer("demo-reviewer", "M-1001");
-        String caseId = openCase("M-1001", "C-2002", LINE);
+        String caseId = openCase("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", LINE);
         String statement = "包裹在分拨中心停了七天没有任何更新";
         String sourceId = appendStatement(caseId, customerToken, statement);
 
@@ -250,9 +252,9 @@ class ReviewedEvidenceApiTest extends CaseDatabaseTest {
     @Test
     @DisplayName("a refutation is recorded the same way; with no approval on the case there is nothing to retire")
     void aRefutationIsRecorded() {
-        String customerToken = customer("M-1001", "C-2002");
+        String customerToken = customer("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         String reviewerToken = reviewer("demo-reviewer", "M-1001");
-        String caseId = openCase("M-1001", "C-2002", LINE);
+        String caseId = openCase("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", LINE);
         String sourceId = appendStatement(caseId, customerToken, "包裹已经收到了");
 
         String body = review(caseId, reviewerToken, verification(sourceId, "REFUTED", "承运商记录显示该件仍在运输中"))
@@ -274,10 +276,10 @@ class ReviewedEvidenceApiTest extends CaseDatabaseTest {
     @Test
     @DisplayName("a record of another case, or a record that does not exist, is refused")
     void theNamedRecordHasToBeInThisCase() {
-        String customerToken = customer("M-1001", "C-2002");
+        String customerToken = customer("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         String reviewerToken = reviewer("demo-reviewer", "M-1001");
-        String first = openCase("M-1001", "C-2002", LINE);
-        String second = openCase("M-1001", "C-2002", "7002");
+        String first = openCase("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", LINE);
+        String second = openCase("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", "7002");
         String elsewheres = appendStatement(first, customerToken, "包裹在分拨中心停了七天");
 
         String unknown = review(
@@ -315,9 +317,9 @@ class ReviewedEvidenceApiTest extends CaseDatabaseTest {
     @Test
     @DisplayName("material is verified, not the record of somebody's verification of it")
     void aVerificationOfAVerificationIsRefused() {
-        String customerToken = customer("M-1001", "C-2002");
+        String customerToken = customer("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         String reviewerToken = reviewer("demo-reviewer", "M-1001");
-        String caseId = openCase("M-1001", "C-2002", LINE);
+        String caseId = openCase("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", LINE);
         String sourceId = appendStatement(caseId, customerToken, "包裹在分拨中心停了七天");
         String verificationId = MAPPER.readTree(
                         review(caseId, reviewerToken, verification(sourceId, "CONFIRMED", "承运商记录一致"))
@@ -343,8 +345,8 @@ class ReviewedEvidenceApiTest extends CaseDatabaseTest {
     @Test
     @DisplayName("a customer records statements, not verifications of them")
     void aCustomerMayNotRecordAVerification() {
-        String customerToken = customer("M-1001", "C-2002");
-        String caseId = openCase("M-1001", "C-2002", LINE);
+        String customerToken = customer("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
+        String caseId = openCase("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", LINE);
         String sourceId = appendStatement(caseId, customerToken, "包裹在分拨中心停了七天");
 
         String body = review(caseId, customerToken, verification(sourceId, "CONFIRMED", "我自己确认一下"))
@@ -361,8 +363,8 @@ class ReviewedEvidenceApiTest extends CaseDatabaseTest {
     @Test
     @DisplayName("another merchant's reviewer is answered 404, the same answer as a case that does not exist")
     void anotherMerchantSeesNothing() {
-        String customerToken = customer("M-1001", "C-2002");
-        String caseId = openCase("M-1001", "C-2002", LINE);
+        String customerToken = customer("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
+        String caseId = openCase("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", LINE);
         String sourceId = appendStatement(caseId, customerToken, "包裹在分拨中心停了七天");
 
         String body = review(
@@ -379,9 +381,9 @@ class ReviewedEvidenceApiTest extends CaseDatabaseTest {
     @Test
     @DisplayName("a case that already ended refuses verification, and says which ending it was")
     void anEndedCaseRefusesVerification() {
-        String customerToken = customer("M-1001", "C-2002");
+        String customerToken = customer("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         String reviewerToken = reviewer("demo-reviewer", "M-1001");
-        String caseId = openCase("M-1001", "C-2002", LINE);
+        String caseId = openCase("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", LINE);
         String sourceId = appendStatement(caseId, customerToken, "包裹在分拨中心停了七天");
         rest.post()
                 .uri("/api/v1/cases/" + caseId + "/cancel")
@@ -407,9 +409,9 @@ class ReviewedEvidenceApiTest extends CaseDatabaseTest {
     @Test
     @DisplayName("a case at the view's declared bound refuses more material instead of hiding the oldest")
     void aFullCaseRefusesMoreMaterial() {
-        String customerToken = customer("M-1001", "C-2002");
+        String customerToken = customer("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         String reviewerToken = reviewer("demo-reviewer", "M-1001");
-        String caseId = openCase("M-1001", "C-2002", LINE);
+        String caseId = openCase("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", LINE);
         String sourceId = appendStatement(caseId, customerToken, "包裹在分拨中心停了七天");
 
         // Fill the case up to the contract's maxItems, the way a long conversation would. The bound is the
@@ -424,7 +426,7 @@ class ReviewedEvidenceApiTest extends CaseDatabaseTest {
                     caseId,
                     java.util.UUID.randomUUID().toString(),
                     "CUSTOMER_STATEMENT",
-                    "customer:C-2002",
+                    "customer:B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80",
                     "2",
                     "a".repeat(64),
                     2,
@@ -453,9 +455,9 @@ class ReviewedEvidenceApiTest extends CaseDatabaseTest {
     @Test
     @DisplayName("a request that is not a verification at all is refused with a message naming what is wrong")
     void aMalformedRequestIsRefused() {
-        String customerToken = customer("M-1001", "C-2002");
+        String customerToken = customer("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         String reviewerToken = reviewer("demo-reviewer", "M-1001");
-        String caseId = openCase("M-1001", "C-2002", LINE);
+        String caseId = openCase("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", LINE);
         String sourceId = appendStatement(caseId, customerToken, "包裹在分拨中心停了七天");
 
         Map<String, Map<String, Object>> refused = Map.of(

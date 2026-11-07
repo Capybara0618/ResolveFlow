@@ -128,7 +128,7 @@ class VerifiedCaller:
     """The identity behind a verified service token, as the run store needs it.
 
     The API layer builds this from the token; the store never sees the raw token. ``scope`` is carried as the
-    raw claim for the record, and ``merchant_id``/``customer_id`` are what docs/core-contracts.md:60 means by
+    raw claim for the record, and ``merchant_id``/``buyer_id`` are what docs/core-contracts.md:60 means by
     "the body must agree with the service token": a dispatch may only name the subjects its own token was
     minted for.
 
@@ -143,7 +143,7 @@ class VerifiedCaller:
     service: str
     scope: str | None = None
     merchant_id: str | None = None
-    customer_id: str | None = None
+    buyer_id: str | None = None
 
 @dataclass(frozen=True, slots=True)
 class RunRequest:
@@ -158,7 +158,7 @@ class RunRequest:
     case_id: str
     input_revision: int
     merchant_id: str
-    customer_id: str
+    buyer_id: str
     order_id: str
     line_id: str
     description: str
@@ -177,7 +177,7 @@ class RunRequest:
             raise RunRefusedError("input_revision must be an integer")
         if self.input_revision < 1:
             raise RunRefusedError("input_revision starts at 1; there is no revision 0")
-        for member in ("merchant_id", "customer_id", "line_id"):
+        for member in ("merchant_id", "buyer_id", "line_id"):
             value = getattr(self, member)
             if not isinstance(value, str) or not value or len(value) > 64:
                 raise RunRefusedError(f"{member} must be 1-64 characters")
@@ -256,7 +256,7 @@ class RunRequest:
                 "input_revision": self.input_revision,
                 "context": {
                     "merchant_id": self.merchant_id,
-                    "customer_id": self.customer_id,
+                    "buyer_id": self.buyer_id,
                     "order_id": self.order_id,
                     "line_id": self.line_id,
                 },
@@ -344,11 +344,11 @@ class RunStore:
             connection.execute(
                 """
                 INSERT INTO agent_run (
-                    run_id, case_id, input_revision, merchant_id, customer_id, order_id, line_id,
+                    run_id, case_id, input_revision, merchant_id, buyer_id, order_id, line_id,
                     request_hash, request_description, requested_actions, evidence_refs,
                     policy_manifest, review_context, traceparent, status, version, deadline_at, created_at, updated_at
                 ) VALUES (
-                    %(run_id)s, %(case_id)s, %(input_revision)s, %(merchant_id)s, %(customer_id)s,
+                    %(run_id)s, %(case_id)s, %(input_revision)s, %(merchant_id)s, %(buyer_id)s,
                     %(order_id)s, %(line_id)s, %(request_hash)s, %(description)s, %(actions)s,
                     %(evidence_refs)s, %(policy_manifest)s::jsonb, %(review_context)s::jsonb, %(traceparent)s, %(status)s, 1,
                     %(deadline_at)s, %(now)s, %(now)s
@@ -359,7 +359,7 @@ class RunStore:
                     "case_id": request.case_id,
                     "input_revision": request.input_revision,
                     "merchant_id": request.merchant_id,
-                    "customer_id": request.customer_id,
+                    "buyer_id": request.buyer_id,
                     "order_id": request.order_id,
                     "line_id": request.line_id,
                     "request_hash": request_hash,
@@ -599,7 +599,7 @@ def _require_body_agrees_with_caller(request: RunRequest, caller: VerifiedCaller
         raise RunIdentityMismatchError(
             f"the run dispatcher is {expected_service}; this token's subject is {caller.service}"
         )
-    for member, claimed in (("merchant_id", caller.merchant_id), ("customer_id", caller.customer_id)):
+    for member, claimed in (("merchant_id", caller.merchant_id), ("buyer_id", caller.buyer_id)):
         presented = getattr(request, member)
         if claimed is not None and presented != claimed:
             raise RunIdentityMismatchError(

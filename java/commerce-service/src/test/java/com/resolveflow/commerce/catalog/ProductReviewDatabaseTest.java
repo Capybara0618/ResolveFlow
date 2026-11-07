@@ -142,7 +142,7 @@ class ProductReviewDatabaseTest extends CommerceDatabaseTest {
                 .isEqualTo(jdbc.queryForObject(
                         "SELECT ROUND(AVG(rating),1) FROM product_review WHERE product_id='P-1001'", Double.class));
         var json = new tools.jackson.databind.ObjectMapper().writeValueAsString(page);
-        assertThat(json).doesNotContain(CUSTOMER, p.lineId(), p.orderId(), "customer_id", "merchant_id");
+        assertThat(json).doesNotContain(CUSTOMER, p.lineId(), p.orderId(), "buyer_id", "merchant_id");
     }
 
     @Test

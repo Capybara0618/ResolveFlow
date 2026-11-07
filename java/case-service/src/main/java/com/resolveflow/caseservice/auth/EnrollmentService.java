@@ -133,10 +133,6 @@ public class EnrollmentService {
                         buyer,
                         r.display_name().trim(),
                         hash);
-                db.update(
-                        "INSERT INTO buyer_customer_binding(buyer_id,merchant_id,customer_id) SELECT ?,merchant_id,CONCAT('C-',SUBSTRING(SHA2(CONCAT(?,':',merchant_id),256),1,40)) FROM identity_merchant",
-                        buyer,
-                        buyer);
                 return key(r.username());
             });
         } catch (DuplicateKeyException e) {

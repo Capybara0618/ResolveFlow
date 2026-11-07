@@ -25,7 +25,7 @@ def test_checkout_rejects_empty_duplicate_overflow_and_private_body():
         body = FIXTURES[name]
         for values in [[], [body[field][0]] * 2, [body[field][0]] * 21]:
             assert not v.accepts({**body, field: values})
-        for extra in ['merchant_id', 'customer_id', 'total_amount', 'buyer_id']:
+        for extra in ['merchant_id', 'buyer_id', 'total_amount', 'buyer_id']:
             assert not v.accepts({**body, extra: 'private'})
     q = component_validator('case', 'CartQuote', 'contracts/core')
     assert not q.accepts({**FIXTURES['CartQuote'], 'total_amount': 1000000001})

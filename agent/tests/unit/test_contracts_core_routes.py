@@ -94,7 +94,7 @@ def test_staff_create_has_fixed_binding_and_only_two_staff_roles() -> None:
     body = {"username": "synthetic-worker", "display_name": "合成售后", "role": "REVIEWER",
             "password": "synthetic-pass", "reason": "合成验收"}
     assert not list(validator.validator.iter_errors(body))
-    for field in ("merchant_id", "customer_id"):
+    for field in ("merchant_id", "buyer_id"):
         assert list(validator.validator.iter_errors({**body, field: "foreign"}))
     for role in ("CUSTOMER", "OPERATOR"):
         assert list(validator.validator.iter_errors({**body, "role": role}))
@@ -624,10 +624,10 @@ def test_the_internal_order_view_is_the_public_order_view(name: str) -> None:
 def test_the_order_listing_route_takes_its_scope_from_the_caller_not_the_client() -> None:
     op = document("commerce")["paths"]["/internal/v1/order-lines"]["get"]
     names = [param["$ref"].rsplit("/", 1)[-1] for param in op["parameters"]]
-    assert names == ["MerchantId", "CustomerId", "OrderId", "LineId", "Cursor", "Limit"]
+    assert names == ["MerchantId", "BuyerId", "OrderId", "LineId", "Cursor", "Limit"]
     params = document("commerce")["components"]["parameters"]
     assert params["MerchantId"]["required"] is True
-    assert params["CustomerId"]["required"] is False, "a merchant-scoped caller lists the whole merchant"
+    assert params["BuyerId"]["required"] is False, "a merchant-scoped caller lists the whole merchant"
     # order_id and line_id narrow the same scope; both are filters, not a second scope
     assert params["OrderId"]["required"] is False
     assert params["LineId"]["required"] is False, (
@@ -635,14 +635,14 @@ def test_the_order_listing_route_takes_its_scope_from_the_caller_not_the_client(
         " line_id would make that a listing by line instead of a scoped narrowing"
     )
     # The scope exists only on the internal route. If the public Case route offered merchant_id or
-    # customer_id, a customer could ask for someone else's lines (docs/core-contracts.md:15).
+    # buyer_id, a customer could ask for someone else's lines (docs/core-contracts.md:15).
     public = document("case")["paths"]["/api/v1/orders"]["get"]
     public_names = {
         document("case")["components"]["parameters"][param["$ref"].rsplit("/", 1)[-1]]["name"]
         for param in public["parameters"]
         if "$ref" in param
     }
-    assert not {"merchant_id", "customer_id", "scope"} & public_names
+    assert not {"merchant_id", "buyer_id", "scope"} & public_names
     assert "内部请求Commerce" in (
         REPO_ROOT / "docs" / "core-contracts.md"
     ).read_text(encoding="utf-8"), "the authority that made this route necessary moved"
@@ -869,7 +869,7 @@ def test_the_line_context_is_where_the_amount_is_recomputed_from() -> None:
         "order_id",
         "line_id",
         "merchant_id",
-        "customer_id",
+        "buyer_id",
         "sku",
         "category",
         "quantity",
@@ -900,7 +900,7 @@ def test_the_line_context_is_where_the_amount_is_recomputed_from() -> None:
     ]
 
     listing_item = commerce["components"]["schemas"]["OrderLineSummary"]
-    for withheld in ("merchant_id", "customer_id", "refunded_amount", "reserved_refund_amount"):
+    for withheld in ("merchant_id", "buyer_id", "refunded_amount", "reserved_refund_amount"):
         assert withheld not in listing_item["properties"], (
             f"{withheld} must not appear in the user-facing order view"
         )
@@ -1019,11 +1019,11 @@ def test_the_review_queue_names_what_it_holds_and_refuses_a_page_it_did_not_issu
     ]
     assert declared == ["scope", "view", "query", "Cursor", "Limit"], (
         "the queue takes its ownership scope, workspace view, a search term and paging, and nothing that names "
-        "a subject: the merchant comes from the token, so merchant_id/customer_id stay out"
+        "a subject: the merchant comes from the token, so merchant_id/buyer_id stay out"
     )
     for parameter in parameters:
         name = parameter.get("name") or parameter.get("$ref", "").rsplit("/", 1)[-1]
-        assert name not in {"merchant_id", "customer_id"}, (
+        assert name not in {"merchant_id", "buyer_id"}, (
             f"{name} would be client-supplied scope; the queue is scoped by the principal"
         )
     view = next(parameter for parameter in parameters if parameter.get("name") == "view")

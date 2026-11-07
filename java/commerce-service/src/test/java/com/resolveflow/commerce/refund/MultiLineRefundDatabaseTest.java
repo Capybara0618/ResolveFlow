@@ -48,13 +48,13 @@ class MultiLineRefundDatabaseTest extends CommerceDatabaseTest {
         a = "multi-" + UUID.randomUUID();
         b = "multi-" + UUID.randomUUID();
         jdbc.update(
-                "INSERT INTO orders(order_id,merchant_id,customer_id,order_status,currency,paid_at) VALUES(?,?,?,'PAID','CNY',CURRENT_TIMESTAMP(6))",
+                "INSERT INTO orders(order_id,merchant_id,buyer_id,order_status,currency,paid_at) VALUES(?,?,?,'PAID','CNY',CURRENT_TIMESTAMP(6))",
                 order,
                 merchant,
                 "C-MULTILINE");
         for (var line : List.of(a, b))
             jdbc.update(
-                    "INSERT INTO order_line(line_id,order_id,merchant_id,customer_id,sku,category,quantity,line_paid_amount,currency,paid_at,order_status,version) VALUES(?,?,?,?,?,'electronics',1,?,'CNY',CURRENT_TIMESTAMP(6),'PAID',1)",
+                    "INSERT INTO order_line(line_id,order_id,merchant_id,buyer_id,sku,category,quantity,line_paid_amount,currency,paid_at,order_status,version) VALUES(?,?,?,?,?,'electronics',1,?,'CNY',CURRENT_TIMESTAMP(6),'PAID',1)",
                     line,
                     order,
                     merchant,

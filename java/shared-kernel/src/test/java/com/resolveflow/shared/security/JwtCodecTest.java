@@ -39,7 +39,7 @@ class JwtCodecTest {
     }
 
     private static AuthenticatedPrincipal principal(String merchant, String customer, Role role) {
-        return new AuthenticatedPrincipal("demo-customer", merchant, role, customer);
+        return new AuthenticatedPrincipal("demo-customer", role == Role.CUSTOMER ? null : merchant, role, customer);
     }
 
     @Test
@@ -49,10 +49,13 @@ class JwtCodecTest {
         var buyer = codec().verifyAsUser(codec().signRaw(claims), NOW);
         assertThat(buyer.subject()).isEqualTo("demo-buyer");
         assertThat(buyer.merchantId()).isNull();
-        assertThat(buyer.customerId()).isNull();
+        assertThat(buyer.buyerId()).isEqualTo("B-3001");
         assertThat(codec().verifyAsUser(codec().issue(buyer, NOW), NOW)).isEqualTo(buyer);
-        for (String extra :
-                new String[] {"\"merchant_id\":\"M-1001\",", "\"customer_id\":\"C-2002\",", "\"merchant_id\":null,"}) {
+        for (String extra : new String[] {
+            "\"merchant_id\":\"M-1001\",",
+            "\"customer_id\":\"B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80\",",
+            "\"merchant_id\":null,"
+        }) {
             String hybrid = "{" + extra + claims.substring(1);
             assertThatThrownBy(() -> codec().verifyAsUser(codec().signRaw(hybrid), NOW))
                     .isInstanceOf(JwtCodec.TokenException.class);
@@ -66,11 +69,12 @@ class JwtCodecTest {
     @Test
     void identityVersionRoundTripsAndLegacyTokensUseZero() {
         var codec = codec();
-        var account = principal("M-1001", "C-2002", Role.CUSTOMER);
+        var account = principal("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", Role.CUSTOMER);
         assertThat(codec.identityVersionFromAuthorizationHeader("Bearer " + codec.issue(account, 7, NOW), NOW))
                 .isEqualTo(7);
         String legacy = codec.signRaw(withIssuer("{\"sub\":\"demo-customer\",\"role\":\"CUSTOMER\","
-                + "\"merchant_id\":\"M-1001\",\"customer_id\":\"C-2002\",\"aud\":\"" + JwtCodec.USER_AUDIENCE
+                + "\"buyer_id\":\"B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80\",\"aud\":\""
+                + JwtCodec.USER_AUDIENCE
                 + "\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}"));
         assertThat(codec.identityVersionFromAuthorizationHeader("Bearer " + legacy, NOW))
                 .isZero();
@@ -81,7 +85,8 @@ class JwtCodecTest {
     void malformedIdentityVersionsAreRefused() {
         for (String version : new String[] {"-1", "1.5", "\"7\"", "true", "9223372036854775808"}) {
             String token = codec().signRaw(withIssuer("{\"sub\":\"demo-customer\",\"role\":\"CUSTOMER\","
-                    + "\"merchant_id\":\"M-1001\",\"customer_id\":\"C-2002\",\"identity_version\":" + version
+                    + "\"buyer_id\":\"B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80\",\"identity_version\":"
+                    + version
                     + ",\"aud\":\"" + JwtCodec.USER_AUDIENCE + "\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}"));
             assertThatThrownBy(() -> codec().identityVersionFromAuthorizationHeader("Bearer " + token, NOW))
                     .isInstanceOf(JwtCodec.TokenException.class);
@@ -92,20 +97,22 @@ class JwtCodecTest {
     @DisplayName("a token round-trips into the principal it was issued for")
     void roundTrip() {
         JwtCodec codec = codec();
-        String token = codec.issue(principal("M-1001", "C-2002", Role.CUSTOMER), NOW);
+        String token = codec.issue(
+                principal("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", Role.CUSTOMER), NOW);
 
         AuthenticatedPrincipal parsed = codec.verifyAsUser(token, NOW);
 
         assertThat(parsed.subject()).isEqualTo("demo-customer");
-        assertThat(parsed.merchantId()).isEqualTo("M-1001");
-        assertThat(parsed.customerId()).isEqualTo("C-2002");
+        assertThat(parsed.merchantId()).isNull();
+        assertThat(parsed.buyerId()).isEqualTo("B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         assertThat(parsed.role()).isEqualTo(Role.CUSTOMER);
     }
 
     @Test
     @DisplayName("the token is a JWS with the documented header and no padding")
     void tokenShapeIsCompactJws() {
-        String token = codec().issue(principal("M-1001", "C-2002", Role.CUSTOMER), NOW);
+        String token = codec().issue(
+                        principal("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", Role.CUSTOMER), NOW);
         String[] parts = token.split("\\.");
 
         assertThat(parts).hasSize(3);
@@ -118,7 +125,8 @@ class JwtCodecTest {
     @DisplayName("the token carries an expiry and a user audience")
     void claimsCarryExpiryAndAudience() {
         JwtCodec codec = codec();
-        String token = codec.issue(principal("M-1001", "C-2002", Role.CUSTOMER), NOW);
+        String token = codec.issue(
+                principal("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", Role.CUSTOMER), NOW);
         String payload = new String(Base64.getUrlDecoder().decode(token.split("\\.")[1]), StandardCharsets.UTF_8);
 
         assertThat(payload)
@@ -132,7 +140,8 @@ class JwtCodecTest {
     @DisplayName("a tampered payload is refused")
     void tamperedPayloadIsRefused() {
         JwtCodec codec = codec();
-        String token = codec.issue(principal("M-1001", "C-2002", Role.CUSTOMER), NOW);
+        String token = codec.issue(
+                principal("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", Role.CUSTOMER), NOW);
         String[] parts = token.split("\\.");
         String forged = Base64.getUrlEncoder()
                 .withoutPadding()
@@ -149,7 +158,7 @@ class JwtCodecTest {
     @DisplayName("a token signed with another key is refused")
     void foreignKeyIsRefused() {
         String foreign = new JwtCodec("another-demonstration-secret", Duration.ofHours(1))
-                .issue(principal("M-1001", "C-2002", Role.CUSTOMER), NOW);
+                .issue(principal("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", Role.CUSTOMER), NOW);
 
         assertThatThrownBy(() -> codec().verifyAsUser(foreign, NOW))
                 .isInstanceOf(JwtCodec.TokenException.class)
@@ -191,7 +200,8 @@ class JwtCodecTest {
     @DisplayName("an expired token is refused, and one expiring later is not")
     void expiryIsEnforced() {
         JwtCodec codec = codec();
-        String token = codec.issue(principal("M-1001", "C-2002", Role.CUSTOMER), NOW);
+        String token = codec.issue(
+                principal("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", Role.CUSTOMER), NOW);
 
         assertThat(codec.verifyAsUser(token, NOW.plus(Duration.ofMinutes(59))).subject())
                 .isEqualTo("demo-customer");
@@ -224,7 +234,8 @@ class JwtCodecTest {
         JwtCodec codec = codec();
         String foreignIssuer =
                 codec.signRaw("{\"sub\":\"demo-customer\",\"role\":\"CUSTOMER\",\"merchant_id\":\"M-1001\","
-                        + "\"customer_id\":\"C-2002\",\"aud\":\"" + JwtCodec.USER_AUDIENCE
+                        + "\"buyer_id\":\"B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80\",\"aud\":\""
+                        + JwtCodec.USER_AUDIENCE
                         + "\",\"iss\":\"some-other-identity\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}");
 
         assertThatThrownBy(() -> codec.verifyAsUser(foreignIssuer, NOW))
@@ -257,11 +268,12 @@ class JwtCodecTest {
     @DisplayName("a bearer header is parsed, and anything else is refused")
     void authorizationHeaderIsParsed() {
         JwtCodec codec = codec();
-        String token = codec.issue(principal("M-1001", "C-2002", Role.CUSTOMER), NOW);
+        String token = codec.issue(
+                principal("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", Role.CUSTOMER), NOW);
 
         assertThat(codec.principalFromAuthorizationHeader("Bearer " + token, NOW)
-                        .merchantId())
-                .isEqualTo("M-1001");
+                        .buyerId())
+                .isEqualTo("B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         assertThatThrownBy(() -> codec.principalFromAuthorizationHeader(token, NOW))
                 .isInstanceOf(JwtCodec.TokenException.class)
                 .hasMessageContaining("Bearer");
@@ -277,25 +289,26 @@ class JwtCodecTest {
         // The principal type refuses to exist in an inconsistent state, so an inconsistent token can
         // never be turned into one. Raw claims are still checked at verification time, because a token
         // is signed by whoever issued it and may simply be wrong.
-        assertThatThrownBy(() -> new AuthenticatedPrincipal("demo-reviewer", "M-1001", Role.REVIEWER, "C-2002"))
+        assertThatThrownBy(() -> new AuthenticatedPrincipal(
+                        "demo-reviewer", "M-1001", Role.REVIEWER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("customer_id");
+                .hasMessageContaining("buyer_id");
         assertThatThrownBy(() -> new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, null))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("customer_id");
+                .hasMessageContaining("buyer_id");
 
         String reviewerWithCustomer = codec.signRaw(withIssuer(
-                "{\"sub\":\"demo-reviewer\",\"role\":\"REVIEWER\",\"merchant_id\":\"M-1001\",\"customer_id\":\"C-2002\",\"aud\":\""
+                "{\"sub\":\"demo-reviewer\",\"role\":\"REVIEWER\",\"merchant_id\":\"M-1001\",\"buyer_id\":\"B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80\",\"aud\":\""
                         + JwtCodec.USER_AUDIENCE + "\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}"));
         assertThatThrownBy(() -> codec.verifyAsUser(reviewerWithCustomer, NOW))
                 .isInstanceOf(JwtCodec.TokenException.class)
-                .hasMessageContaining("customer_id");
+                .hasMessageContaining("buyer_id");
 
         String customerWithoutCustomer = codec.signRaw(
                 withIssuer("{\"sub\":\"demo-customer\",\"role\":\"CUSTOMER\",\"merchant_id\":\"M-1001\",\"aud\":\""
                         + JwtCodec.USER_AUDIENCE + "\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}"));
         assertThatThrownBy(() -> codec.verifyAsUser(customerWithoutCustomer, NOW))
                 .isInstanceOf(JwtCodec.TokenException.class)
-                .hasMessageContaining("customer_id");
+                .hasMessageContaining("buyer_id");
     }
 }

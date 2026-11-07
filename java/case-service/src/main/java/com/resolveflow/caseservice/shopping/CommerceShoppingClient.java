@@ -36,7 +36,7 @@ public class CommerceShoppingClient {
                 rest.get()
                         .uri(u -> u.path("/internal/v1/shop/orders/lines/{id}/review")
                                 .queryParam("merchant_id", merchant)
-                                .queryParam("customer_id", customer)
+                                .queryParam("buyer_id", customer)
                                 .build(line)),
                 true,
                 new ParameterizedTypeReference<>() {});
@@ -82,7 +82,7 @@ public class CommerceShoppingClient {
                 rest.get()
                         .uri(u -> u.path("/internal/v1/shop/purchases/{id}/shipping")
                                 .queryParam("merchant_id", merchant)
-                                .queryParam("customer_id", customer)
+                                .queryParam("buyer_id", customer)
                                 .build(purchase)),
                 true,
                 new ParameterizedTypeReference<>() {});
@@ -285,7 +285,7 @@ public class CommerceShoppingClient {
                 rest.get()
                         .uri(u -> u.path("/internal/v1/shop/orders/{id}/fulfillment")
                                 .queryParam("merchant_id", merchant)
-                                .queryParam("customer_id", customer)
+                                .queryParam("buyer_id", customer)
                                 .build(id)),
                 true,
                 new ParameterizedTypeReference<>() {});
@@ -310,7 +310,7 @@ public class CommerceShoppingClient {
         return call(
                 rest.get()
                         .uri(u -> u.path("/internal/v1/shop/cart/{store}")
-                                .queryParam("customer_id", customer)
+                                .queryParam("buyer_id", customer)
                                 .build(store)),
                 true,
                 new ParameterizedTypeReference<>() {});
@@ -363,7 +363,7 @@ public class CommerceShoppingClient {
                 rest.get()
                         .uri(u -> u.path("/internal/v1/shop/drafts/{id}")
                                 .queryParam("merchant_id", merchant)
-                                .queryParam("customer_id", customer)
+                                .queryParam("buyer_id", customer)
                                 .build(id)),
                 true,
                 new ParameterizedTypeReference<>() {});
@@ -381,7 +381,7 @@ public class CommerceShoppingClient {
                 rest.get()
                         .uri(u -> u.path("/internal/v1/shop/drafts/{id}/payment")
                                 .queryParam("merchant_id", merchant)
-                                .queryParam("customer_id", customer)
+                                .queryParam("buyer_id", customer)
                                 .build(id)),
                 true,
                 new ParameterizedTypeReference<>() {});
@@ -399,7 +399,7 @@ public class CommerceShoppingClient {
                 rest.get()
                         .uri(u -> u.path("/internal/v1/shop/purchases/{id}")
                                 .queryParam("merchant_id", merchant)
-                                .queryParam("customer_id", customer)
+                                .queryParam("buyer_id", customer)
                                 .build(id)),
                 true,
                 new ParameterizedTypeReference<>() {});
@@ -410,7 +410,7 @@ public class CommerceShoppingClient {
                 rest.get().uri(u -> {
                     var b = u.path("/internal/v1/shop/purchases")
                             .queryParam("merchant_id", merchant)
-                            .queryParam("customer_id", customer)
+                            .queryParam("buyer_id", customer)
                             .queryParam("limit", limit);
                     if (status != null) b.queryParam("status", status);
                     if (cursor != null) b.queryParam("cursor", cursor);

@@ -157,7 +157,7 @@ class CheckoutRecoveryDatabaseTest extends CommerceDatabaseTest {
         String order = jdbc.queryForObject(
                 "SELECT order_id FROM checkout_payment_attempt WHERE attempt_id=?", String.class, p.attemptId());
         jdbc.update(
-                "INSERT INTO orders(order_id,merchant_id,customer_id,order_status,currency,paid_at,created_at) VALUES(?,'M-1001','RECOVERY-TEST','PAID','CNY',?,?)",
+                "INSERT INTO orders(order_id,merchant_id,buyer_id,order_status,currency,paid_at,created_at) VALUES(?,'M-1001','RECOVERY-TEST','PAID','CNY',?,?)",
                 order,
                 Timestamp.from(now),
                 Timestamp.from(now));

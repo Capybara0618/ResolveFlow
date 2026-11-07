@@ -52,7 +52,7 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
     private static final String BUNDLE = "policy-logistics-2026.09";
     private static final String VERSION = "2026.09";
     private static final String MERCHANT = "M-1001";
-    private static final String CUSTOMER = "C-2002";
+    private static final String CUSTOMER = "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80";
 
     @TestConfiguration
     static class StubCommerceConfiguration {
@@ -91,7 +91,7 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
 
     protected String customer() {
         return new JwtCodec(secret, Duration.ofHours(1))
-                .issue(new AuthenticatedPrincipal("demo-customer", MERCHANT, Role.CUSTOMER, CUSTOMER), Instant.now());
+                .issue(new AuthenticatedPrincipal("demo-customer", null, Role.CUSTOMER, CUSTOMER), Instant.now());
     }
 
     protected String openCase() {

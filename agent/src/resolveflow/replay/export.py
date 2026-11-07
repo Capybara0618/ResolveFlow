@@ -99,7 +99,7 @@ def export_run(database: Database, run_id: str, destination: Path) -> None:
             "run_id": str(run["run_id"]), "case_id": str(run["case_id"]),
             "input_revision": run["input_revision"], "line_id": run["line_id"],
             "description": run["request_description"], "merchant_id": run["merchant_id"],
-            "customer_id": run["customer_id"], "active_deadline_at": run["active_deadline_at"].isoformat(),
+            "buyer_id": run["buyer_id"], "active_deadline_at": run["active_deadline_at"].isoformat(),
             "policy_manifest": run["policy_manifest"],
             **({"review_context": run["review_context"]} if run["review_context"] else {}),
         },

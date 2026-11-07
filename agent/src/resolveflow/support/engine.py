@@ -126,7 +126,7 @@ class SupportAgent:
             # Accepted meaning is independent of answer publication; no response text or stale evidence is inherited.
             update = {"version": "support-state-v1", **{
                 key: getattr(self.request, key) for key in ("run_id", "conversation_id", "input_version",
-                                                          "merchant_id", "customer_id", "line_id")},
+                                                          "merchant_id", "buyer_id", "line_id")},
                 "task_state": self.dialogue.task_snapshot([]), "customer_memory": self.memory.snapshot(),
                 "dialogue_state": self.dialogue.packet(), "memory_warnings": deepcopy(self.memory.warnings)}
         assert reason is not None or final is not None

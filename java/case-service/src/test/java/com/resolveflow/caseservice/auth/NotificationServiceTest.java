@@ -17,7 +17,7 @@ class NotificationServiceTest extends CaseDatabaseTest {
 
     Session buyer() {
         return new Session(
-                new AuthenticatedPrincipal("demo-buyer", null, Role.CUSTOMER, null, "B-3001"),
+                new AuthenticatedPrincipal("demo-buyer", null, Role.CUSTOMER, "B-3001"),
                 jdbc.queryForObject(
                         "SELECT identity_version FROM identity_account WHERE username='demo-buyer'", Long.class));
     }
@@ -32,7 +32,7 @@ class NotificationServiceTest extends CaseDatabaseTest {
     String conversation() {
         String id = UUID.randomUUID().toString();
         jdbc.update(
-                "INSERT INTO support_conversation(conversation_id,buyer_id,merchant_id,customer_id,order_id,line_id,store_name,product_json) VALUES(?,'B-3001','M-1001','C-B3001-M1001',?,?, '测试店铺','{}')",
+                "INSERT INTO support_conversation(conversation_id,buyer_id,merchant_id,order_id,line_id,store_name,product_json) VALUES(?,'B-3001','M-1001',?,?, '测试店铺','{}')",
                 id,
                 UUID.randomUUID().toString(),
                 UUID.randomUUID().toString());
@@ -131,7 +131,7 @@ class NotificationServiceTest extends CaseDatabaseTest {
         cases.insertCase(
                 id,
                 "M-1001",
-                "C-B3001-M1001",
+                "B-3001",
                 UUID.randomUUID().toString(),
                 UUID.randomUUID().toString(),
                 "测试申请",

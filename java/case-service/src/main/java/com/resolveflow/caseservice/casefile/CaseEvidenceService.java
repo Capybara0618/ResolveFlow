@@ -429,7 +429,7 @@ public class CaseEvidenceService {
      */
     private static String sourceRef(AuthenticatedPrincipal principal, EvidenceSourceType kind) {
         return kind == EvidenceSourceType.CUSTOMER_STATEMENT
-                ? "customer:" + principal.customerId()
+                ? "customer:" + principal.buyerId()
                 : "reviewer:" + principal.subject();
     }
 

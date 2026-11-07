@@ -9,7 +9,10 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 /**
  * The order-line read model against real MySQL with the real migrations and seed.
@@ -19,7 +22,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * (V2__demo_order_seed.sql), so a failure here means the read path or the SQL changed, not that the
  * data moved.
  */
-class OrderLineReadServiceDatabaseTest extends CommerceDatabaseTest {
+@SpringBootTest
+class OrderLineReadServiceDatabaseTest {
+    @DynamicPropertySource
+    static void seededReadDatabase(DynamicPropertyRegistry registry) throws Exception {
+        CommerceDatabaseTest.isolatedReadSchema(registry, "commerce_read_service");
+    }
 
     private static final String ORDER_A = "00000000-0000-4000-8000-0000000000aa";
     private static final String ORDER_C = "00000000-0000-4000-8000-0000000000cc";
@@ -32,12 +40,16 @@ class OrderLineReadServiceDatabaseTest extends CommerceDatabaseTest {
 
     @Test
     void theSecondMerchantSecondCustomerHasAnIsolatedUsableOrder() {
-        var own = service.list("M-1002", "C-2005", null, null).items();
+        var own = service.list("M-1002", "B-legacy-cbfbc19e76c82c1141e25df5fdf9c38093add896", null, null)
+                .items();
         assertThat(own).extracting(OrderLineRow::lineId).containsExactly("7301");
         assertThat(own.getFirst().linePaidAmount()).isEqualTo(22900);
         assertThat(own.getFirst().productName()).isEqualTo("合成演示 · 轻便运动鞋");
-        assertThat(service.list("M-1001", "C-2005", null, null).items()).isEmpty();
-        assertThat(service.list("M-1002", "C-2004", null, null).items())
+        assertThat(service.list("M-1001", "B-legacy-cbfbc19e76c82c1141e25df5fdf9c38093add896", null, null)
+                        .items())
+                .isEmpty();
+        assertThat(service.list("M-1002", "B-legacy-6f808772ade9cc75fd3896626db511b718eebaa2", null, null)
+                        .items())
                 .extracting(OrderLineRow::lineId)
                 .doesNotContain("7301");
         assertThat(jdbc.queryForObject(
@@ -54,8 +66,9 @@ class OrderLineReadServiceDatabaseTest extends CommerceDatabaseTest {
     void theDisplayColumnsAreOptionalAndNeverEnterTheRefundRead() {
         // The seed predates V7, so both members are null — not empty strings and not a default,
         // because "not provided" is what a reviewer has to be able to see.
-        OrderLineRow seeded =
-                service.list("M-1001", "C-2002", null, null).items().get(0);
+        OrderLineRow seeded = service.list("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", null, null)
+                .items()
+                .get(0);
         assertThat(seeded.productName()).isNull();
         assertThat(seeded.variantText()).isNull();
 
@@ -65,8 +78,9 @@ class OrderLineReadServiceDatabaseTest extends CommerceDatabaseTest {
                 "深空灰 · 标准版",
                 "7002");
 
-        OrderLineRow named =
-                service.list("M-1001", "C-2002", null, null).items().get(0);
+        OrderLineRow named = service.list("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", null, null)
+                .items()
+                .get(0);
         assertThat(named.productName()).isEqualTo("演示商品 · 降噪耳机");
         assertThat(named.variantText()).isEqualTo("深空灰 · 标准版");
         // The refund re-check reads LineContext, which deliberately does not carry them: a display
@@ -81,7 +95,8 @@ class OrderLineReadServiceDatabaseTest extends CommerceDatabaseTest {
     @Test
     @DisplayName("a customer sees their own lines, newest first, exactly as seeded")
     void aCustomerSeesTheirOwnLines() {
-        OrderLineReadService.Page page = service.list("M-1001", "C-2002", null, null);
+        OrderLineReadService.Page page =
+                service.list("M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", null, null);
 
         assertThat(page.items()).extracting(OrderLineRow::lineId).containsExactly("7002", "7001");
         assertThat(page.nextCursor()).isNull();
@@ -99,13 +114,18 @@ class OrderLineReadServiceDatabaseTest extends CommerceDatabaseTest {
 
     @Test
     @DisplayName("a customer identifier is only meaningful inside its merchant")
-    void aCustomerIdentifierDoesNotCrossMerchants() {
-        // C-2002 belongs to M-1001. Asking for it under M-1002 must not fall back to "any customer".
-        assertThat(service.list("M-1002", "C-2002", null, null).items()).isEmpty();
-        assertThat(service.list("M-1001", "C-2003", null, null).items())
+    void aBuyerIdentifierDoesNotCrossMerchants() {
+        // B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80 belongs to M-1001. Asking for it under M-1002 must not fall
+        // back to "any customer".
+        assertThat(service.list("M-1002", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", null, null)
+                        .items())
+                .isEmpty();
+        assertThat(service.list("M-1001", "B-legacy-085a244f8f8acaf20c76a2191b6ebde0ea6d70df", null, null)
+                        .items())
                 .extracting(OrderLineRow::lineId)
                 .containsExactly("7101");
-        assertThat(service.list("M-1002", "C-2004", null, null).items())
+        assertThat(service.list("M-1002", "B-legacy-6f808772ade9cc75fd3896626db511b718eebaa2", null, null)
+                        .items())
                 .extracting(OrderLineRow::lineId)
                 .containsExactly("7201");
     }
@@ -168,13 +188,21 @@ class OrderLineReadServiceDatabaseTest extends CommerceDatabaseTest {
     void anOrderFilterCannotEscapeTheScope() {
         // C01.2c: Case reads one order through this filter. Naming an order that is not in the
         // scope must yield nothing, so Case can answer 404 without disclosing that it exists.
-        assertThat(service.listByOrder("M-1001", "C-2002", ORDER_A, null, null).items())
+        assertThat(service.listByOrder(
+                                "M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80", ORDER_A, null, null)
+                        .items())
                 .extracting(OrderLineRow::lineId)
                 .containsExactly("7002", "7001");
-        assertThat(service.listByOrder("M-1002", "C-2004", ORDER_A, null, null).items())
-                .as("order %s belongs to M-1001/C-2002, not to this scope", ORDER_A)
+        assertThat(service.listByOrder(
+                                "M-1002", "B-legacy-6f808772ade9cc75fd3896626db511b718eebaa2", ORDER_A, null, null)
+                        .items())
+                .as(
+                        "order %s belongs to M-1001/B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80, not to this scope",
+                        ORDER_A)
                 .isEmpty();
-        assertThat(service.listByOrder("M-1001", "C-2003", ORDER_A, null, null).items())
+        assertThat(service.listByOrder(
+                                "M-1001", "B-legacy-085a244f8f8acaf20c76a2191b6ebde0ea6d70df", ORDER_A, null, null)
+                        .items())
                 .as("same merchant, different customer: still not theirs")
                 .isEmpty();
     }
@@ -209,9 +237,9 @@ class OrderLineReadServiceDatabaseTest extends CommerceDatabaseTest {
     @DisplayName("the schema refuses a quantity or an amount the contract forbids")
     void theLineConstraintsAreEnforced() {
         assertThatThrownBy(() -> jdbc.update(
-                        "INSERT INTO order_line (line_id, order_id, merchant_id, customer_id, sku, category,"
+                        "INSERT INTO order_line (line_id, order_id, merchant_id, buyer_id, sku, category,"
                                 + " quantity, line_paid_amount, currency, paid_at, order_status, version)"
-                                + " VALUES ('7999', ?, 'M-1001', 'C-2002', 'SKU-X', 'apparel', 0, 100, 'CNY',"
+                                + " VALUES ('7999', ?, 'M-1001', 'B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80', 'SKU-X', 'apparel', 0, 100, 'CNY',"
                                 + " '2026-09-10 08:15:00.000000', 'PAID', 1)",
                         ORDER_A))
                 .isInstanceOf(org.springframework.dao.DataAccessException.class)

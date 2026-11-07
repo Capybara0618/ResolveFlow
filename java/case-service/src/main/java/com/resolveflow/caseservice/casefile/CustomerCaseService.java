@@ -172,7 +172,7 @@ public class CustomerCaseService {
         }
         var rows = p.isPlatformBuyer()
                 ? lists.listBuyer(p.buyerId(), view, line, before, id, limit + 1)
-                : lists.list(p.merchantId(), p.customerId(), view, line, before, id, limit + 1);
+                : lists.list(p.merchantId(), p.buyerId(), view, line, before, id, limit + 1);
         var page = rows.stream().limit(limit).toList();
         String next = null;
         if (rows.size() > limit) {
@@ -198,9 +198,9 @@ public class CustomerCaseService {
         if (lines.size() != 1) throw new CaseReadService.CaseNotVisibleException();
         var line = lines.getFirst();
         var context = commerce.readLineContext(lineId).orElseThrow(CaseReadService.CaseNotVisibleException::new);
-        if (!p.merchantId().equals(context.merchantId()) || !p.customerId().equals(context.customerId()))
+        if (!p.merchantId().equals(context.merchantId()) || !p.buyerId().equals(context.buyerId()))
             throw new CaseReadService.CaseNotVisibleException();
-        var related = lists.related(p.merchantId(), p.customerId(), lineId);
+        var related = lists.related(p.merchantId(), p.buyerId(), lineId);
         String refusal = related != null && !related.status().isTerminal()
                 ? "该订单行已有处理中申请，请查看当前申请"
                 : related != null && related.status() == CaseStatus.CLOSED_SUCCESS

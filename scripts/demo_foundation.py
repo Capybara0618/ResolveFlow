@@ -257,19 +257,6 @@ def seed(settings: demo.Settings) -> None:
             + str(int(datetime.now(UTC).timestamp()))
             + ")"
         )
-        if buyer:
-            for s in data["stores"]:
-                customer = (
-                    "C-"
-                    + hashlib.sha256(f"{buyer}:{s['store_id']}".encode()).hexdigest()[
-                        :40
-                    ]
-                )
-                statements.append(
-                    "INSERT INTO case_db.buyer_customer_binding(buyer_id,merchant_id,customer_id) VALUES ("
-                    + ",".join(literal(v) for v in (buyer, s["store_id"], customer))
-                    + ")"
-                )
     statements.append("COMMIT")
     mysql_write(";".join(statements), settings)
 
@@ -279,7 +266,6 @@ def verify(settings: demo.Settings) -> dict:
         "case_db.identity_merchant": 3,
         "case_db.identity_account": 14,
         "case_db.platform_buyer": 10,
-        "case_db.buyer_customer_binding": 30,
         "commerce_db.catalog_store": 3,
         "commerce_db.catalog_product": len(catalog()["products"]),
         "commerce_db.catalog_sku": len(catalog()["skus"]),

@@ -73,7 +73,7 @@ def smoke(output: Path, config: JevConfig) -> dict[str, Any]:
             if len(report["cases"]) >= 12 or reserved_cost > 1:
                 break
             request = SupportInput(run_id=str(uuid.uuid4()), conversation_id=str(uuid.uuid4()), input_version=1,
-                                   merchant_id="JEV-SYNTHETIC", customer_id="JEV-SYNTHETIC", line_id="JEV-LINE",
+                                   merchant_id="JEV-SYNTHETIC", buyer_id="JEV-SYNTHETIC", line_id="JEV-LINE",
                                    deadline_at=dt.datetime.now(dt.UTC) + dt.timedelta(seconds=60),
                                    context={"current_request": case["question"], "history": []})
             is_policy, failed = case["source_type"] == "POLICY", bool(case.get("error"))

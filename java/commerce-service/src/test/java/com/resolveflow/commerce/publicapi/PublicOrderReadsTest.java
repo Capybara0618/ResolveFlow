@@ -18,8 +18,8 @@ class PublicOrderReadsTest {
     void stableSameTimeMergeUsesNativeLineOrderAndRejectsChangedBindings() {
         var reads = mock(OrderLineReadService.class);
         var time = Instant.parse("2026-10-03T00:00:00.123456Z");
-        var bindings = List.of(new Binding("M-1", "C-1", "one"), new Binding("M-2", "C-2", "two"));
-        var context = new Context("buyer", null, Role.CUSTOMER, null, "B-1", 1, bindings, null);
+        var bindings = List.of(new Binding("M-1", "B-1", "one"), new Binding("M-2", "B-1", "two"));
+        var context = new Context("buyer", null, Role.CUSTOMER, "B-1", 1, bindings, null);
         when(reads.list(anyString(), anyString(), isNull(), isNull(), nullable(String.class), anyInt()))
                 .thenAnswer(inv -> {
                     String merchant = inv.getArgument(0), cursor = inv.getArgument(4);
@@ -41,8 +41,8 @@ class PublicOrderReadsTest {
                 });
         var service = new PublicOrderReads(reads);
         var first = service.list(context, null, 1);
-        var changed = new Context(
-                "buyer", null, Role.CUSTOMER, null, "B-1", 1, List.of(new Binding("M-1", "other", "one")), null);
+        var changed =
+                new Context("buyer", null, Role.CUSTOMER, "B-1", 1, List.of(new Binding("M-1", "other", "one")), null);
         assertThatThrownBy(() -> service.list(changed, first.page().nextCursor(), 1))
                 .isInstanceOf(ShoppingService.Refused.class);
         List<String> seen = new ArrayList<>();

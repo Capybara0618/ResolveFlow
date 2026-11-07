@@ -116,7 +116,7 @@ class StaffAdminApiTest extends CaseDatabaseTest {
     void administratorListsOnlyItsMerchantWithRealPaginationAndNoCredentials() {
         String admin = token("personnel-admin");
         JsonNode first = read(admin, "?limit=1");
-        assertThat(first.get("total").longValue()).isEqualTo(4);
+        assertThat(first.get("total").longValue()).isEqualTo(3);
         assertThat(first.get("current_username").stringValue()).isEqualTo("personnel-admin");
         assertThat(first.get("enabled_admins").longValue()).isEqualTo(2);
         assertThat(first.get("items").size()).isEqualTo(1);
@@ -125,7 +125,8 @@ class StaffAdminApiTest extends CaseDatabaseTest {
         assertThat(next.at("/items/0/username").stringValue())
                 .isNotEqualTo(first.at("/items/0/username").stringValue());
         String all = read(admin, "?limit=100").toString();
-        assertThat(all).doesNotContain("personnel-other-admin", "password", "hash", "identity_version");
+        assertThat(all)
+                .doesNotContain("personnel-other-admin", "personnel-customer", "password", "hash", "identity_version");
         assertThat(read(admin, "?role=REVIEWER&query=worker").get("total").longValue())
                 .isEqualTo(1);
         for (String params : new String[] {"role=MERCHANT_ADMIN", "query=different", "status=DISABLED"})
@@ -227,7 +228,7 @@ class StaffAdminApiTest extends CaseDatabaseTest {
         String worker = login("personnel-new", "initial-pass-1");
         String id = UUID.randomUUID().toString();
         jdbc.update(
-                "INSERT INTO aftersale_case (case_id,merchant_id,customer_id,order_id,line_id,description,status,input_revision,version,created_at,updated_at) VALUES (?,'M-personnel','C-personnel',?,'personnel-line','合成申请','PENDING_REVIEW',1,1,NOW(6),NOW(6))",
+                "INSERT INTO aftersale_case (case_id,merchant_id,buyer_id,order_id,line_id,description,status,input_revision,version,created_at,updated_at) VALUES (?,'M-personnel','C-personnel',?,'personnel-line','合成申请','PENDING_REVIEW',1,1,NOW(6),NOW(6))",
                 id,
                 UUID.randomUUID().toString());
         rest.post()
@@ -353,7 +354,7 @@ class StaffAdminApiTest extends CaseDatabaseTest {
     @Test
     void fixedBindingsAndMinimumPasswordPolicyAreEnforced() {
         String admin = token("personnel-admin");
-        post(admin, "/personnel-customer", "\"1\"", update("REVIEWER", true, "非法角色转换"), 422);
+        post(admin, "/personnel-customer", "\"1\"", update("REVIEWER", true, "非法角色转换"), 404);
         for (String role : new String[] {"CUSTOMER", "OPERATOR", "UNKNOWN"})
             post(
                     admin,

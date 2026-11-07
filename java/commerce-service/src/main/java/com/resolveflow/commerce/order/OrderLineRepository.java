@@ -37,7 +37,7 @@ public interface OrderLineRepository {
                       FROM checkout_draft d
                       LEFT JOIN checkout_draft_line dl ON dl.draft_id = d.draft_id AND dl.sku_id = l.sku
                      WHERE d.order_id = l.order_id AND d.status = 'PAID'
-                       AND d.merchant_id = l.merchant_id AND d.customer_id = l.customer_id
+                       AND d.merchant_id = l.merchant_id AND d.buyer_id = l.buyer_id
                        AND ((d.kind = 'SINGLE' AND d.sku_id = l.sku)
                             OR (d.kind = 'MULTI' AND dl.sku_id = l.sku))) AS assetKey,
                    l.category          AS category,
@@ -49,8 +49,8 @@ public interface OrderLineRepository {
                    l.version           AS version
               FROM order_line l
              WHERE l.merchant_id = #{merchantId}
-            <if test="customerId != null">
-               AND l.customer_id = #{customerId}
+            <if test="buyerId != null">
+               AND l.buyer_id = #{buyerId}
             </if>
             <if test="orderId != null">
                AND l.order_id = #{orderId}
@@ -68,7 +68,7 @@ public interface OrderLineRepository {
             """)
     List<OrderLineRow> findVisible(
             @Param("merchantId") String merchantId,
-            @Param("customerId") String customerId,
+            @Param("buyerId") String buyerId,
             @Param("orderId") String orderId,
             @Param("lineId") String lineId,
             @Param("beforePaidAt") Instant beforePaidAt,
@@ -88,7 +88,7 @@ public interface OrderLineRepository {
             SELECT l.line_id                AS lineId,
                    l.order_id               AS orderId,
                    l.merchant_id            AS merchantId,
-                   l.customer_id            AS customerId,
+                   l.buyer_id            AS buyerId,
                    l.sku                    AS sku,
                    l.category               AS category,
                    l.quantity               AS quantity,

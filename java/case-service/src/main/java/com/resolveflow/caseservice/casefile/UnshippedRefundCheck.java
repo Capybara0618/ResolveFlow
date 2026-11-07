@@ -48,7 +48,7 @@ public class UnshippedRefundCheck {
     private String currentFailure(CaseRow row) {
         final com.resolveflow.shared.shopping.FulfillmentWire.Fulfillment snapshot;
         try {
-            snapshot = commerce.fulfillment(row.orderId(), row.merchantId(), row.customerId());
+            snapshot = commerce.fulfillment(row.orderId(), row.merchantId(), row.buyerId());
         } catch (CommerceShoppingClient.Refused error) {
             if (error.status != 404) throw error;
             return "未发货退款依据不存在：不能把缺失物流视为未发货";

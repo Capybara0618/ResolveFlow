@@ -46,17 +46,17 @@ final class PurchasePageReader {
         var published = new HashMap<Published, String>();
         if (!drafts.isEmpty()) {
             for (var row : jdbc.queryForList(
-                    "SELECT * FROM checkout_draft WHERE merchant_id=:merchant AND customer_id=:customer AND draft_id IN (:drafts)",
+                    "SELECT * FROM checkout_draft WHERE merchant_id=:merchant AND buyer_id=:customer AND draft_id IN (:drafts)",
                     args)) headers.put((String) row.get("draft_id"), row);
             if (headers.values().stream().anyMatch(row -> "MULTI".equals(row.get("kind"))))
                 jdbc.query(
-                        "SELECT l.* FROM checkout_draft_line l JOIN checkout_draft d ON d.draft_id=l.draft_id WHERE d.merchant_id=:merchant AND d.customer_id=:customer AND d.draft_id IN (:drafts) AND d.kind='MULTI' ORDER BY l.draft_id,l.sku_id",
+                        "SELECT l.* FROM checkout_draft_line l JOIN checkout_draft d ON d.draft_id=l.draft_id WHERE d.merchant_id=:merchant AND d.buyer_id=:customer AND d.draft_id IN (:drafts) AND d.kind='MULTI' ORDER BY l.draft_id,l.sku_id",
                         args,
                         (RowCallbackHandler)
                                 rs -> children.computeIfAbsent(rs.getString("draft_id"), ignored -> new ArrayList<>())
                                         .add(DraftLines.row(rs)));
             jdbc.query(
-                    "SELECT p.* FROM checkout_payment_attempt p JOIN checkout_draft d ON d.draft_id=p.draft_id WHERE d.merchant_id=:merchant AND d.customer_id=:customer AND d.draft_id IN (:drafts) AND NOT EXISTS(SELECT 1 FROM checkout_payment_attempt newer WHERE newer.draft_id=p.draft_id AND newer.sequence_no>p.sequence_no)",
+                    "SELECT p.* FROM checkout_payment_attempt p JOIN checkout_draft d ON d.draft_id=p.draft_id WHERE d.merchant_id=:merchant AND d.buyer_id=:customer AND d.draft_id IN (:drafts) AND NOT EXISTS(SELECT 1 FROM checkout_payment_attempt newer WHERE newer.draft_id=p.draft_id AND newer.sequence_no>p.sequence_no)",
                     args,
                     (RowCallbackHandler) rs -> payments.put(rs.getString("draft_id"), CheckoutPayments.payment(rs)));
             if (headers.values().stream()
@@ -65,7 +65,7 @@ final class PurchasePageReader {
                             && "SUCCEEDED"
                                     .equals(payments.get(row.get("draft_id")).status())))
                 jdbc.query(
-                        "SELECT l.* FROM checkout_payment_line l JOIN checkout_payment_attempt p ON p.attempt_id=l.attempt_id JOIN checkout_draft d ON d.draft_id=p.draft_id WHERE d.merchant_id=:merchant AND d.customer_id=:customer AND d.draft_id IN (:drafts) AND d.kind='MULTI' AND p.status='SUCCEEDED'",
+                        "SELECT l.* FROM checkout_payment_line l JOIN checkout_payment_attempt p ON p.attempt_id=l.attempt_id JOIN checkout_draft d ON d.draft_id=p.draft_id WHERE d.merchant_id=:merchant AND d.buyer_id=:customer AND d.draft_id IN (:drafts) AND d.kind='MULTI' AND p.status='SUCCEEDED'",
                         args,
                         (RowCallbackHandler) rs -> published.put(
                                 new Published(rs.getString("attempt_id"), rs.getString("sku_id")),
@@ -75,12 +75,12 @@ final class PurchasePageReader {
         var oldLines = new HashMap<String, List<Line>>();
         if (!legacy.isEmpty()) {
             jdbc.query(
-                    "SELECT o.*,g.paid_amount,COALESCE(s.name,o.merchant_id) AS store_name FROM orders o JOIN payment_ledger g ON g.order_id=o.order_id LEFT JOIN catalog_store s ON s.store_id=o.merchant_id WHERE o.merchant_id=:merchant AND o.customer_id=:customer AND o.order_id IN (:legacy) AND NOT EXISTS(SELECT 1 FROM checkout_draft d WHERE d.order_id=o.order_id)",
+                    "SELECT o.*,g.paid_amount,COALESCE(s.name,o.merchant_id) AS store_name FROM orders o JOIN payment_ledger g ON g.order_id=o.order_id LEFT JOIN catalog_store s ON s.store_id=o.merchant_id WHERE o.merchant_id=:merchant AND o.buyer_id=:customer AND o.order_id IN (:legacy) AND NOT EXISTS(SELECT 1 FROM checkout_draft d WHERE d.order_id=o.order_id)",
                     args,
                     (RowCallbackHandler) rs -> old.put(
                             rs.getString("order_id"), PurchaseReads.paid(rs, "order:" + rs.getString("order_id"))));
             jdbc.query(
-                    "SELECT l.* FROM order_line l JOIN orders o ON o.order_id=l.order_id WHERE o.merchant_id=:merchant AND o.customer_id=:customer AND l.merchant_id=:merchant AND l.customer_id=:customer AND o.order_id IN (:legacy) ORDER BY l.order_id,l.line_id",
+                    "SELECT l.* FROM order_line l JOIN orders o ON o.order_id=l.order_id WHERE o.merchant_id=:merchant AND o.buyer_id=:customer AND l.merchant_id=:merchant AND l.buyer_id=:customer AND o.order_id IN (:legacy) ORDER BY l.order_id,l.line_id",
                     args,
                     (RowCallbackHandler)
                             rs -> oldLines.computeIfAbsent(rs.getString("order_id"), ignored -> new ArrayList<>())
@@ -106,9 +106,9 @@ final class PurchasePageReader {
             jdbc.query(
                     "SELECT g.*,shopping.stage FROM payment_ledger g JOIN orders o ON o.order_id=g.order_id JOIN ("
                             + PurchaseStages.TABLE.replace(
-                                    "o.merchant_id=? AND o.customer_id=?",
-                                    "o.merchant_id=:merchant AND o.customer_id=:customer AND o.order_id IN (:orders)")
-                            + ") shopping ON shopping.order_id=o.order_id WHERE o.merchant_id=:merchant AND o.customer_id=:customer AND o.order_id IN (:orders)",
+                                    "o.merchant_id=? AND o.buyer_id=?",
+                                    "o.merchant_id=:merchant AND o.buyer_id=:customer AND o.order_id IN (:orders)")
+                            + ") shopping ON shopping.order_id=o.order_id WHERE o.merchant_id=:merchant AND o.buyer_id=:customer AND o.order_id IN (:orders)",
                     args,
                     (RowCallbackHandler) rs -> {
                         stages.put(rs.getString("order_id"), rs.getString("stage"));

@@ -1,9 +1,20 @@
 {
-  "IdentityResolveRequest": {"user_authorization": "Bearer synthetic-user-token"},
+  "IdentityResolveRequest": {
+    "user_authorization": "Bearer synthetic-user-token"
+  },
   "IdentityContext": {
-    "subject": "synthetic-buyer", "merchant_id": null, "role": "CUSTOMER",
-    "customer_id": null, "buyer_id": "synthetic-buyer", "identity_version": 1,
-    "bindings": [{"merchant_id": "M-1001", "customer_id": "C-SYNTHETIC", "merchant_name": "合成商家"}],
+    "subject": "synthetic-buyer",
+    "merchant_id": null,
+    "role": "CUSTOMER",
+    "buyer_id": "synthetic-buyer",
+    "identity_version": 1,
+    "bindings": [
+      {
+        "merchant_id": "M-1001",
+        "buyer_id": "synthetic-buyer",
+        "merchant_name": "合成商家"
+      }
+    ],
     "shipping": null
   }
 }

@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 class BuyerPurchaseServiceTest {
     @Test
     void stableShardMergePreservesAnchorsAndBindsCursorToBuyerScopeAndFilters() {
-        var buyer = new AuthenticatedPrincipal("buyer", null, Role.CUSTOMER, null, "B-one");
+        var buyer = new AuthenticatedPrincipal("buyer", null, Role.CUSTOMER, "B-one");
         var scopes = mock(BuyerScopes.class);
         var commerce = mock(CommerceShoppingClient.class);
         when(scopes.list(any()))
@@ -63,11 +63,7 @@ class BuyerPurchaseServiceTest {
         var page = service.list(buyer, null, null, null, 1);
         var firstCursor = page.nextCursor();
         assertThatThrownBy(() -> service.list(
-                        new AuthenticatedPrincipal("other", null, Role.CUSTOMER, null, "B-two"),
-                        null,
-                        null,
-                        firstCursor,
-                        1))
+                        new AuthenticatedPrincipal("other", null, Role.CUSTOMER, "B-two"), null, null, firstCursor, 1))
                 .isInstanceOf(CommerceShoppingClient.Refused.class);
         assertThatThrownBy(() -> service.list(buyer, "M-1", null, firstCursor, 1))
                 .isInstanceOf(CommerceShoppingClient.Refused.class);
@@ -94,7 +90,7 @@ class BuyerPurchaseServiceTest {
 
     @Test
     void anyShardOutageFailsWholeList() {
-        var buyer = new AuthenticatedPrincipal("buyer", null, Role.CUSTOMER, null, "B-one");
+        var buyer = new AuthenticatedPrincipal("buyer", null, Role.CUSTOMER, "B-one");
         var scopes = mock(BuyerScopes.class);
         var commerce = mock(CommerceShoppingClient.class);
         when(scopes.list(buyer))

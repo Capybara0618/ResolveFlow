@@ -9,7 +9,7 @@ import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-/** Trusted ownership lookup. Bindings cannot be created or claimed through a public endpoint. */
+/** A global buyer is scoped to an enabled store; each resource still checks its buyer_id. */
 @Service
 public class BuyerScopes {
     private final JdbcTemplate jdbc;
@@ -22,10 +22,11 @@ public class BuyerScopes {
         this.commerce = commerce;
     }
 
-    public record Scope(String merchantId, String customerId, String merchantName) {
+    public record Scope(String merchantId, String buyerId, String merchantName) {
         public AuthenticatedPrincipal principal(AuthenticatedPrincipal buyer) {
-            if (!buyer.isPlatformBuyer()) throw new IllegalArgumentException("platform buyer required");
-            return new AuthenticatedPrincipal(buyer.subject(), merchantId, Role.CUSTOMER, customerId);
+            if (!buyer.isPlatformBuyer() || !buyer.buyerId().equals(buyerId))
+                throw new IllegalArgumentException("scope must retain the authenticated buyer");
+            return new AuthenticatedPrincipal(buyer.subject(), merchantId, Role.CUSTOMER, buyerId);
         }
     }
 
@@ -33,9 +34,8 @@ public class BuyerScopes {
         if (!buyer.isPlatformBuyer()) throw new IllegalArgumentException("platform buyer required");
         return jdbc.query(
                 """
-            SELECT b.merchant_id,b.customer_id,m.display_name FROM buyer_customer_binding b
-            JOIN identity_merchant m ON m.merchant_id=b.merchant_id
-            WHERE b.buyer_id=? AND m.enabled=TRUE ORDER BY b.merchant_id
+            SELECT m.merchant_id,? AS buyer_id,m.display_name FROM identity_merchant m
+            WHERE m.enabled=TRUE ORDER BY m.merchant_id
             """, (rs, n) -> new Scope(rs.getString(1), rs.getString(2), rs.getString(3)), buyer.buyerId());
     }
 
@@ -44,8 +44,8 @@ public class BuyerScopes {
         var row = cases.findCase(caseId);
         if (row != null)
             for (var scope : list(caller)) {
-                if (row.merchantId().equals(scope.merchantId())
-                        && row.customerId().equals(scope.customerId())) return scope.principal(caller);
+                if (row.merchantId().equals(scope.merchantId()) && row.buyerId().equals(scope.buyerId()))
+                    return scope.principal(caller);
             }
         throw new CaseReadService.CaseNotVisibleException();
     }

@@ -28,7 +28,6 @@ public class PersistentAccounts {
             String username,
             String merchantId,
             Role role,
-            String customerId,
             String buyerId,
             String displayName,
             String merchantName,
@@ -37,12 +36,11 @@ public class PersistentAccounts {
             long identityVersion,
             Boolean singleOperator) {
         AuthenticatedPrincipal principal() {
-            return new AuthenticatedPrincipal(username, merchantId, role, customerId, buyerId);
+            return new AuthenticatedPrincipal(username, merchantId, role, buyerId);
         }
 
         Profile profile() {
-            return new Profile(
-                    username, merchantId, role, customerId, displayName, merchantName, buyerId, singleOperator);
+            return new Profile(username, merchantId, role, displayName, merchantName, buyerId, singleOperator);
         }
     }
 
@@ -51,7 +49,6 @@ public class PersistentAccounts {
             String username,
             @JsonProperty("merchant_id") String merchantId,
             Role role,
-            @JsonProperty("customer_id") String customerId,
             @JsonProperty("display_name") String displayName,
             @JsonProperty("merchant_name") String merchantName,
             @JsonProperty("buyer_id") String buyerId,
@@ -60,7 +57,7 @@ public class PersistentAccounts {
     private Account find(String username) {
         var rows = jdbc.query(
                 """
-                SELECT a.username,a.merchant_id,a.role,a.customer_id,a.buyer_id,a.display_name,a.password_hash,
+                SELECT a.username,a.merchant_id,a.role,a.buyer_id,a.display_name,a.password_hash,
                        a.identity_version,(a.enabled AND (a.role='PLATFORM_ADMIN' OR a.buyer_id IS NOT NULL OR m.enabled)
                        AND (a.role IN ('CUSTOMER','MERCHANT_ADMIN','PLATFORM_ADMIN') OR NOT m.single_operator)) AS enabled,
                        m.display_name AS merchant_name, IF(a.role='MERCHANT_ADMIN' AND m.single_operator,TRUE,NULL) AS single_operator
@@ -71,7 +68,6 @@ public class PersistentAccounts {
                         rs.getString("username"),
                         rs.getString("merchant_id"),
                         Role.valueOf(rs.getString("role")),
-                        rs.getString("customer_id"),
                         rs.getString("buyer_id"),
                         rs.getString("display_name"),
                         rs.getString("merchant_name"),
@@ -96,7 +92,6 @@ public class PersistentAccounts {
                 codec.timeToLive().getSeconds(),
                 account.role(),
                 account.merchantId(),
-                account.customerId(),
                 account.displayName(),
                 account.merchantName(),
                 account.buyerId(),
@@ -110,8 +105,7 @@ public class PersistentAccounts {
                 || account.identityVersion() != identityVersion
                 || !Objects.equals(account.merchantId(), principal.merchantId())
                 || account.role() != principal.role()
-                || !Objects.equals(account.buyerId(), principal.buyerId())
-                || !Objects.equals(account.customerId(), principal.customerId()))
+                || !Objects.equals(account.buyerId(), principal.buyerId()))
             throw new JwtCodec.TokenException("user session is no longer current");
         return account.profile();
     }

@@ -25,7 +25,7 @@ def router_for(authenticate: Any, run_store: Any) -> APIRouter:
         if (
             identity.subject != "case-service"
             or identity.merchant_id != body.merchant_id
-            or identity.customer_id != body.customer_id
+            or identity.buyer_id != body.buyer_id
         ):
             raise HTTPException(403, detail="support identity does not match the bound dispatch")
         try:

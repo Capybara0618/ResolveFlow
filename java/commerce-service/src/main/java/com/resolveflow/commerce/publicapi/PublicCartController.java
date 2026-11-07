@@ -22,7 +22,7 @@ public class PublicCartController {
     public Cart read(@RequestHeader(name = "Authorization", required = false) String auth) {
         var actor = access.buyer(auth);
         return new Cart(actor.bindings().stream()
-                .map(s -> carts.read(s.merchantId(), s.customerId()))
+                .map(s -> carts.read(s.merchantId(), s.buyerId()))
                 .toList());
     }
 
@@ -33,7 +33,7 @@ public class PublicCartController {
             @PathVariable("store_id") String store,
             @RequestBody Request request) {
         var s = CommerceAccess.binding(access.buyer(auth), store);
-        return carts.write(new Command(s.merchantId(), s.customerId(), CommerceAccess.key(key), request));
+        return carts.write(new Command(s.merchantId(), s.buyerId(), CommerceAccess.key(key), request));
     }
 
     @PostMapping("/{store_id}/quote")
@@ -42,7 +42,7 @@ public class PublicCartController {
             @PathVariable("store_id") String store,
             @RequestBody MultiCheckoutWire.QuoteRequest request) {
         var s = CommerceAccess.binding(access.buyer(auth), store);
-        return checkout.quote(new MultiCheckoutWire.QuoteCommand(s.merchantId(), s.customerId(), request));
+        return checkout.quote(new MultiCheckoutWire.QuoteCommand(s.merchantId(), s.buyerId(), request));
     }
 
     @PostMapping("/{store_id}/drafts")
@@ -55,12 +55,12 @@ public class PublicCartController {
         CommerceAccess.key(key);
         if (request.shipping() == null) throw new ShoppingService.Refused(400, "ADDRESS_REQUIRED", "请选择收货地址");
         try {
-            return checkout.create(new MultiCheckoutWire.Command(s.merchantId(), s.customerId(), key, request));
+            return checkout.create(new MultiCheckoutWire.Command(s.merchantId(), s.buyerId(), key, request));
         } catch (ShoppingService.Refused e) {
             if (!e.code.equals("SHIPPING_NOT_CAPTURED")) throw e;
         }
         // Both transactions finish before this account call; a replay needs no address reread.
         var snapshot = access.shipping(auth, request.shipping());
-        return checkout.create(new MultiCheckoutWire.Command(s.merchantId(), s.customerId(), key, request, snapshot));
+        return checkout.create(new MultiCheckoutWire.Command(s.merchantId(), s.buyerId(), key, request, snapshot));
     }
 }

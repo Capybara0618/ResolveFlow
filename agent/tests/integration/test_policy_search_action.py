@@ -69,7 +69,7 @@ def facts(**overrides: object) -> RunFacts:
         "line_id": "7001",
         "description": "包裹丢了，希望退款",
         "merchant_id": "M-1001",
-        "customer_id": "C-2002",
+        "buyer_id": "C-2002",
         "policy_manifest": {
             "merchant_id": BUNDLE.merchant_id,
             "bundle_ids": [BUNDLE.bundle_id],

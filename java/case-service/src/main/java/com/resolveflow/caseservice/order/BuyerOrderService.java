@@ -33,7 +33,7 @@ public class BuyerOrderService {
         // Personal demo has two controlled stores. This is an explicit bound, never a partial list.
         if (bindings.size() > 20) throw new CommerceOrderLineClient.CommerceProtocolException("too many buyer stores");
         String bindingKey = bindings.stream()
-                .map(s -> s.merchantId() + ":" + s.customerId())
+                .map(s -> s.merchantId() + ":" + s.buyerId())
                 .collect(java.util.stream.Collectors.joining("|"));
         var after = new LinkedHashMap<String, String>();
         if (cursor != null)

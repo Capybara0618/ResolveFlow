@@ -24,21 +24,21 @@ public final class MultiCheckoutWire {
 
     public record Command(
             @JsonProperty("merchant_id") String merchantId,
-            @JsonProperty("customer_id") String customerId,
+            @JsonProperty("buyer_id") String buyerId,
             @JsonProperty("idempotency_key") String idempotencyKey,
             Request request,
 
             @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
             @JsonProperty("shipping_snapshot")
             ShippingWire.Snapshot shippingSnapshot) {
-        public Command(String merchantId, String customerId, String idempotencyKey, Request request) {
-            this(merchantId, customerId, idempotencyKey, request, null);
+        public Command(String merchantId, String buyerId, String idempotencyKey, Request request) {
+            this(merchantId, buyerId, idempotencyKey, request, null);
         }
     }
 
     public record QuoteCommand(
             @JsonProperty("merchant_id") String merchantId,
-            @JsonProperty("customer_id") String customerId,
+            @JsonProperty("buyer_id") String buyerId,
             QuoteRequest request) {}
 
     public record Line(

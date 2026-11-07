@@ -13,7 +13,7 @@ def test_fulfillment_shared_closed_protocol(name):
     for owner in ['case', 'commerce']:
         validator = component_validator(owner, name, 'contracts/core')
         assert validator.accepts(FIXTURES[name]), validator.error_messages(FIXTURES[name])
-        assert not validator.accepts({**FIXTURES[name], 'customer_id': 'foreign'})
+        assert not validator.accepts({**FIXTURES[name], 'buyer_id': 'foreign'})
     assert load_openapi('case', 'contracts/core')['components']['schemas'][name] == (
         load_openapi('commerce', 'contracts/core')['components']['schemas'][name])
 
@@ -38,7 +38,7 @@ def test_local_unshipped_is_not_a_carrier_delivery_or_missing_history():
 
 def test_public_shipment_only_accepts_observed_version():
     v = component_validator('case', 'SimulatedShipmentRequest', 'contracts/core')
-    for extra in ['merchant_id', 'actor', 'customer_id', 'status', 'occurred_at', 'template']:
+    for extra in ['merchant_id', 'actor', 'buyer_id', 'status', 'occurred_at', 'template']:
         assert not v.accepts({'expected_version': 1, extra: 'forged'})
     for version in [0, -1, None, 1.5, 9223372036854775808]:
         assert not v.accepts({'expected_version': version})

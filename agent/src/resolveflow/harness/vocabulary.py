@@ -98,7 +98,7 @@ class RunFacts:
     line_id: str
     description: str
     merchant_id: str | None = None
-    customer_id: str | None = None
+    buyer_id: str | None = None
     #: The window the run may work inside (`docs/agent-spec.md:42`), already resolved to
     #: ``min(deadline, start + 120s)`` by whoever started it. ``None`` means no worker has fixed one yet.
     active_deadline_at: str | None = None

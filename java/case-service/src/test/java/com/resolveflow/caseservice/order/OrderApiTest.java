@@ -86,7 +86,7 @@ class OrderApiTest extends com.resolveflow.caseservice.CaseDatabaseTest {
         public CommerceOrderLineClient.OrderLinePage list(
                 AuthenticatedPrincipal principal, String orderId, String cursor, Integer limit) {
             record(principal, orderId);
-            return answer();
+            return principal.role() == Role.CUSTOMER && !"M-1001".equals(principal.merchantId()) ? page() : answer();
         }
 
         @Override
@@ -126,7 +126,9 @@ class OrderApiTest extends com.resolveflow.caseservice.CaseDatabaseTest {
 
     private String customerToken() {
         return jwtCodec.issue(
-                new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002"), Instant.now());
+                new AuthenticatedPrincipal(
+                        "demo-customer", null, Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"),
+                Instant.now());
     }
 
     private String reviewerToken() {
@@ -137,16 +139,23 @@ class OrderApiTest extends com.resolveflow.caseservice.CaseDatabaseTest {
     @Test
     void aScopedProductLineCanBeReadWithoutLoadingTheWholeOrder() {
         commerce.next = StubCommerce.page("7001");
-        rest.get().uri("/api/v1/orders/lines/7001?merchant_id=M-1002&customer_id=C-2004")
+        rest.get()
+                .uri(
+                        "/api/v1/orders/lines/7001?merchant_id=M-1002&buyer_id=B-legacy-6f808772ade9cc75fd3896626db511b718eebaa2")
                 .header("Authorization", "Bearer " + reviewerToken())
-                .exchange().expectStatus().isOk();
+                .exchange()
+                .expectStatus()
+                .isOk();
         assertThat(commerce.lastPrincipal.get().merchantId()).isEqualTo("M-1001");
-        assertThat(commerce.lastPrincipal.get().customerId()).isNull();
+        assertThat(commerce.lastPrincipal.get().buyerId()).isNull();
         assertThat(commerce.lastOrderId.get()).isEqualTo("7001");
         commerce.next = StubCommerce.page();
-        rest.get().uri("/api/v1/orders/lines/hidden")
+        rest.get()
+                .uri("/api/v1/orders/lines/hidden")
                 .header("Authorization", "Bearer " + customerToken())
-                .exchange().expectStatus().isNotFound();
+                .exchange()
+                .expectStatus()
+                .isNotFound();
     }
 
     @Test
@@ -155,7 +164,8 @@ class OrderApiTest extends com.resolveflow.caseservice.CaseDatabaseTest {
         commerce.next = StubCommerce.page("7001", "7002");
 
         String body = rest.get()
-                .uri("/api/v1/orders?merchant_id=M-1002&customer_id=C-2004&scope=all")
+                .uri(
+                        "/api/v1/orders?merchant_id=M-1002&buyer_id=B-legacy-6f808772ade9cc75fd3896626db511b718eebaa2&scope=all")
                 .header("Authorization", "Bearer " + customerToken())
                 .exchange()
                 .expectStatus()
@@ -166,9 +176,10 @@ class OrderApiTest extends com.resolveflow.caseservice.CaseDatabaseTest {
 
         // The query string named another merchant and customer; the token decided, and the extra
         // parameters were not even read.
-        assertThat(commerce.lastPrincipal.get().merchantId()).isEqualTo("M-1001");
-        assertThat(commerce.lastPrincipal.get().customerId()).isEqualTo("C-2002");
+        assertThat(commerce.lastPrincipal.get().buyerId())
+                .isEqualTo("B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         JsonNode json = MAPPER.readTree(body);
+        assertThat(json.get("items").get(0).get("merchant_id").stringValue()).isEqualTo("M-1001");
         assertThat(json.get("items")).hasSize(2);
         assertThat(json.get("page").get("limit").asInt()).isEqualTo(20);
     }
@@ -186,7 +197,7 @@ class OrderApiTest extends com.resolveflow.caseservice.CaseDatabaseTest {
                 .isOk();
 
         assertThat(commerce.lastPrincipal.get().role()).isEqualTo(Role.REVIEWER);
-        assertThat(commerce.lastPrincipal.get().customerId()).isNull();
+        assertThat(commerce.lastPrincipal.get().buyerId()).isNull();
     }
 
     @Test

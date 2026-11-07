@@ -60,9 +60,9 @@ public class PublicMerchantController {
             @RequestHeader(name = "Authorization", required = false) String auth,
             @PathVariable("purchase_id") String id) {
         return CommerceAccess.owned(access.buyer(auth), s -> {
-            var p = purchases.read(id, s.merchantId(), s.customerId());
+            var p = purchases.read(id, s.merchantId(), s.buyerId());
             if (!"PAID".equals(p.status()) || p.orderId() == null) throw CommerceAccess.missing();
-            return trades.buyer(p.orderId(), s.merchantId(), s.customerId());
+            return trades.buyer(p.orderId(), s.merchantId(), s.buyerId());
         });
     }
 }

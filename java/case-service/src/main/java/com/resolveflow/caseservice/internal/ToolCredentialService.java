@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
  *       is still valid</em> — which is why this is a service and not a pure signing function.
  * </ul>
  *
- * <p><b>Where the run context comes from.</b> {@code merchant_id}, {@code customer_id} and {@code line_id} are
+ * <p><b>Where the run context comes from.</b> {@code merchant_id}, {@code buyer_id} and {@code line_id} are
  * read from the case row, never from the request: the body carries only {@code case_id} and
  * {@code input_revision} (the contract declares nothing else), and a credential that echoed a caller's idea of
  * the merchant would be a credential the caller scoped. The {@code case_id} in the body is still checked against
@@ -192,7 +192,7 @@ public class ToolCredentialService {
                 named.runId(),
                 inputRevision,
                 row.merchantId(),
-                row.customerId(),
+                row.buyerId(),
                 row.lineId(),
                 TOOL_SCOPES,
                 timeToLive);

@@ -67,7 +67,7 @@ class ProductReviewApiTest extends CommerceDatabaseTest {
     void agentCannotReadOrWritePrivateReviewsEvenWithForgedDeploymentScopes() {
         String token = auth("agent-service", "commerce:checkout commerce:fulfillment");
         rest.get()
-                .uri("/internal/v1/shop/orders/lines/any/review?merchant_id=M-1001&customer_id=OTHER")
+                .uri("/internal/v1/shop/orders/lines/any/review?merchant_id=M-1001&buyer_id=OTHER")
                 .header("Authorization", token)
                 .exchange()
                 .expectStatus()
@@ -102,7 +102,7 @@ class ProductReviewApiTest extends CommerceDatabaseTest {
                 url = "/internal/v1/shop/orders/lines/" + id + "/review",
                 token = auth("case-service", "commerce:checkout");
         rest.get()
-                .uri(url + "?merchant_id=M-1001&customer_id=OTHER")
+                .uri(url + "?merchant_id=M-1001&buyer_id=OTHER")
                 .header("Authorization", token)
                 .exchange()
                 .expectStatus()
@@ -112,7 +112,7 @@ class ProductReviewApiTest extends CommerceDatabaseTest {
                     .uri(url)
                     .header("Authorization", token)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body("{\"merchant_id\":\"M-1001\",\"customer_id\":\"REVIEW-API\",\"request\":{\"rating\":" + rating
+                    .body("{\"merchant_id\":\"M-1001\",\"buyer_id\":\"REVIEW-API\",\"request\":{\"rating\":" + rating
                             + ",\"body\":\"text\",\"expected_version\":0}}")
                     .exchange()
                     .expectStatus()
@@ -123,7 +123,7 @@ class ProductReviewApiTest extends CommerceDatabaseTest {
                 .header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(
-                        "{\"merchant_id\":\"M-1001\",\"customer_id\":\"REVIEW-API\",\"request\":{\"rating\":5,\"body\":\"text\",\"expected_version\":0,\"customer_id\":\"injected\"}}")
+                        "{\"merchant_id\":\"M-1001\",\"buyer_id\":\"REVIEW-API\",\"request\":{\"rating\":5,\"body\":\"text\",\"expected_version\":0,\"buyer_id\":\"injected\"}}")
                 .exchange()
                 .expectStatus()
                 .isBadRequest();
@@ -132,14 +132,14 @@ class ProductReviewApiTest extends CommerceDatabaseTest {
                 .header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(
-                        "{\"merchant_id\":\"M-1001\",\"customer_id\":\"REVIEW-API\",\"request\":{\"rating\":5,\"body\":\"text\",\"expected_version\":0}}")
+                        "{\"merchant_id\":\"M-1001\",\"buyer_id\":\"REVIEW-API\",\"request\":{\"rating\":5,\"body\":\"text\",\"expected_version\":0}}")
                 .exchange()
                 .expectStatus()
                 .isOk()
                 .expectBody()
                 .jsonPath("$.version")
                 .isEqualTo(1)
-                .jsonPath("$.customer_id")
+                .jsonPath("$.buyer_id")
                 .doesNotExist();
     }
 }

@@ -89,7 +89,7 @@ def facts_of(case: dict[str, Any], **overrides: Any) -> RunFacts:
         "line_id": case["given"]["line_id"],
         "description": case["given"]["description"],
         "merchant_id": MERCHANT,
-        "customer_id": CUSTOMER,
+        "buyer_id": CUSTOMER,
         "policy_manifest": {
             "merchant_id": MERCHANT,
             "bundle_ids": [policy["bundle_id"]] if policy else [],

@@ -33,7 +33,7 @@ public class CartController {
     }
 
     @GetMapping("/{store_id}")
-    public Group read(@PathVariable("store_id") String store, @RequestParam("customer_id") String customer) {
+    public Group read(@PathVariable("store_id") String store, @RequestParam("buyer_id") String customer) {
         return cart.read(store, customer);
     }
 

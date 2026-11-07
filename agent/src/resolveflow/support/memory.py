@@ -42,7 +42,7 @@ class ClaimSnapshot(Closed):
     origin: Literal["GROUNDED_CUSTOMER_CLAIMS"]
     conversation_id: str
     merchant_id: str
-    customer_id: str
+    buyer_id: str
     line_id: str
     input_version: int = Field(ge=1, strict=True)
     entries: list[ClaimEntry] = Field(max_length=24)
@@ -105,7 +105,7 @@ class CustomerMemory:
             try:
                 snapshot = ClaimSnapshot.model_validate(raw)
                 if any(getattr(snapshot, field) != getattr(request, field)
-                       for field in ("conversation_id", "merchant_id", "customer_id", "line_id")):
+                       for field in ("conversation_id", "merchant_id", "buyer_id", "line_id")):
                     raise ValueError("scope mismatch")
                 if snapshot.input_version >= request.input_version:
                     raise ValueError("nonhistorical snapshot")
@@ -191,5 +191,5 @@ class CustomerMemory:
         request = self.request
         return {"version": "support-claims-v1", "origin": "GROUNDED_CUSTOMER_CLAIMS",
                 "conversation_id": request.conversation_id, "merchant_id": request.merchant_id,
-                "customer_id": request.customer_id, "line_id": request.line_id,
+                "buyer_id": request.buyer_id, "line_id": request.line_id,
                 "input_version": request.input_version, "entries": deepcopy(self.entries)}

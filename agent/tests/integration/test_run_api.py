@@ -38,7 +38,7 @@ def dispatcher_token() -> str:
         SECRET,
         scope=RUN_DISPATCH_SCOPE,
         merchant_id="M-1001",
-        customer_id="C-2002",
+        buyer_id="C-2002",
     )
 
 
@@ -69,7 +69,7 @@ def a_body(**overrides: Any) -> dict[str, Any]:
         "input_revision": 1,
         "context": {
             "merchant_id": "M-1001",
-            "customer_id": "C-2002",
+            "buyer_id": "C-2002",
             "order_id": ORDER_ID,
             "line_id": "7001",
         },
@@ -195,7 +195,7 @@ def test_another_service_cannot_dispatch_a_run(client: Any) -> None:
         SECRET,
         scope=RUN_DISPATCH_SCOPE,
         merchant_id="M-1001",
-        customer_id="C-2002",
+        buyer_id="C-2002",
     )
 
     refused = post_run(client, token, a_body())
@@ -205,7 +205,7 @@ def test_another_service_cannot_dispatch_a_run(client: Any) -> None:
 
 def test_a_scope_that_is_not_run_dispatch_cannot_dispatch_a_run(client: Any) -> None:
     token = mint_service_token(
-        "case-service", SECRET, scope="commerce:read", merchant_id="M-1001", customer_id="C-2002"
+        "case-service", SECRET, scope="commerce:read", merchant_id="M-1001", buyer_id="C-2002"
     )
 
     refused = post_run(client, token, a_body())

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  * a service token, and the scope is the caller's own principal.
  *
  * <p>{@code GET /api/v1/orders} takes only paging parameters. The scramble for scope that the contract
- * test forbids — {@code merchant_id}, {@code customer_id}, {@code scope} — is absent by construction:
+ * test forbids — {@code merchant_id}, {@code buyer_id}, {@code scope} — is absent by construction:
  * a customer cannot ask for another customer's lines because there is no parameter to ask with.
  *
  * <p>{@code GET /api/v1/orders/{order_id}} answers 404 for an order the principal cannot see, never

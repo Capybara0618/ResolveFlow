@@ -41,7 +41,7 @@ public class CartController {
         var p = buyer(authorization);
         // Fail the complete read on a store outage; never imply the other store's cart is empty.
         return new Cart(scopes.list(p).stream()
-                .map(s -> commerce.cart(s.merchantId(), s.customerId()))
+                .map(s -> commerce.cart(s.merchantId(), s.buyerId()))
                 .toList());
     }
 
@@ -58,7 +58,7 @@ public class CartController {
                 .filter(v -> v.merchantId().equals(store))
                 .findFirst()
                 .orElseThrow(() -> new CommerceShoppingClient.Refused(404, "NOT_FOUND", "店铺不存在"));
-        return commerce.cartWrite(store, new Command(s.merchantId(), s.customerId(), key, request));
+        return commerce.cartWrite(store, new Command(s.merchantId(), s.buyerId(), key, request));
     }
 
     private BuyerScopes.Scope store(String authorization, String store) {
@@ -77,7 +77,7 @@ public class CartController {
         return commerce.cartQuote(
                 store,
                 new com.resolveflow.shared.shopping.MultiCheckoutWire.QuoteCommand(
-                        s.merchantId(), s.customerId(), request));
+                        s.merchantId(), s.buyerId(), request));
     }
 
     @PostMapping("/{store_id}/drafts")
@@ -94,14 +94,14 @@ public class CartController {
             return commerce.cartDraft(
                     store,
                     new com.resolveflow.shared.shopping.MultiCheckoutWire.Command(
-                            s.merchantId(), s.customerId(), key, request));
+                            s.merchantId(), s.buyerId(), key, request));
         } catch (CommerceShoppingClient.Refused e) {
             if (!e.code.equals("SHIPPING_NOT_CAPTURED")) throw e;
             var snapshot = accounts.shipping(principals.session(authorization), request.shipping());
             return commerce.cartDraft(
                     store,
                     new com.resolveflow.shared.shopping.MultiCheckoutWire.Command(
-                            s.merchantId(), s.customerId(), key, request, snapshot));
+                            s.merchantId(), s.buyerId(), key, request, snapshot));
         }
     }
 

@@ -85,7 +85,7 @@ def test_four_real_runtime_turns_and_saved_decisions_reconstruct_identical_memor
                 bound[0] = req
                 models.append(active[0])
                 token = mint_service_token("case-service", SECRET, scope="support:run",
-                                           merchant_id=req.merchant_id, customer_id=req.customer_id)
+                                           merchant_id=req.merchant_id, buyer_id=req.buyer_id)
                 headers = {"Authorization": "Bearer " + token}
                 body = {**req.model_dump(mode="json"), "tool_token": "bound-synthetic-read-token"}
                 result = api.post("/internal/v1/support-runs", json=body, headers=headers)

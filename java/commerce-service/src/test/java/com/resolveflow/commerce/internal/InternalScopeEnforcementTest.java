@@ -105,7 +105,10 @@ class InternalScopeEnforcementTest extends CommerceDatabaseTest {
         // has an audience of its own, and the audience check must still fire before any scope reasoning.
         String userToken = codec.issue(
                 new com.resolveflow.shared.security.AuthenticatedPrincipal(
-                        "demo-customer", "M-1001", com.resolveflow.shared.security.Role.CUSTOMER, "C-2002"),
+                        "demo-customer",
+                        null,
+                        com.resolveflow.shared.security.Role.CUSTOMER,
+                        "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"),
                 Instant.now());
 
         rest.get()

@@ -263,3 +263,6 @@ tmp/
 /agent/tests/unit/test_jev_intent_fifty.py
 /agent/tests/fixtures/jev-comparison-v1.json
 /agent/tests/fixtures/jev-intent-fifty-v1.json
+
+# Current identity migration regression adapters
+!/scripts/evaluation/identity_projection.py

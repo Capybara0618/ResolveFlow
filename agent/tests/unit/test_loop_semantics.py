@@ -45,7 +45,7 @@ FACTS = RunFacts(
     input_revision=1,
     line_id=LINE_ID,
     merchant_id="M-1001",
-    customer_id="C-2002",
+    buyer_id="C-2002",
     description="the parcel never arrived",
 )
 

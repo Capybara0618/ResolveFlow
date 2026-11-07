@@ -21,7 +21,7 @@ def test_both_services_share_checkout_fixture_and_schema(name: str) -> None:
 
 def test_public_payment_accepts_no_scope_amount_or_result_fields() -> None:
     validator = component_validator("case", "CheckoutEmptyRequest", "contracts/core")
-    for field in ["merchant_id", "customer_id", "total_amount", "status", "attempt_id"]:
+    for field in ["merchant_id", "buyer_id", "total_amount", "status", "attempt_id"]:
         assert not validator.accepts({field: "forged"})
     for path, method in [("drafts/{draft_id}/payment", "post"), ("drafts/{draft_id}/payment", "get"),
                          ("drafts/{draft_id}/cancel", "post"), ("purchases", "get"),
@@ -52,5 +52,5 @@ def test_unknown_or_failed_payment_cannot_claim_paid_publication() -> None:
 def test_private_checkout_keys_are_never_public_fields() -> None:
     for schema in ["CheckoutPayment", "CheckoutPurchase"]:
         validator = component_validator("case", schema, "contracts/core")
-        for field in ["idempotency_key", "customer_id", "provider_secret"]:
+        for field in ["idempotency_key", "buyer_id", "provider_secret"]:
             assert not validator.accepts({**FIXTURES[schema], field: "private"})

@@ -55,8 +55,6 @@ class PlatformManagementApiTest extends CaseDatabaseTest {
     void setup() {
         commerce.fail = false;
         jdbc.update(
-                "DELETE FROM buyer_customer_binding WHERE merchant_id='FOUNDATION-TEST' OR buyer_id IN (SELECT buyer_id FROM identity_account WHERE username='foundation-buyer')");
-        jdbc.update(
                 "DELETE FROM identity_account WHERE username IN ('foundation-platform','foundation-admin','foundation-buyer')");
         jdbc.update("DELETE FROM identity_merchant WHERE merchant_id='FOUNDATION-TEST'");
         jdbc.update(
@@ -68,8 +66,6 @@ class PlatformManagementApiTest extends CaseDatabaseTest {
     void cleanup() {
         var ids = jdbc.queryForList(
                 "SELECT buyer_id FROM identity_account WHERE username='foundation-buyer'", String.class);
-        jdbc.update(
-                "DELETE FROM buyer_customer_binding WHERE merchant_id='FOUNDATION-TEST' OR buyer_id IN (SELECT buyer_id FROM identity_account WHERE username='foundation-buyer')");
         jdbc.update(
                 "DELETE FROM identity_account WHERE username IN ('foundation-platform','foundation-admin','foundation-buyer')");
         jdbc.update("DELETE FROM identity_merchant WHERE merchant_id='FOUNDATION-TEST'");
@@ -137,7 +133,7 @@ class PlatformManagementApiTest extends CaseDatabaseTest {
     }
 
     @Test
-    void newBuyerBindsAllStoresAndDisableInvalidatesExistingSession() {
+    void newBuyerHasGlobalIdentityAndDisableInvalidatesExistingSession() {
         String token = login("foundation-platform", "123456");
         var created = create(
                 token,
@@ -146,7 +142,7 @@ class PlatformManagementApiTest extends CaseDatabaseTest {
                 201);
         assertThat(created.toString()).doesNotContain("password", "pbkdf2", "buyer_id");
         assertThat(jdbc.queryForObject(
-                        "SELECT COUNT(*) FROM buyer_customer_binding WHERE buyer_id=(SELECT buyer_id FROM identity_account WHERE username='foundation-buyer')",
+                        "SELECT COUNT(*) FROM identity_merchant WHERE enabled=TRUE AND EXISTS(SELECT 1 FROM identity_account WHERE username='foundation-buyer' AND buyer_id IS NOT NULL AND merchant_id IS NULL)",
                         Long.class))
                 .isEqualTo(jdbc.queryForObject("SELECT COUNT(*) FROM identity_merchant", Long.class));
         String buyer = login("foundation-buyer", "123456");

@@ -46,7 +46,7 @@ class StubCommerce extends CommerceOrderLineClient {
      */
     volatile String lineMerchant = "M-1001";
 
-    volatile String lineCustomer = "C-2002";
+    volatile String lineCustomer = "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80";
 
     StubCommerce(RestClient.Builder builder, JwtCodec codec) {
         super(builder, codec, "http://commerce.stub", "case-service");
@@ -67,14 +67,14 @@ class StubCommerce extends CommerceOrderLineClient {
         lineRefundState = null;
         lineOwnerMismatch = false;
         lineMerchant = "M-1001";
-        lineCustomer = "C-2002";
+        lineCustomer = "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80";
     }
 
     @Override
     public OrderLinePage listByLine(AuthenticatedPrincipal principal, String lineId) {
         lastPrincipal = principal;
         lastLineId = lineId;
-        if (!lineVisible) {
+        if (!lineVisible || !lineMerchant.equals(principal.merchantId())) {
             return new OrderLinePage(List.of(), new PageMeta(null, 1));
         }
         return new OrderLinePage(

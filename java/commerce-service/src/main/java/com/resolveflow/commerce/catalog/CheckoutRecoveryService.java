@@ -42,12 +42,12 @@ public class CheckoutRecoveryService {
                 now,
                 size);
         var due = jdbc.query(
-                "SELECT a.attempt_id,a.draft_id,d.merchant_id,d.customer_id FROM checkout_payment_attempt a JOIN checkout_draft d ON d.draft_id=a.draft_id WHERE a.status='UNKNOWN' AND d.status='PAYMENT_PENDING' AND a.next_reconcile_at<=? ORDER BY a.next_reconcile_at,a.attempt_id LIMIT ?",
+                "SELECT a.attempt_id,a.draft_id,d.merchant_id,d.buyer_id FROM checkout_payment_attempt a JOIN checkout_draft d ON d.draft_id=a.draft_id WHERE a.status='UNKNOWN' AND d.status='PAYMENT_PENDING' AND a.next_reconcile_at<=? ORDER BY a.next_reconcile_at,a.attempt_id LIMIT ?",
                 (r, n) -> new Attempt(
                         r.getString("attempt_id"),
                         r.getString("draft_id"),
                         r.getString("merchant_id"),
-                        r.getString("customer_id")),
+                        r.getString("buyer_id")),
                 now,
                 size);
         int attempted = 0, resolved = 0, failed = 0;

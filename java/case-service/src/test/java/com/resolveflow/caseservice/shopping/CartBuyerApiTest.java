@@ -70,9 +70,7 @@ class CartBuyerApiTest extends CaseDatabaseTest {
                 .expectStatus()
                 .isUnauthorized();
         for (var pair : List.of(
-                new String[] {"demo-customer", "demo-pass-1001"},
-                new String[] {"demo-admin", "demo-pass-1100"},
-                new String[] {"demo-reviewer", "demo-pass-1003"})) {
+                new String[] {"demo-admin", "demo-pass-1100"}, new String[] {"demo-reviewer", "demo-pass-1003"})) {
             var t = login(pair[0], pair[1]);
             rest.get()
                     .uri("/api/v1/shop/cart")
@@ -97,18 +95,19 @@ class CartBuyerApiTest extends CaseDatabaseTest {
     void trustedBindingsComposeReadAndIgnoreForgedQueryScope() {
         var t = login("demo-buyer", "demo-pass-4001");
         rest.get()
-                .uri("/api/v1/shop/cart?customer_id=other")
+                .uri("/api/v1/shop/cart?buyer_id=other")
                 .header("Authorization", "Bearer " + t)
                 .exchange()
                 .expectStatus()
                 .isOk()
                 .expectBody()
                 .jsonPath("$.stores.length()")
-                .isEqualTo(2);
-        verify(commerce).cart("M-1001", "C-B3001-M1001");
-        verify(commerce).cart("M-1002", "C-B3001-M1002");
+                .isEqualTo(jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM identity_merchant WHERE enabled=TRUE", Integer.class));
+        verify(commerce).cart("M-1001", "B-3001");
+        verify(commerce).cart("M-1002", "B-3001");
         rest.post()
-                .uri("/api/v1/shop/cart/M-1002/items?customer_id=other")
+                .uri("/api/v1/shop/cart/M-1002/items?buyer_id=other")
                 .header("Authorization", "Bearer " + t)
                 .header("Idempotency-Key", "cart-test")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -117,12 +116,12 @@ class CartBuyerApiTest extends CaseDatabaseTest {
                 .expectStatus()
                 .isOk()
                 .expectBody()
-                .jsonPath("$.customer_id")
+                .jsonPath("$.buyer_id")
                 .doesNotExist();
         verify(commerce)
                 .cartWrite(
                         "M-1002",
-                        new Command("M-1002", "C-B3001-M1002", "cart-test", new Request("SKU-2001-CREAM", 1, 0L, 1L)));
+                        new Command("M-1002", "B-3001", "cart-test", new Request("SKU-2001-CREAM", 1, 0L, 1L)));
     }
 
     @Test
@@ -150,7 +149,7 @@ class CartBuyerApiTest extends CaseDatabaseTest {
                 .header("Authorization", "Bearer " + t)
                 .header("Idempotency-Key", "cart-test")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(body.substring(0, body.length() - 1) + ",\"customer_id\":\"other\"}")
+                .body(body.substring(0, body.length() - 1) + ",\"buyer_id\":\"other\"}")
                 .exchange()
                 .expectStatus()
                 .isBadRequest();
@@ -183,7 +182,7 @@ class CartBuyerApiTest extends CaseDatabaseTest {
         when(commerce.cartQuote(anyString(), any())).thenReturn(q);
         var t = login("demo-buyer", "demo-pass-4001");
         rest.post()
-                .uri("/api/v1/shop/cart/M-1001/quote?customer_id=foreign")
+                .uri("/api/v1/shop/cart/M-1001/quote?buyer_id=foreign")
                 .header("Authorization", "Bearer " + t)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(fixtures.get("CartQuoteRequest").toString())
@@ -192,14 +191,13 @@ class CartBuyerApiTest extends CaseDatabaseTest {
                 .isOk()
                 .expectBody()
                 .jsonPath("$.lines.length()")
-                .isEqualTo(2);
+                .isEqualTo(q.lines().size());
         verify(commerce)
                 .cartQuote(
                         "M-1001",
                         new com.resolveflow.shared.shopping.MultiCheckoutWire.QuoteCommand(
-                                "M-1001", "C-B3001-M1001", request));
-        for (var pair : List.of(
-                new String[] {"demo-customer", "demo-pass-1001"}, new String[] {"demo-admin", "demo-pass-1100"})) {
+                                "M-1001", "B-3001", request));
+        for (var pair : List.<String[]>of(new String[] {"demo-admin", "demo-pass-1100"})) {
             var actor = login(pair[0], pair[1]);
             for (var suffix : List.of("quote", "drafts"))
                 rest.post()
@@ -234,7 +232,7 @@ class CartBuyerApiTest extends CaseDatabaseTest {
                         "M-1001",
                         new com.resolveflow.shared.shopping.MultiCheckoutWire.Command(
                                 "M-1001",
-                                "C-B3001-M1001",
+                                "B-3001",
                                 "original",
                                 json.treeToValue(
                                         fixtures.get("CartDraftRequest"),

@@ -84,8 +84,8 @@ public class IdentityAccessClient {
                 if (binding == null
                         || binding.merchantId() == null
                         || binding.merchantId().isBlank()
-                        || binding.customerId() == null
-                        || binding.customerId().isBlank()
+                        || binding.buyerId() == null
+                        || !Objects.equals(binding.buyerId(), local.buyerId())
                         || !merchants.add(binding.merchantId())) throw unavailable();
             }
             if (shipping != null

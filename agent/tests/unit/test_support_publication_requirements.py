@@ -6,7 +6,7 @@ from copy import deepcopy
 from pathlib import Path
 
 from resolveflow.support.guide import guide_source
-from resolveflow.support.protocol import SupportInput
+from tests.recorded_sources import ProjectedSupportInput as SupportInput
 from tests.unit.test_support_agent import GuideReads, read, request
 from tests.unit.test_support_answer_parts import part, parts
 from tests.unit.test_support_staged import staged, understand

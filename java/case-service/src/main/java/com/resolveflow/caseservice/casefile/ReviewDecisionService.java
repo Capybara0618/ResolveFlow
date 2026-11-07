@@ -291,7 +291,7 @@ public class ReviewDecisionService {
                     + ", so the payment this authorisation fixed cannot be made from the record it names");
         }
         var line = context.get();
-        if (!row.merchantId().equals(line.merchantId()) || !row.customerId().equals(line.customerId())) {
+        if (!row.merchantId().equals(line.merchantId()) || !row.buyerId().equals(line.buyerId())) {
             throw new CaseStateConflictException("line " + row.lineId()
                     + " is no longer this case's line, so the authorisation does not describe a payment to it");
         }

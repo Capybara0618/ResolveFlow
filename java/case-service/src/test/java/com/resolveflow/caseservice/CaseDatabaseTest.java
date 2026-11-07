@@ -173,6 +173,9 @@ public abstract class CaseDatabaseTest {
      */
     @BeforeEach
     void ensurePolicyBundlesAreInstalled() {
+        // Historical API fixtures mint version-zero tokens; migration invalidates old live sessions.
+        jdbc.update(
+                "UPDATE identity_account SET identity_version=0 WHERE username IN ('demo-customer','demo-customer-2','demo-customer-m2')");
         if (jdbc.queryForObject("SELECT COUNT(*) FROM policy_bundle", Integer.class) > 0) {
             return;
         }
@@ -185,11 +188,12 @@ public abstract class CaseDatabaseTest {
                 "INSERT IGNORE INTO identity_merchant (merchant_id,display_name,enabled) VALUES (?, ?, TRUE)",
                 merchant,
                 "测试商家 " + merchant);
+        if ("CUSTOMER".equals(role)) jdbc.update("INSERT IGNORE INTO platform_buyer(buyer_id) VALUES (?)", customer);
         jdbc.update("""
                 INSERT IGNORE INTO identity_account
-                    (username,merchant_id,role,customer_id,display_name,password_hash,enabled,identity_version)
+                    (username,merchant_id,role,buyer_id,display_name,password_hash,enabled,identity_version)
                 SELECT ?,?,?,?,? ,password_hash,TRUE,0 FROM identity_account WHERE username='demo-reviewer'
-                """, username, merchant, role, customer, username);
+                """, username, "CUSTOMER".equals(role) ? null : merchant, role, customer, username);
     }
 
     /**

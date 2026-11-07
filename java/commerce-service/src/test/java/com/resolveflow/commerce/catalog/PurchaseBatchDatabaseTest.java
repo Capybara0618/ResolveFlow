@@ -51,7 +51,7 @@ class PurchaseBatchDatabaseTest extends CommerceDatabaseTest {
 
     @BeforeEach
     void setup() {
-        if (database.queryForObject("SELECT COUNT(*) FROM checkout_draft WHERE customer_id=?", Integer.class, BUYER)
+        if (database.queryForObject("SELECT COUNT(*) FROM checkout_draft WHERE buyer_id=?", Integer.class, BUYER)
                 == 0) {
             for (int i = 0; i < 64; i++) fixture(i, STORE, BUYER);
             for (int i = 64; i < 67; i++) fixture(i, "M-1002", BUYER);
@@ -126,7 +126,7 @@ class PurchaseBatchDatabaseTest extends CommerceDatabaseTest {
         boolean paid = status.equals("PAID");
         if (paid) {
             database.update(
-                    "INSERT INTO orders(order_id,merchant_id,customer_id,order_status,currency,paid_at,created_at) VALUES(?,?,?,'PAID','CNY',?,?)",
+                    "INSERT INTO orders(order_id,merchant_id,buyer_id,order_status,currency,paid_at,created_at) VALUES(?,?,?,'PAID','CNY',?,?)",
                     order,
                     merchant,
                     customer,
@@ -140,7 +140,7 @@ class PurchaseBatchDatabaseTest extends CommerceDatabaseTest {
                     state == 2 ? 50 : 0);
             for (int j = 0; j < count; j++)
                 database.update(
-                        "INSERT INTO order_line(line_id,order_id,merchant_id,customer_id,sku,category,quantity,line_paid_amount,currency,paid_at,order_status,version,product_name,variant_text) VALUES(?,?,?,?,?,'electronics',1,?,'CNY',?,'PAID',1,?,?)",
+                        "INSERT INTO order_line(line_id,order_id,merchant_id,buyer_id,sku,category,quantity,line_paid_amount,currency,paid_at,order_status,version,product_name,variant_text) VALUES(?,?,?,?,?,'electronics',1,?,'CNY',?,'PAID',1,?,?)",
                         "D3-" + n + "-" + j,
                         order,
                         merchant,
@@ -154,7 +154,7 @@ class PurchaseBatchDatabaseTest extends CommerceDatabaseTest {
         if (state == 7) return;
         boolean multi = state != 0 && state != 6;
         database.update(
-                "INSERT INTO checkout_draft(draft_id,merchant_id,customer_id,idempotency_key,product_id,product_name,store_name,asset_key,sku_id,variant,quantity,unit_amount,total_amount,sku_version,created_at,expires_at,category,status,order_id,line_id,paid_at,kind,line_count,cart_revision,multiline_request_hash,close_reason) VALUES(?,?,?,?,?,?,?,'headphones','D3-SKU-0','variant-0',1,100,?,1,?,?,'electronics',?,?,?,?,?,?,?, ?,?)",
+                "INSERT INTO checkout_draft(draft_id,merchant_id,buyer_id,idempotency_key,product_id,product_name,store_name,asset_key,sku_id,variant,quantity,unit_amount,total_amount,sku_version,created_at,expires_at,category,status,order_id,line_id,paid_at,kind,line_count,cart_revision,multiline_request_hash,close_reason) VALUES(?,?,?,?,?,?,?,'headphones','D3-SKU-0','variant-0',1,100,?,1,?,?,'electronics',?,?,?,?,?,?,?, ?,?)",
                 draft,
                 merchant,
                 customer,

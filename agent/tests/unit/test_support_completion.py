@@ -10,7 +10,8 @@ import pytest
 from resolveflow.harness.model import MockModelClient
 from resolveflow.support.engine import SupportAgent
 from resolveflow.support.guide import guide_source
-from resolveflow.support.protocol import SupportInput, SupportTask
+from resolveflow.support.protocol import SupportTask
+from tests.recorded_sources import ProjectedSupportInput as SupportInput
 from tests.integration.test_support_dialogue_api import TokenizedScript
 from tests.unit.test_support_agent import Reads, answer, read, request
 from tests.unit.test_support_answer_parts import part, parts

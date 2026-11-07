@@ -78,7 +78,13 @@ class AgentCallbackApiTest extends CaseDatabaseTest {
 
     private String userToken() {
         return new JwtCodec(secret, Duration.ofHours(1))
-                .issue(new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002"), Instant.now());
+                .issue(
+                        new AuthenticatedPrincipal(
+                                "demo-customer",
+                                null,
+                                Role.CUSTOMER,
+                                "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"),
+                        Instant.now());
     }
 
     /** Opens a case and returns its id. */

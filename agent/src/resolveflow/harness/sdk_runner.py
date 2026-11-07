@@ -187,7 +187,7 @@ class ActionGateMiddleware(MiddlewareBase):
             # Terminal: it ends the run and is not executed, so it does not touch the no-progress tracker.
             if decision.kind == ASK_CUSTOMER and any(
                 question.field.strip().lower() in {
-                    "order_id", "line_id", "case_id", "run_id", "merchant_id", "customer_id",
+                    "order_id", "line_id", "case_id", "run_id", "merchant_id", "buyer_id",
                 } for question in decision.questions
             ):
                 self._refuse("QUESTION_ALREADY_BOUND",

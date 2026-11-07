@@ -522,7 +522,7 @@ class RefundChainSystemTest {
      */
     private ApprovedCase driveToApproval(String lineId) throws Exception {
         String merchant = scalar("commerce_db", "SELECT merchant_id FROM order_line WHERE line_id = '" + lineId + "'");
-        String customer = scalar("commerce_db", "SELECT customer_id FROM order_line WHERE line_id = '" + lineId + "'");
+        String customer = scalar("commerce_db", "SELECT buyer_id FROM order_line WHERE line_id = '" + lineId + "'");
         String orderId = scalar("commerce_db", "SELECT order_id FROM order_line WHERE line_id = '" + lineId + "'");
         long amount = Long.parseLong(
                 scalar("commerce_db", "SELECT line_paid_amount FROM order_line WHERE line_id = '" + lineId + "'"));
@@ -731,9 +731,9 @@ class RefundChainSystemTest {
         return HTTP.send(request.build(), HttpResponse.BodyHandlers.ofString());
     }
 
-    private String token(String subject, String merchant, Role role, String customerId) {
+    private String token(String subject, String merchant, Role role, String buyerId) {
         return new JwtCodec(JWT_SECRET, Duration.ofHours(1))
-                .issue(new AuthenticatedPrincipal(subject, merchant, role, customerId), Instant.now());
+                .issue(new AuthenticatedPrincipal(subject, merchant, role, buyerId), Instant.now());
     }
 
     private String caseStatus(String caseId) {

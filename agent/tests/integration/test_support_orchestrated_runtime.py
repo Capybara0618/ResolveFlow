@@ -49,7 +49,7 @@ def test_api_persists_raw_protocol_and_reconstructs_plan_guide_gaps_without_new_
     with TestClient(app) as api:
         assert api.get("/health").json()["support_architecture"] == "orchestrated-v1"
         token = mint_service_token("case-service", SECRET, scope="support:run",
-                                   merchant_id=req.merchant_id, customer_id=req.customer_id)
+                                   merchant_id=req.merchant_id, buyer_id=req.buyer_id)
         headers = {"Authorization": "Bearer " + token}
         body = {**req.model_dump(mode="json"), "tool_token": "test-bound"}
         response = api.post("/internal/v1/support-runs", json=body, headers=headers)

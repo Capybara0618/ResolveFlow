@@ -172,7 +172,7 @@ public class ProposalReCheck {
                             + " would be refunded cannot be read from the record it would be paid from");
         }
         var line = context.get();
-        if (!row.merchantId().equals(line.merchantId()) || !row.customerId().equals(line.customerId())) {
+        if (!row.merchantId().equals(line.merchantId()) || !row.buyerId().equals(line.buyerId())) {
             // The context is the one unscoped line read (C03.2a), so this is where its ownership is confirmed.
             return Outcome.refused(
                     Outcome.RefusalKind.WORLD,

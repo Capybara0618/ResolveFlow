@@ -98,7 +98,8 @@ class ProposalReCheckApiTest extends CaseDatabaseTest {
                             1L,
                             java.util.List.of(new com.resolveflow.shared.shopping.FulfillmentWire.Event(
                                     "ORDER_PAID", time, 1)))));
-            org.mockito.Mockito.when(shopping.fulfillment(StubCommerce.ORDER, "M-1001", "C-2002"))
+            org.mockito.Mockito.when(shopping.fulfillment(
+                            StubCommerce.ORDER, "M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"))
                     .thenReturn(fact);
             ObjectNode payload = proposal(caseId, 1, "REFUND");
             var citation = citationFor("policy-logistics-2026.10", "R-UNSHIPPED-001");
@@ -169,7 +170,13 @@ class ProposalReCheckApiTest extends CaseDatabaseTest {
 
     private String userToken() {
         return new JwtCodec(secret, Duration.ofHours(1))
-                .issue(new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002"), Instant.now());
+                .issue(
+                        new AuthenticatedPrincipal(
+                                "demo-customer",
+                                null,
+                                Role.CUSTOMER,
+                                "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"),
+                        Instant.now());
     }
 
     /** Opens a case on the real fixture policy set, so the case has a pinned version to cite. */

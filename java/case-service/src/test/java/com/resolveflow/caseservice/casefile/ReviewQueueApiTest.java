@@ -65,7 +65,8 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
     @Test
     void ownershipScopesAndCountsCoverAllMatchesRatherThanTheLoadedPage() {
         String reviewer = token("demo-reviewer", "M-1001", Role.REVIEWER, null);
-        String customer = token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        String customer =
+                token("demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         String mine = openCase(customer, "M-1001");
         String others = openCase(customer, "M-1001");
         String unclaimed = openCase(customer, "M-1001");
@@ -102,7 +103,8 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
     @Test
     void workspaceCursorCannotBeReusedAfterChangingOwnerStageSearchOrAccount() {
         String reviewer = token("demo-reviewer", "M-1001", Role.REVIEWER, null);
-        String customer = token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        String customer =
+                token("demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         for (int i = 0; i < 2; i++) handOver(openCase(customer, "M-1001"));
         String cursor = queue(reviewer, "scope=PUBLIC&view=ALL&limit=1")
                 .at("/page/next_cursor")
@@ -137,14 +139,15 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
     @Test
     void workspaceFiltersHistoryAndSearchWithoutCrossMerchantLeakage() {
         String reviewer = token("demo-reviewer", "M-1001", Role.REVIEWER, null);
-        String customer = token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        String customer =
+                token("demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         String waiting = openCase(customer, "M-1001");
         String closed = openCase(customer, "M-1001");
         jdbc.update(
                 "UPDATE aftersale_case SET status='WAITING_CUSTOMER',description='需要补充物流材料' WHERE case_id=?", waiting);
         jdbc.update("UPDATE aftersale_case SET status='CLOSED_REJECTED' WHERE case_id=?", closed);
         commerce.lineMerchant = "M-2002";
-        String other = openCase(token("test-customer-m2002-queue", "M-2002", Role.CUSTOMER, "C-2004"), "M-2002");
+        String other = openCase(token("test-customer-m2002-queue", "M-2002", Role.CUSTOMER, "B-queue-m2002"), "M-2002");
         assertThat(caseIds(queue(reviewer, "view=WAITING"))).containsExactly(waiting);
         assertThat(caseIds(queue(reviewer, "view=CLOSED"))).containsExactly(closed);
         assertThat(caseIds(queue(reviewer, "view=ALL&query=" + closed))).containsExactly(closed);
@@ -162,7 +165,8 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
     @Test
     void workspacePagingRetainsMicrosecondsAndUsesLiteralSearchText() {
         String reviewer = token("demo-reviewer", "M-1001", Role.REVIEWER, null);
-        String customer = token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        String customer =
+                token("demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         java.util.List<String> ids = new java.util.ArrayList<>();
         for (int i = 0; i < 3; i++) {
             String id = openCase(customer, "M-1001");
@@ -195,14 +199,16 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
     @BeforeEach
     void prepare() {
         registerTestAccount("test-reviewer-m2002", "M-2002", "REVIEWER", null);
-        registerTestAccount("test-customer-m2002-queue", "M-2002", "CUSTOMER", "C-2004");
+        registerTestAccount("test-customer-m2002-queue", "M-2002", "CUSTOMER", "B-queue-m2002");
         deleteAllCaseData(jdbc);
         commerce.reset();
     }
 
-    private String token(String username, String merchantId, Role role, String customerId) {
+    private String token(String username, String merchantId, Role role, String buyerId) {
         return new JwtCodec(secret, Duration.ofHours(1))
-                .issue(new AuthenticatedPrincipal(username, merchantId, role, customerId), Instant.now());
+                .issue(
+                        new AuthenticatedPrincipal(username, role == Role.CUSTOMER ? null : merchantId, role, buyerId),
+                        Instant.now());
     }
 
     private String serviceToken() {
@@ -275,7 +281,8 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
     @DisplayName("the queue holds the merchant's cases waiting on a person, and only those")
     void theQueueHoldsCasesWaitingOnAPerson() {
         String reviewer = token("demo-reviewer", "M-1001", Role.REVIEWER, null);
-        String customer = token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        String customer =
+                token("demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
 
         String queued = openCase(customer, "M-1001");
         String waiting = openCase(customer, "M-1001");
@@ -317,7 +324,9 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
     @DisplayName("a queue row carries exactly the members the contract declares")
     void aQueueRowCarriesTheDocumentedMembers() {
         String reviewer = token("demo-reviewer", "M-1001", Role.REVIEWER, null);
-        String caseId = openCase(token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002"), "M-1001");
+        String caseId = openCase(
+                token("demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"),
+                "M-1001");
         handOver(caseId);
 
         JsonNode page = queue(reviewer, null);
@@ -361,9 +370,11 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
         String reviewerM1 = token("demo-reviewer", "M-1001", Role.REVIEWER, null);
         String reviewerM2 = token("test-reviewer-m2002", "M-2002", Role.REVIEWER, null);
         commerce.lineMerchant = "M-1001";
-        String mine = openCase(token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002"), "M-1001");
+        String mine = openCase(
+                token("demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"),
+                "M-1001");
         commerce.lineMerchant = "M-2002";
-        String other = openCase(token("test-customer-m2002-queue", "M-2002", Role.CUSTOMER, "C-2004"), "M-2002");
+        String other = openCase(token("test-customer-m2002-queue", "M-2002", Role.CUSTOMER, "B-queue-m2002"), "M-2002");
         handOver(mine);
         handOver(other);
 
@@ -382,7 +393,8 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
     @Test
     @DisplayName("a customer has no merchant queue to read, and the answer says so")
     void aCustomerIsRefused() {
-        String customer = token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        String customer =
+                token("demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
 
         String body = rest.get()
                 .uri("/api/v1/review/cases")
@@ -401,7 +413,8 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
     @DisplayName("paging walks the queue once: newest first, no repeats, and it ends")
     void pagingWalksTheQueueOnceWithoutRepeating() {
         String reviewer = token("demo-reviewer", "M-1001", Role.REVIEWER, null);
-        String customer = token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        String customer =
+                token("demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         java.util.List<String> handedOver = new java.util.ArrayList<>();
         for (int index = 0; index < 3; index++) {
             String caseId = openCase(customer, "M-1001");

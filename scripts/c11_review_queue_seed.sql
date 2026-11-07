@@ -3,7 +3,7 @@ CREATE DATABASE IF NOT EXISTS c11_review_bench;
 CREATE TABLE IF NOT EXISTS c11_review_bench.aftersale_case LIKE case_db.aftersale_case;
 
 INSERT IGNORE INTO c11_review_bench.aftersale_case
-    (case_id, merchant_id, customer_id, order_id, line_id, status,
+    (case_id, merchant_id, buyer_id, order_id, line_id, status,
      input_revision, version, created_at, updated_at, description)
 SELECT CONCAT('00000000-0000-4000-8000-', LPAD(n + merchant.i * 10000, 12, '0')),
        IF(merchant.i = 0, 'M-1001', 'M-2002'),

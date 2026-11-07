@@ -100,11 +100,14 @@ public final class ReviewCacheLabProcess {
         int port = ((org.springframework.boot.web.server.context.WebServerApplicationContext) context)
                 .getWebServer()
                 .getPort();
+        Path ready = directory.resolve(node + ".ready");
+        Path pending = directory.resolve(node + ".ready.tmp");
         Files.writeString(
-                directory.resolve(node + ".ready"),
+                pending,
                 JSON.writeValueAsString(
                         Map.of("port", port, "pid", ProcessHandle.current().pid())),
                 StandardOpenOption.CREATE_NEW);
+        Files.move(pending, ready, StandardCopyOption.ATOMIC_MOVE);
     }
 
     @TestConfiguration(proxyBeanMethods = false)

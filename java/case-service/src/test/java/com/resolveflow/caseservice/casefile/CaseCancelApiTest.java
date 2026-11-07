@@ -76,11 +76,18 @@ class CaseCancelApiTest extends CaseDatabaseTest {
     }
 
     private static String token(JwtCodec codec, String user, String merchant, Role role, String customer) {
-        return codec.issue(new AuthenticatedPrincipal(user, merchant, role, customer), Instant.now());
+        return codec.issue(
+                new AuthenticatedPrincipal(user, role == Role.CUSTOMER ? null : merchant, role, customer),
+                Instant.now());
     }
 
     private String customer() {
-        return token(jwtCodec, "demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        return token(
+                jwtCodec,
+                "demo-customer",
+                "M-1001",
+                Role.CUSTOMER,
+                "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
     }
 
     private String openCase(String line, String idempotencyKey) {
@@ -246,7 +253,12 @@ class CaseCancelApiTest extends CaseDatabaseTest {
     void visibilityDecidesWhoMayCancel() {
         String caseId = openCase();
         String reviewer = token(jwtCodec, "demo-reviewer", "M-1001", Role.REVIEWER, null);
-        String otherCustomer = token(jwtCodec, "demo-customer-2", "M-1001", Role.CUSTOMER, "C-2003");
+        String otherCustomer = token(
+                jwtCodec,
+                "demo-customer-2",
+                "M-1001",
+                Role.CUSTOMER,
+                "B-legacy-085a244f8f8acaf20c76a2191b6ebde0ea6d70df");
         String otherMerchant = token(jwtCodec, "demo-reviewer-m2", "M-1002", Role.REVIEWER, null);
 
         cancel(caseId, otherCustomer, Map.of("reason", REASON)).expectStatus().isNotFound();
@@ -318,8 +330,8 @@ class CaseCancelApiTest extends CaseDatabaseTest {
     @DisplayName("two cancels arriving together produce one cancellation")
     void twoCancelsArrivingTogetherProduceOne() throws Exception {
         String caseId = openCase();
-        AuthenticatedPrincipal principal =
-                new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        AuthenticatedPrincipal principal = new AuthenticatedPrincipal(
+                "demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         ExecutorService pool = Executors.newFixedThreadPool(2);
         var start = new java.util.concurrent.CountDownLatch(1);
         List<Future<Boolean>> futures = new java.util.ArrayList<>();

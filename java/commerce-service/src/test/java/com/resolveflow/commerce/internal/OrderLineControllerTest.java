@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -27,7 +29,11 @@ import tools.jackson.databind.ObjectMapper;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
-class OrderLineControllerTest extends CommerceDatabaseTest {
+class OrderLineControllerTest {
+    @DynamicPropertySource
+    static void seededReadDatabase(DynamicPropertyRegistry registry) throws Exception {
+        CommerceDatabaseTest.isolatedReadSchema(registry, "commerce_read_http");
+    }
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -48,7 +54,10 @@ class OrderLineControllerTest extends CommerceDatabaseTest {
         return new JwtCodec(secret, Duration.ofHours(1))
                 .issue(
                         new com.resolveflow.shared.security.AuthenticatedPrincipal(
-                                "demo-customer", "M-1001", com.resolveflow.shared.security.Role.CUSTOMER, "C-2002"),
+                                "demo-customer",
+                                null,
+                                com.resolveflow.shared.security.Role.CUSTOMER,
+                                "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"),
                         Instant.now());
     }
 
@@ -67,7 +76,8 @@ class OrderLineControllerTest extends CommerceDatabaseTest {
     @Test
     @DisplayName("a customer scope returns that customer's lines in the documented shape")
     void customerScopeReturnsTheDocumentedShape() {
-        JsonNode json = MAPPER.readTree(body(serviceToken(), "merchant_id=M-1001&customer_id=C-2002"));
+        JsonNode json = MAPPER.readTree(
+                body(serviceToken(), "merchant_id=M-1001&buyer_id=B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"));
 
         assertThat(json.get("items")).hasSize(2);
         JsonNode line = json.get("items").get(0);
@@ -107,8 +117,10 @@ class OrderLineControllerTest extends CommerceDatabaseTest {
     @Test
     @DisplayName("an order filter returns that order's lines inside the scope, and nothing otherwise")
     void anOrderFilterNarrowsInsideTheScope() {
-        JsonNode mine = MAPPER.readTree(body(
-                serviceToken(), "merchant_id=M-1001&customer_id=C-2002&order_id=00000000-0000-4000-8000-0000000000aa"));
+        JsonNode mine = MAPPER.readTree(
+                body(
+                        serviceToken(),
+                        "merchant_id=M-1001&buyer_id=B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80&order_id=00000000-0000-4000-8000-0000000000aa"));
         assertThat(mine.get("items")).hasSize(2);
         assertThat(mine.get("items").toString()).doesNotContain("7101");
 

@@ -19,12 +19,12 @@ import org.junit.jupiter.api.Test;
 class BuyerOrderServiceTest {
     @Test
     void tiedTimesKeepEachStoresDatabaseOrderAndUnconsumedStoreAnchors() {
-        var buyer = new AuthenticatedPrincipal("buyer", null, Role.CUSTOMER, null, "B-one");
+        var buyer = new AuthenticatedPrincipal("buyer", null, Role.CUSTOMER, "B-one");
         var scopes = mock(BuyerScopes.class);
         var commerce = mock(CommerceOrderLineClient.class);
         when(scopes.list(buyer))
-                .thenReturn(
-                        List.of(new BuyerScopes.Scope("M-1", "C-1", "店一"), new BuyerScopes.Scope("M-2", "C-2", "店二")));
+                .thenReturn(List.of(
+                        new BuyerScopes.Scope("M-1", "B-one", "店一"), new BuyerScopes.Scope("M-2", "B-one", "店二")));
         var time = Instant.parse("2026-10-03T00:00:00.123456Z");
         when(commerce.list(any(), isNull(), org.mockito.ArgumentMatchers.nullable(String.class), anyInt()))
                 .thenAnswer(invocation -> {

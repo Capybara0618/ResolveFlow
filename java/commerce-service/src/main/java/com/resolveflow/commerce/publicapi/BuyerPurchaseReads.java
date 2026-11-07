@@ -51,7 +51,7 @@ public class BuyerPurchaseReads {
         if (bindings.size() > 20)
             throw new ShoppingService.Refused(503, "UPSTREAM_UNAVAILABLE", "too many buyer stores");
         String bindingKey = bindings.stream()
-                .map(s -> s.merchantId() + ":" + s.customerId())
+                .map(s -> s.merchantId() + ":" + s.buyerId())
                 .collect(java.util.stream.Collectors.joining("|"));
         String filter = (store == null ? "" : store) + "/" + (status == null ? "" : status);
         var after = new LinkedHashMap<String, String>();
@@ -81,7 +81,7 @@ public class BuyerPurchaseReads {
         for (var binding : bindings) {
             if (store != null && !store.equals(binding.merchantId())) continue;
             var page = commerce.list(
-                    binding.merchantId(), binding.customerId(), status, after.get(binding.merchantId()), limit);
+                    binding.merchantId(), binding.buyerId(), status, after.get(binding.merchantId()), limit);
             shardHasMore |= page.nextCursor() != null;
             merged.addAll(page.items());
         }

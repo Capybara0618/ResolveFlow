@@ -11,7 +11,7 @@ import java.time.Instant;
 public record CaseRow(
         String caseId,
         String merchantId,
-        String customerId,
+        String buyerId,
         String orderId,
         String lineId,
         /**
@@ -40,6 +40,6 @@ public record CaseRow(
         if (!merchantId.equals(principal.merchantId())) {
             return false;
         }
-        return principal.role().isMerchantStaff() || customerId.equals(principal.customerId());
+        return principal.role().isMerchantStaff() || buyerId.equals(principal.buyerId());
     }
 }

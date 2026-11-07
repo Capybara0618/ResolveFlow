@@ -14,6 +14,7 @@ from resolveflow.harness.sdk_runner import AgentScopeRunner
 from resolveflow.harness.vocabulary import RunFacts
 from resolveflow.runtime.worker import verified_callback
 from tests.conftest import input_text_of
+from scripts.evaluation.identity_projection import project_identity
 from tests.unit.test_context_builder import build
 from tests.unit.test_harness_loop import StubTools
 
@@ -24,11 +25,11 @@ SAVED = ROOT / "agent/tests/fixtures/regressions/chat-refund-live-v1/manual-cont
 def saved():
     report = json.loads((SAVED / "runtime-results.json").read_text(encoding="utf-8"))
     diagnostic = json.loads((SAVED / "diagnostic.json").read_text(encoding="utf-8"))
-    row = report["general_runs"][0]
+    row = project_identity(report["general_runs"][0])
     facts = RunFacts(**{key: row[key] for key in (
-        "run_id", "case_id", "input_revision", "line_id", "merchant_id", "customer_id", "policy_manifest",
+        "run_id", "case_id", "input_revision", "line_id", "merchant_id", "buyer_id", "policy_manifest",
         "review_context")}, description=row["request_description"])
-    observations = {r["observation"]["tool_name"]: ToolObservation.model_validate_json(json.dumps(r["observation"]))
+    observations = {r["observation"]["tool_name"]: ToolObservation.model_validate_json(json.dumps(project_identity(r["observation"])))
                     for r in diagnostic["agent_tool_call"]}
     decisions = [r["response"]["decision"] for r in report["model_attempt_records"]]
     return facts, observations, decisions

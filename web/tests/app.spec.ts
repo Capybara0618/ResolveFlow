@@ -311,9 +311,10 @@ describe('core workbench', () => {
   })
 
   it('starts with login and renders only scoped API order lines', async () => {
+    window.history.replaceState(null, '', '/#/customer/orders')
     const fetcher = vi.fn().mockImplementation((url: string) => {
       if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({
-        access_token: 'token', role: 'CUSTOMER', merchant_id: 'M-1001', customer_id: 'C-2002', expires_in: 3600,
+        access_token: 'token', role: 'CUSTOMER', buyer_id: 'C-2002', expires_in: 3600,
       })))
       if (url.startsWith('/api/v1/customer/order-lines/')) return Promise.resolve(new Response(JSON.stringify({
         order_line: {}, application: null, can_apply: true, blocked_reason: '',
@@ -426,6 +427,7 @@ describe('core workbench', () => {
   })
 
   it('creates only a full-line REFUND case with an idempotency key', async () => {
+    window.history.replaceState(null, '', '/#/customer/orders')
     vi.stubGlobal('crypto', { randomUUID: () => 'key-1' })
     const fetcher = vi.fn().mockImplementation((url: string, options: RequestInit) => {
       if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({

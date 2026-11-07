@@ -119,8 +119,8 @@ public class AgentRunClient {
     }
 
     /** The service token a dispatch presents. Minted per attempt by {@link #dispatch}. */
-    public String mintDispatchToken(String merchantId, String customerId) {
-        return codec.issueServiceToken(serviceName, merchantId, customerId, "run:dispatch", Instant.now());
+    public String mintDispatchToken(String merchantId, String buyerId) {
+        return codec.issueServiceToken(serviceName, merchantId, buyerId, "run:dispatch", Instant.now());
     }
 
     public tools.jackson.databind.JsonNode policyIndex(String merchantId, String bundleId, String hash) {
@@ -148,7 +148,7 @@ public class AgentRunClient {
 
     public tools.jackson.databind.JsonNode reviewSources(CaseRow row, String runId) {
         String token =
-                codec.issueServiceToken(serviceName, row.merchantId(), row.customerId(), "run:review", Instant.now());
+                codec.issueServiceToken(serviceName, row.merchantId(), row.buyerId(), "run:review", Instant.now());
         try {
             return reviewRest
                     .get()

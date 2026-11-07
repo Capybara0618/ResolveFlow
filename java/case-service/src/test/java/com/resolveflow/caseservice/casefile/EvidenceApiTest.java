@@ -75,11 +75,18 @@ class EvidenceApiTest extends CaseDatabaseTest {
     }
 
     private static String token(JwtCodec codec, String user, String merchant, Role role, String customer) {
-        return codec.issue(new AuthenticatedPrincipal(user, merchant, role, customer), Instant.now());
+        return codec.issue(
+                new AuthenticatedPrincipal(user, role == Role.CUSTOMER ? null : merchant, role, customer),
+                Instant.now());
     }
 
     private String customer() {
-        return token(jwtCodec, "demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        return token(
+                jwtCodec,
+                "demo-customer",
+                "M-1001",
+                Role.CUSTOMER,
+                "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
     }
 
     private String openCase() {
@@ -150,7 +157,8 @@ class EvidenceApiTest extends CaseDatabaseTest {
         assertThat(rows).hasSize(1);
         assertThat(rows.get(0).get("source_type")).isEqualTo("CUSTOMER_STATEMENT");
         assertThat(rows.get(0).get("input_revision")).isEqualTo(2);
-        assertThat(rows.get(0).get("source_ref")).isEqualTo("customer:C-2002");
+        assertThat(rows.get(0).get("source_ref"))
+                .isEqualTo("customer:B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         assertThat(rows.get(0).get("content").toString()).contains("小区驿站");
         assertThat(rows.get(0).get("content_hash").toString()).hasSize(64);
         assertThat(rows.get(0).get("appended_role")).isEqualTo("CUSTOMER");
@@ -242,7 +250,12 @@ class EvidenceApiTest extends CaseDatabaseTest {
     void provenanceDecidesWhoMaySubmitWhat() {
         String caseId = openCase();
         String reviewer = token(jwtCodec, "demo-reviewer", "M-1001", Role.REVIEWER, null);
-        String otherCustomer = token(jwtCodec, "demo-customer-2", "M-1001", Role.CUSTOMER, "C-2003");
+        String otherCustomer = token(
+                jwtCodec,
+                "demo-customer-2",
+                "M-1001",
+                Role.CUSTOMER,
+                "B-legacy-085a244f8f8acaf20c76a2191b6ebde0ea6d70df");
 
         // A machine-read fact is not a client's claim, whoever the client is.
         for (String kind : List.of("SHIPMENT", "PAYMENT_LEDGER", "ORDER_LINE", "POLICY_RULE")) {
@@ -361,8 +374,8 @@ class EvidenceApiTest extends CaseDatabaseTest {
     @DisplayName("four submissions arriving together get four revisions, not one shared one")
     void concurrentAppendsDoNotShareARevision() throws Exception {
         String caseId = openCase();
-        AuthenticatedPrincipal principal =
-                new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        AuthenticatedPrincipal principal = new AuthenticatedPrincipal(
+                "demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         int threads = 4;
         var pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
         var start = new java.util.concurrent.CountDownLatch(1);

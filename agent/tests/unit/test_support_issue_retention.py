@@ -7,7 +7,8 @@ from pathlib import Path
 import pytest
 
 from resolveflow.support.dialogue import DialogueState, DialogueStateError
-from resolveflow.support.protocol import DECISION, DialogueEvent, SupportInput, SupportTask
+from resolveflow.support.protocol import DECISION, DialogueEvent, SupportTask
+from tests.recorded_sources import ProjectedSupportInput as SupportInput
 from resolveflow.support.tasks import render_answer
 from tests.unit.test_support_agent import request
 from tests.unit.test_support_event_groups import group

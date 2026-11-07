@@ -151,7 +151,7 @@ class McpToolExecutor:
     #: a renewal that named no revision would not be a renewal of anything.
     input_revision: int = 1
     merchant_id: str | None = None
-    customer_id: str | None = None
+    buyer_id: str | None = None
     #: Every call this executor made, in order: the evidence that the tools were reached over MCP rather than
     #: through an import. Kept because a test asserting "the read happened" needs to see the call, not infer it.
     calls: list[tuple[str, dict[str, Any]]] = field(default_factory=list)
@@ -195,7 +195,7 @@ class McpToolExecutor:
         mismatched = observation.source_ref != f"{owner}/{suffixes[tool_name]}" or any(
             expected is not None and key in payload and payload[key] != expected
             for key, expected in (("line_id", self.line_id), ("case_id", self.case_id),
-                                  ("merchant_id", self.merchant_id), ("customer_id", self.customer_id)))
+                                  ("merchant_id", self.merchant_id), ("buyer_id", self.buyer_id)))
         evidence_revision = (observation.source_version if payload.get("truncated") is True
                              else str(payload.get("input_revision")))
         if (mismatched or (observation.error is None and tool_name == "get_case_evidence"

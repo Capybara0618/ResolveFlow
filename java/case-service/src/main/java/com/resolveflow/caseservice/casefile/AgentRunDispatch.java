@@ -140,7 +140,7 @@ public class AgentRunDispatch {
                     + derived + " for case " + binding.caseId() + " revision " + binding.inputRevision());
         }
         Map<String, Object> body = runRequest(row, binding);
-        String token = client.mintDispatchToken(row.merchantId(), row.customerId());
+        String token = client.mintDispatchToken(row.merchantId(), row.buyerId());
         client.dispatch(token, body);
         int marked = bindings.markDispatched(binding.caseId(), binding.inputRevision(), Instant.now());
         if (marked == 0) {
@@ -171,7 +171,7 @@ public class AgentRunDispatch {
 
         Map<String, Object> context = new LinkedHashMap<>();
         context.put("merchant_id", row.merchantId());
-        context.put("customer_id", row.customerId());
+        context.put("buyer_id", row.buyerId());
         context.put("order_id", row.orderId());
         context.put("line_id", row.lineId());
 

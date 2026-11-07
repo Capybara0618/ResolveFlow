@@ -78,7 +78,9 @@ class CaseApiTest extends CaseDatabaseTest {
 
     private String customerToken() {
         return jwtCodec.issue(
-                new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002"), Instant.now());
+                new AuthenticatedPrincipal(
+                        "demo-customer", null, Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"),
+                Instant.now());
     }
 
     private String reviewerToken() {
@@ -130,9 +132,9 @@ class CaseApiTest extends CaseDatabaseTest {
                         String.class,
                         created.get("case_id").stringValue()))
                 .isEqualTo(StubCommerce.ORDER);
-        assertThat(commerce.lastPrincipal.customerId())
+        assertThat(commerce.lastPrincipal.buyerId())
                 .as("scope from the token")
-                .isEqualTo("C-2002");
+                .isEqualTo("B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         assertThat(commerce.lastLineId).isEqualTo(LINE);
 
         // The trajectory's first entry is the customer's own words, written with the case itself.
@@ -199,7 +201,9 @@ class CaseApiTest extends CaseDatabaseTest {
                 .returnResult()
                 .getResponseBody();
         String other = jwtCodec.issue(
-                new AuthenticatedPrincipal("demo-customer-2", "M-1001", Role.CUSTOMER, "C-2003"), Instant.now());
+                new AuthenticatedPrincipal(
+                        "demo-customer-2", null, Role.CUSTOMER, "B-legacy-085a244f8f8acaf20c76a2191b6ebde0ea6d70df"),
+                Instant.now());
         post(other, "key-private-replay", body(LINE, "原客户的申请"))
                 .expectStatus()
                 .isNotFound()

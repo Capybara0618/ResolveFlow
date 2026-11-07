@@ -48,7 +48,7 @@ def test_an_honest_dispatch_token_is_accepted_and_carries_its_context() -> None:
         SECRET,
         scope=RUN_DISPATCH_SCOPE,
         merchant_id="M-1001",
-        customer_id="C-2002",
+        buyer_id="C-2002",
     )
 
     claims = verifier().verify(header(token))
@@ -58,7 +58,7 @@ def test_an_honest_dispatch_token_is_accepted_and_carries_its_context() -> None:
     assert claims.audience == SERVICE_AUDIENCE
     assert claims.scope == RUN_DISPATCH_SCOPE
     assert claims.merchant_id == "M-1001"
-    assert claims.customer_id == "C-2002"
+    assert claims.buyer_id == "C-2002"
 
 
 def test_a_user_audience_token_is_not_a_service_token() -> None:
@@ -270,7 +270,7 @@ def test_the_verifier_agrees_with_pyjwt_on_tokens_this_repository_mints() -> Non
         SECRET,
         scope=RUN_DISPATCH_SCOPE,
         merchant_id="M-1001",
-        customer_id="C-2002",
+        buyer_id="C-2002",
         now=int(dt.datetime.now(dt.UTC).timestamp()),
     )
 

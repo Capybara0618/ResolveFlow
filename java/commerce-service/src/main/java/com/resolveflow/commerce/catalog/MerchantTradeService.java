@@ -53,7 +53,7 @@ public class MerchantTradeService {
     @Transactional(readOnly = true)
     public Fulfillment buyer(String id, String merchant, String customer) {
         var order = owned(id, merchant);
-        if (!order.get("customer_id").equals(customer)) throw missing();
+        if (!order.get("buyer_id").equals(customer)) throw missing();
         return fulfillment(id);
     }
 
@@ -133,7 +133,7 @@ public class MerchantTradeService {
         var f = fulfillment(id);
         String reason = blocked(id, f);
         return new Trade(
-                purchases.read((String) o.get("purchase_id"), merchant, (String) o.get("customer_id")),
+                purchases.read((String) o.get("purchase_id"), merchant, (String) o.get("buyer_id")),
                 f,
                 jdbc.query(
                         "SELECT l.line_id,l.line_paid_amount,r.state FROM order_line l LEFT JOIN line_refund r ON r.line_id=l.line_id WHERE l.order_id=? ORDER BY l.line_id",

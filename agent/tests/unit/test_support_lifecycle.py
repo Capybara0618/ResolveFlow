@@ -6,7 +6,8 @@ import pytest
 
 from resolveflow.support.dialogue import DialogueState, DialogueStateError
 from resolveflow.support.engine import SupportAgent
-from resolveflow.support.protocol import DECISION, DialogueEvent, SupportInput, SupportTask
+from resolveflow.support.protocol import DECISION, DialogueEvent, SupportTask
+from tests.recorded_sources import ProjectedSupportInput as SupportInput
 from resolveflow.support.tasks import render_answer
 from tests.integration.test_support_dialogue_api import TokenizedScript
 from tests.unit.test_support_agent import Reads, read, request

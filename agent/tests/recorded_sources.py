@@ -3,8 +3,21 @@
 from copy import deepcopy
 from typing import Any
 
+from pydantic import model_validator
+from scripts.evaluation.identity_projection import project_identity
+
 from resolveflow.harness.context import canonical_json
 from resolveflow.support.guide import guide_source
+from resolveflow.support.protocol import SupportInput
+
+
+class ProjectedSupportInput(SupportInput):
+    """Explicit offline projection; HTTP and strict replay keep the production validator."""
+
+    @model_validator(mode="before")
+    @classmethod
+    def project_saved_scope(cls, value: Any) -> Any:
+        return project_identity(value)
 
 
 class SavedSources:

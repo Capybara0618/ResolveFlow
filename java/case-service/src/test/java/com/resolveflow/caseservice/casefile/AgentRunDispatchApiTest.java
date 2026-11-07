@@ -106,7 +106,9 @@ class AgentRunDispatchApiTest extends CaseDatabaseTest {
 
     private String userToken() {
         return jwtCodec.issue(
-                new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002"), Instant.now());
+                new AuthenticatedPrincipal(
+                        "demo-customer", null, Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"),
+                Instant.now());
     }
 
     /** Opens a case and returns its id. */
@@ -220,7 +222,8 @@ class AgentRunDispatchApiTest extends CaseDatabaseTest {
 
         JsonNode context = sent.get("context");
         assertThat(context.get("merchant_id").stringValue()).isEqualTo("M-1001");
-        assertThat(context.get("customer_id").stringValue()).isEqualTo("C-2002");
+        assertThat(context.get("buyer_id").stringValue())
+                .isEqualTo("B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         assertThat(context.get("line_id").stringValue()).isNotBlank();
         // order_id must be the uuid Commerce reported, never a blank the Agent would reject.
         assertThat(context.get("order_id").stringValue()).matches("^[0-9a-f-]{36}$");
@@ -258,8 +261,7 @@ class AgentRunDispatchApiTest extends CaseDatabaseTest {
                         "policy_manifest",
                         "deadline_at",
                         "traceparent");
-        assertThat(context.propertyNames())
-                .containsExactlyInAnyOrder("merchant_id", "customer_id", "order_id", "line_id");
+        assertThat(context.propertyNames()).containsExactlyInAnyOrder("merchant_id", "buyer_id", "order_id", "line_id");
         assertThat(manifest.propertyNames())
                 .containsExactlyInAnyOrder("merchant_id", "bundle_ids", "manifest_hash", "safety_epoch");
     }
@@ -353,7 +355,7 @@ class AgentRunDispatchApiTest extends CaseDatabaseTest {
         assertThat(claims.get("aud").stringValue()).isEqualTo("resolveflow-service");
         assertThat(claims.get("scope").stringValue()).isEqualTo("run:dispatch");
         assertThat(claims.get("merchant_id").stringValue()).isEqualTo("M-1001");
-        assertThat(claims.get("customer_id").stringValue()).isEqualTo("C-2002");
+        assertThat(claims.get("buyer_id").stringValue()).isEqualTo("B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
     }
 
     private String dispatchStatus(String caseId) {

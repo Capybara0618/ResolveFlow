@@ -7,7 +7,7 @@ import pytest
 
 from resolveflow.harness.budget import RunBudget
 from resolveflow.support.engine import SupportAgent
-from resolveflow.support.protocol import SupportInput
+from tests.recorded_sources import ProjectedSupportInput as SupportInput
 from resolveflow.support.stages import INVESTIGATION_SYSTEM, POLICY_SYSTEM, UNDERSTANDING_SYSTEM, Understanding
 from tests.integration.test_support_dialogue_api import TokenizedScript
 from tests.unit.test_support_agent import GuideReads, Reads, read, request

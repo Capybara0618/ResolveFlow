@@ -41,7 +41,7 @@ def test_http_guide_answer_pins_asset_and_duplicate_dispatch_reuses_exact_result
             migrate=False, jwt_secret=SECRET, support_runtime=runtime,
         )
         token = mint_service_token(
-            "case-service", SECRET, scope="support:run", merchant_id=req.merchant_id, customer_id=req.customer_id
+            "case-service", SECRET, scope="support:run", merchant_id=req.merchant_id, buyer_id=req.buyer_id
         )
         headers = {"Authorization": "Bearer " + token}
         body = {**req.model_dump(mode="json"), "tool_token": "bound-test-read-token"}

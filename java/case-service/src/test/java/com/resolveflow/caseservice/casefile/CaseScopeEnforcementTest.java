@@ -88,7 +88,9 @@ class CaseScopeEnforcementTest extends CaseDatabaseTest {
 
     private String userToken() {
         return codec.issue(
-                new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002"), Instant.now());
+                new AuthenticatedPrincipal(
+                        "demo-customer", null, Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"),
+                Instant.now());
     }
 
     // ── the authoritative policy text needs policy:read ───────────────────────────────────────────

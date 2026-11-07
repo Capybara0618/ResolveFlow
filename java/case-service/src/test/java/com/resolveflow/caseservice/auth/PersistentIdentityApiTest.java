@@ -55,7 +55,8 @@ class PersistentIdentityApiTest extends CaseDatabaseTest {
         for (var principal : new AuthenticatedPrincipal[] {
             new AuthenticatedPrincipal("unknown-account", "M-1001", Role.REVIEWER, null),
             new AuthenticatedPrincipal("demo-reviewer", "M-1002", Role.REVIEWER, null),
-            new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2003")
+            new AuthenticatedPrincipal(
+                    "demo-customer", null, Role.CUSTOMER, "B-legacy-085a244f8f8acaf20c76a2191b6ebde0ea6d70df")
         }) {
             rest.get()
                     .uri("/api/v1/auth/me")
@@ -202,7 +203,7 @@ class PersistentIdentityApiTest extends CaseDatabaseTest {
     }
 
     @Test
-    void disabledMerchantCannotUseAnExistingCustomerSession() {
+    void disabledMerchantDoesNotDisableTheGlobalBuyerSession() {
         String token = login("demo-customer", "demo-pass-1001");
         jdbc.update("UPDATE identity_merchant SET enabled=FALSE WHERE merchant_id='M-1001'");
         rest.get()
@@ -210,17 +211,24 @@ class PersistentIdentityApiTest extends CaseDatabaseTest {
                 .header("Authorization", "Bearer " + token)
                 .exchange()
                 .expectStatus()
-                .isUnauthorized();
+                .isOk();
+        assertThat(jdbc.queryForObject(
+                        "SELECT buyer_id FROM identity_account WHERE username='demo-customer'", String.class))
+                .isNotBlank();
     }
 
     @Test
-    void eachActiveDemoMerchantHasTwoCustomersTwoReviewersAndAnAdministrator() {
+    void buyersAreGlobalAndEachDemoMerchantKeepsItsStaff() {
+        assertThat(jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM identity_account WHERE role='CUSTOMER' AND merchant_id IS NULL AND buyer_id IS NOT NULL",
+                        Integer.class))
+                .isGreaterThanOrEqualTo(4);
         for (String merchant : new String[] {"M-1001", "M-1002"}) {
             assertThat(jdbc.queryForObject(
                             "SELECT COUNT(*) FROM identity_account WHERE merchant_id=? AND role='CUSTOMER'",
                             Integer.class,
                             merchant))
-                    .isGreaterThanOrEqualTo(2);
+                    .isZero();
             assertThat(jdbc.queryForObject(
                             "SELECT COUNT(*) FROM identity_account WHERE merchant_id=? AND role='REVIEWER'",
                             Integer.class,

@@ -31,5 +31,5 @@ def test_direct_buyer_and_legacy_order_shapes_stay_distinct_and_private_fields_a
     assert component_validator("commerce", "OrderLinePage", "contracts/core").accepts(legacy)
     assert not component_validator("commerce", "OrderLinePage", "contracts/core").accepts(fixture)
     private = copy.deepcopy(fixture)
-    private["items"][0]["customer_id"] = "other"
+    private["items"][0]["buyer_id"] = "other"
     assert not component_validator("commerce", "BuyerOrderLinePage", "contracts/core").accepts(private)

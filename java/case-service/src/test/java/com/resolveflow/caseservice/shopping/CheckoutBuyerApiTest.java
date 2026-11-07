@@ -64,7 +64,7 @@ class CheckoutBuyerApiTest extends CaseDatabaseTest {
                 Purchase.class);
         when(commerce.pay(anyString(), any())).thenAnswer(inv -> {
             PayCommand c = inv.getArgument(1);
-            if (!c.merchantId().equals("M-1001") || !c.customerId().equals("C-B3001-M1001"))
+            if (!c.merchantId().equals("M-1001") || !c.buyerId().equals("B-3001"))
                 throw new CommerceShoppingClient.Refused(404, "NOT_FOUND", "missing");
             return purchase.payment();
         });
@@ -77,10 +77,9 @@ class CheckoutBuyerApiTest extends CaseDatabaseTest {
     }
 
     @Test
-    void noSessionLegacyCustomerAndStaffCannotAccessPrivateTransactionsOrPay() {
+    void noSessionAndStaffCannotAccessPrivateTransactionsOrPay() {
         rest.get().uri("/api/v1/shop/purchases").exchange().expectStatus().isUnauthorized();
-        for (var credentials : List.of(
-                new String[] {"demo-customer", "demo-pass-1001"}, new String[] {"demo-admin", "demo-pass-1100"})) {
+        for (var credentials : List.<String[]>of(new String[] {"demo-admin", "demo-pass-1100"})) {
             var auth = token(credentials[0], credentials[1]);
             rest.get()
                     .uri("/api/v1/shop/purchases")
@@ -106,7 +105,7 @@ class CheckoutBuyerApiTest extends CaseDatabaseTest {
     void paymentUsesPersistedScopeAndRejectsMoneyOrProviderInputs() {
         var auth = token("demo-buyer", "demo-pass-4001");
         rest.post()
-                .uri("/api/v1/shop/drafts/owned/payment?merchant_id=M-evil&customer_id=C-evil")
+                .uri("/api/v1/shop/drafts/owned/payment?merchant_id=M-evil&buyer_id=C-evil")
                 .header("Authorization", auth)
                 .header("Idempotency-Key", "original")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -117,10 +116,11 @@ class CheckoutBuyerApiTest extends CaseDatabaseTest {
                 .expectBody()
                 .jsonPath("$.total_amount")
                 .isEqualTo(65800)
-                .jsonPath("$.customer_id")
+                .jsonPath("$.buyer_id")
                 .doesNotExist();
-        verify(commerce).pay("owned", new PayCommand("M-1001", "C-B3001-M1001", "original"));
-        for (String field : List.of("total_amount", "merchant_id", "customer_id", "status", "attempt_id"))
+        verify(commerce).pay("owned", new PayCommand("M-1001", "B-3001", "original"));
+        clearInvocations(commerce);
+        for (String field : List.of("total_amount", "merchant_id", "buyer_id", "status", "attempt_id"))
             rest.post()
                     .uri("/api/v1/shop/drafts/owned/payment")
                     .header("Authorization", auth)
@@ -138,14 +138,14 @@ class CheckoutBuyerApiTest extends CaseDatabaseTest {
                 .exchange()
                 .expectStatus()
                 .isBadRequest();
-        verify(commerce, times(1)).pay(anyString(), any());
+        verifyNoInteractions(commerce);
     }
 
     @Test
     void unknownAndForeignIdsAreIdentical404AndDoNotTakeClientScope() {
         var auth = token("demo-buyer", "demo-pass-4001");
         rest.get()
-                .uri("/api/v1/shop/drafts/foreign/payment?customer_id=target")
+                .uri("/api/v1/shop/drafts/foreign/payment?buyer_id=target")
                 .header("Authorization", auth)
                 .exchange()
                 .expectStatus()
@@ -156,20 +156,20 @@ class CheckoutBuyerApiTest extends CaseDatabaseTest {
                 .exchange()
                 .expectStatus()
                 .isNotFound();
-        verify(commerce).payment("foreign", "M-1001", "C-B3001-M1001");
-        verify(commerce).payment("foreign", "M-1002", "C-B3001-M1002");
+        verify(commerce).payment("foreign", "M-1001", "B-3001");
+        verify(commerce).payment("foreign", "M-1002", "B-3001");
     }
 
     @Test
     void listUsesEnabledBindingsAndStoreFilterNeverClaimsAnotherStore() {
         var auth = token("demo-buyer", "demo-pass-4001");
         rest.get()
-                .uri("/api/v1/shop/purchases?store_id=M-1002&status=PAID&limit=3&customer_id=evil")
+                .uri("/api/v1/shop/purchases?store_id=M-1002&status=PAID&limit=3&buyer_id=evil")
                 .header("Authorization", auth)
                 .exchange()
                 .expectStatus()
                 .isOk();
-        verify(commerce).purchases("M-1002", "C-B3001-M1002", "PAID", null, 3);
+        verify(commerce).purchases("M-1002", "B-3001", "PAID", null, 3);
         verify(commerce, never()).purchases(eq("M-1001"), anyString(), any(), any(), anyInt());
         rest.get()
                 .uri("/api/v1/shop/purchases?limit=49")

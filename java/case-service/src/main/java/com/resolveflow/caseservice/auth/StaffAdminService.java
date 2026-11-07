@@ -151,12 +151,12 @@ public class StaffAdminService {
         }
         // Locking reads see the current committed row, not the earlier RR visibility snapshot.
         var actors = jdbc.query(
-                "SELECT identity_version,role,enabled,customer_id FROM identity_account WHERE merchant_id=? AND username=? FOR UPDATE",
+                "SELECT identity_version,role,enabled,buyer_id FROM identity_account WHERE merchant_id=? AND username=? FOR UPDATE",
                 (rs, n) -> rs.getLong(1) == session.identityVersion()
                         && rs.getString(2).equals(session.principal().role().name())
                         && rs.getBoolean(3)
                         && java.util.Objects.equals(
-                                rs.getString(4), session.principal().customerId()),
+                                rs.getString(4), session.principal().buyerId()),
                 session.principal().merchantId(),
                 session.principal().subject());
         if (actors.isEmpty() || !actors.getFirst()) throw inactive();

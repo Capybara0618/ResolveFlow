@@ -27,7 +27,7 @@ class CartApiTest extends CommerceDatabaseTest {
         }) {
             String token = codec.issueServiceToken(identity[0], null, null, identity[1], Instant.now());
             rest.get()
-                    .uri("/internal/v1/shop/cart/M-1001?customer_id=C-B3001-M1001")
+                    .uri("/internal/v1/shop/cart/M-1001?buyer_id=C-B3001-M1001")
                     .header("Authorization", "Bearer " + token)
                     .exchange()
                     .expectStatus()
@@ -52,7 +52,7 @@ class CartApiTest extends CommerceDatabaseTest {
         }
         String caseToken = codec.issueServiceToken("case-service", null, null, "commerce:checkout", Instant.now());
         rest.get()
-                .uri("/internal/v1/shop/cart/M-1001?customer_id=C-B3001-M1001")
+                .uri("/internal/v1/shop/cart/M-1001?buyer_id=C-B3001-M1001")
                 .header("Authorization", "Bearer " + caseToken)
                 .exchange()
                 .expectStatus()
@@ -60,7 +60,7 @@ class CartApiTest extends CommerceDatabaseTest {
                 .expectBody()
                 .jsonPath("$.revision")
                 .isEqualTo(0)
-                .jsonPath("$.customer_id")
+                .jsonPath("$.buyer_id")
                 .doesNotExist();
     }
 }

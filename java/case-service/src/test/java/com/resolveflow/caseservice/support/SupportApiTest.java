@@ -155,6 +155,7 @@ class SupportApiTest extends CaseDatabaseTest {
         for (String t : List.of(
                 "support_receipt", "support_message", "support_ticket", "support_agent_turn", "support_conversation"))
             jdbc.update("DELETE FROM " + t);
+        deleteAllCaseData(jdbc);
         jdbc.update("INSERT IGNORE INTO platform_buyer(buyer_id) VALUES ('B-support-other')");
         jdbc.update(
                 "INSERT IGNORE INTO identity_account(username,role,display_name,password_hash) SELECT 'support-platform','PLATFORM_ADMIN','Process admin',password_hash FROM identity_account WHERE username='demo-buyer'");
@@ -170,10 +171,10 @@ class SupportApiTest extends CaseDatabaseTest {
             String id = i.getArgument(1);
             boolean visible = ((id.equals("support-A") || id.equals("support-A-2"))
                             && p.merchantId().equals("M-1001")
-                            && p.customerId().equals("C-B3001-M1001"))
+                            && p.buyerId().equals("B-3001"))
                     || (id.equals("support-B")
                             && p.merchantId().equals("M-1002")
-                            && p.customerId().equals("C-B3001-M1002"));
+                            && p.buyerId().equals("B-3001"));
             return new CommerceOrderLineClient.OrderLinePage(
                     visible
                             ? List.of(new CommerceOrderLineClient.OrderLineSummary(
@@ -361,7 +362,7 @@ class SupportApiTest extends CaseDatabaseTest {
                 run = c.path("assistant_turn").path("run_id").asString();
         turns.claim();
         var bound = new com.resolveflow.shared.security.JwtCodec.SupportCredential(
-                run, id, 2, 1, "M-1001", "C-B3001-M1001", "support-A");
+                run, id, 2, 1, "M-1001", "B-3001", "support-A");
         String progress = "Bearer " + codec.issueSupportProgressCredential(bound, Instant.now());
         String reader = "Bearer " + codec.issueSupportCredential(bound, Instant.now());
         String route = "/internal/v1/support/turns/" + run + "/stream-events";
@@ -737,7 +738,7 @@ class SupportApiTest extends CaseDatabaseTest {
         result.put("reason", "INVALID_DECISION");
         result.putNull("answer");
         var update = result.putObject("conversation_update").put("version", "support-state-v1");
-        for (String key : List.of("run_id", "conversation_id", "merchant_id", "customer_id", "line_id")) {
+        for (String key : List.of("run_id", "conversation_id", "merchant_id", "buyer_id", "line_id")) {
             update.put(key, input.get(key).toString());
             if (List.of("run_id", "conversation_id").contains(key))
                 result.put(key, input.get(key).toString());
@@ -754,7 +755,7 @@ class SupportApiTest extends CaseDatabaseTest {
         task.putNull("response_excerpt");
         var memory = update.putObject("customer_memory").put("version", "support-claims-v1");
         memory.put("origin", "GROUNDED_CUSTOMER_CLAIMS").put("input_version", version);
-        for (String key : List.of("conversation_id", "merchant_id", "customer_id", "line_id"))
+        for (String key : List.of("conversation_id", "merchant_id", "buyer_id", "line_id"))
             memory.put(key, input.get(key).toString());
         memory.putArray("entries");
         update.putArray("memory_warnings");
@@ -912,8 +913,9 @@ class SupportApiTest extends CaseDatabaseTest {
                 .isEqualTo("SUCCEEDED");
     }
 
-    @Test
-    void customerMemorySurvivesTurnsWithUnicodeQuoteAndStaysPrivateAndBoundToProduct() {
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(booleans = {false, true})
+    void customerMemorySurvivesTurnsWithUnicodeQuoteAndStaysPrivateAndBoundToProduct(boolean legacy) {
         var contexts = new java.util.ArrayList<JsonNode>();
         var memory = json.createObjectNode();
         when(assistant.execute(anyString(), any())).thenAnswer(i -> {
@@ -923,7 +925,7 @@ class SupportApiTest extends CaseDatabaseTest {
             if (contexts.size() == 1) {
                 memory.put("version", "support-claims-v1");
                 memory.put("origin", "GROUNDED_CUSTOMER_CLAIMS");
-                for (String key : List.of("conversation_id", "merchant_id", "customer_id", "line_id"))
+                for (String key : List.of("conversation_id", "merchant_id", "buyer_id", "line_id"))
                     memory.put(key, input.get(key).toString());
                 memory.put("input_version", ((Number) input.get("input_version")).longValue());
                 var entry = memory.putArray("entries").addObject();
@@ -958,11 +960,36 @@ class SupportApiTest extends CaseDatabaseTest {
         c = get(path(c), buyer, 200);
         assertThat(c.get("assistant_turn").get("status").asString()).isEqualTo("SUCCEEDED");
         assertThat(c.toString()).doesNotContain("customer_memory").doesNotContain("GROUNDED_CUSTOMER_CLAIMS");
+        String oldRun = c.path("assistant_turn").path("run_id").asString();
+        String archived = null;
+        if (legacy) {
+            var saved = json.readTree(jdbc.queryForObject(
+                    "SELECT result_json FROM support_agent_turn WHERE run_id=?", String.class, oldRun));
+            var oldMemory = (tools.jackson.databind.node.ObjectNode)
+                    saved.path("answer").path("customer_memory");
+            oldMemory.remove("buyer_id");
+            oldMemory.put("customer_id", "C-B3001-M1001");
+            archived = json.writeValueAsString(saved);
+            jdbc.update("UPDATE support_agent_turn SET result_json=? WHERE run_id=?", archived, oldRun);
+            archived = jdbc.queryForObject(
+                    "SELECT result_json FROM support_agent_turn WHERE run_id=?", String.class, oldRun);
+        }
         c = message(c, "memory-next", "继续核查", "ASSISTANT");
         turns.dispatchOne();
         var other = message(open("support-B"), "memory-other", "查另一商品", "ASSISTANT");
         turns.dispatchOne();
         assertThat(contexts.size()).isEqualTo(3);
+        assertThat(contexts.get(1)
+                        .path("previous_customer_memory")
+                        .path("buyer_id")
+                        .asString())
+                .isEqualTo("B-3001");
+        assertThat(contexts.get(1).path("previous_customer_memory").has("customer_id"))
+                .isFalse();
+        if (legacy)
+            assertThat(jdbc.queryForObject(
+                            "SELECT result_json FROM support_agent_turn WHERE run_id=?", String.class, oldRun))
+                    .isEqualTo(archived);
         assertThat(contexts.get(1)
                         .path("previous_customer_memory")
                         .path("entries")
@@ -1421,7 +1448,7 @@ class SupportApiTest extends CaseDatabaseTest {
         assertThat(view.path("events").toString()).contains("SHIPMENT").doesNotContain("answer.delta");
         assertThat(view.path("run").path("source_counts").path("POLICY").asInt())
                 .isEqualTo(1);
-        assertThat(list.toString() + view).doesNotContain("PRIVATE-", "context_json", "customer_id", "conversation_id");
+        assertThat(list.toString() + view).doesNotContain("PRIVATE-", "context_json", "buyer_id", "conversation_id");
         assertThat(view.path("run").path("reason").asString()).isEqualTo("UNAVAILABLE");
         assertThat(jdbc.queryForList("SELECT run_id,status,fence FROM support_agent_turn"))
                 .isEqualTo(before);

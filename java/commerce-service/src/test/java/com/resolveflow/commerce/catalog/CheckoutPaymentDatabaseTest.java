@@ -39,12 +39,12 @@ class CheckoutPaymentDatabaseTest extends CommerceDatabaseTest {
         reset(provider);
         // Only this class's fixture scope in the disposable test container, never demo data.
         var ids = jdbc.queryForList(
-                "SELECT draft_id FROM checkout_draft WHERE merchant_id=? AND customer_id=?",
+                "SELECT draft_id FROM checkout_draft WHERE merchant_id=? AND buyer_id=?",
                 String.class,
                 MERCHANT,
                 CUSTOMER);
         var orders = jdbc.queryForList(
-                "SELECT order_id FROM orders WHERE merchant_id=? AND customer_id=?", String.class, MERCHANT, CUSTOMER);
+                "SELECT order_id FROM orders WHERE merchant_id=? AND buyer_id=?", String.class, MERCHANT, CUSTOMER);
         for (var id : ids) {
             jdbc.update(
                     "DELETE FROM simulated_checkout_receipt WHERE attempt_id IN (SELECT attempt_id FROM checkout_payment_attempt WHERE draft_id=?)",
@@ -281,7 +281,7 @@ class CheckoutPaymentDatabaseTest extends CommerceDatabaseTest {
                 .isInstanceOf(ShoppingService.Refused.class);
         assertThatThrownBy(() -> purchases.read("draft:" + paid.draftId(), MERCHANT, "OTHER"))
                 .isInstanceOf(ShoppingService.Refused.class);
-        var legacy = purchases.read("order:00000000-0000-4000-8000-000000003001", MERCHANT, "C-B3001-M1001");
+        var legacy = purchases.read("order:00000000-0000-4000-8000-000000003001", MERCHANT, "B-3001");
         assertThat(legacy.draftId()).isNull();
         assertThat(legacy.payment()).isNull();
         assertThat(legacy.lines().getFirst().unitAmount()).isNull();
@@ -344,11 +344,10 @@ class CheckoutPaymentDatabaseTest extends CommerceDatabaseTest {
     void wrongCompositeScopeDoesNotTouchProviderOrRevealAttempts() {
         var d = draft();
         for (var s : java.util.List.of(new ScopeCommand(MERCHANT, "OTHER"), new ScopeCommand("M-1002", CUSTOMER))) {
-            assertThatThrownBy(
-                            () -> payments.pay(d.draftId(), new PayCommand(s.merchantId(), s.customerId(), "foreign")))
+            assertThatThrownBy(() -> payments.pay(d.draftId(), new PayCommand(s.merchantId(), s.buyerId(), "foreign")))
                     .isInstanceOf(ShoppingService.Refused.class);
             assertThatThrownBy(() -> payments.cancel(d.draftId(), s)).isInstanceOf(ShoppingService.Refused.class);
-            assertThatThrownBy(() -> payments.inspect(d.draftId(), s.merchantId(), s.customerId()))
+            assertThatThrownBy(() -> payments.inspect(d.draftId(), s.merchantId(), s.buyerId()))
                     .isInstanceOf(ShoppingService.Refused.class);
         }
         verify(provider, never()).charge(anyString(), anyLong());
@@ -365,13 +364,12 @@ class CheckoutPaymentDatabaseTest extends CommerceDatabaseTest {
                 "SELECT line_id FROM checkout_payment_attempt WHERE attempt_id=?", String.class, p.attemptId());
         // A scoped fixture deliberately occupies the line PK so publication fails after INSERT orders.
         jdbc.update(
-                "INSERT INTO orders(order_id,merchant_id,customer_id,order_status,currency,paid_at) VALUES(?,'M-1001','CONFLICT','PAID','CNY',UTC_TIMESTAMP(6))",
+                "INSERT INTO orders(order_id,merchant_id,buyer_id,order_status,currency,paid_at) VALUES(?,'M-1001','CONFLICT','PAID','CNY',UTC_TIMESTAMP(6))",
                 UUID.randomUUID().toString());
         var conflictOrder = jdbc.queryForObject(
-                "SELECT order_id FROM orders WHERE customer_id='CONFLICT' ORDER BY created_at DESC LIMIT 1",
-                String.class);
+                "SELECT order_id FROM orders WHERE buyer_id='CONFLICT' ORDER BY created_at DESC LIMIT 1", String.class);
         jdbc.update(
-                "INSERT INTO order_line(line_id,order_id,merchant_id,customer_id,sku,category,quantity,line_paid_amount,currency,paid_at,order_status,version) VALUES(?,?,'M-1001','CONFLICT','TEST','test',1,1,'CNY',UTC_TIMESTAMP(6),'PAID',1)",
+                "INSERT INTO order_line(line_id,order_id,merchant_id,buyer_id,sku,category,quantity,line_paid_amount,currency,paid_at,order_status,version) VALUES(?,?,'M-1001','CONFLICT','TEST','test',1,1,'CNY',UTC_TIMESTAMP(6),'PAID',1)",
                 line,
                 conflictOrder);
         reset(provider);

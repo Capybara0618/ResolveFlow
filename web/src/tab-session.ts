@@ -9,7 +9,7 @@ function valid(value: unknown): value is LoginResponse {
   return typeof session.access_token === 'string' && session.access_token.length > 0
     && roles.includes(String(session.role)) && typeof session.expires_in === 'number'
     && Number.isFinite(session.expires_in) && session.expires_in > 0
-    && ['merchant_id', 'buyer_id', 'customer_id', 'display_name', 'merchant_name'].every(
+    && ['merchant_id', 'buyer_id', 'display_name', 'merchant_name'].every(
       field => session[field] === undefined || typeof session[field] === 'string')
     && (session.single_operator === undefined || typeof session.single_operator === 'boolean')
 }
@@ -19,10 +19,10 @@ export function clearTabSession(): void {
 }
 export function saveTabSession(session: LoginResponse): void {
   if (!valid(session)) { clearTabSession(); return }
-  const { access_token, role, expires_in, merchant_id, buyer_id, customer_id, display_name, merchant_name, single_operator } = session
+  const { access_token, role, expires_in, merchant_id, buyer_id, display_name, merchant_name, single_operator } = session
   try {
     sessionStorage.setItem(key, JSON.stringify({ expires_at: Date.now() + expires_in * 1000,
-      session: { access_token, role, expires_in, merchant_id, buyer_id, customer_id, display_name, merchant_name, single_operator } }))
+      session: { access_token, role, expires_in, merchant_id, buyer_id, display_name, merchant_name, single_operator } }))
   } catch { /* Do not fail a successful login just because tab storage is unavailable. */ }
 }
 export function readTabSession(): LoginResponse | null {

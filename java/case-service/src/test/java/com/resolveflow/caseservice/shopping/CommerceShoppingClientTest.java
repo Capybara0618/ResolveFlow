@@ -43,7 +43,7 @@ class CommerceShoppingClientTest {
     @Test
     void cartUsesOnlyCheckoutScopeAndRoundTripsPublicFacts() throws Exception {
         var all = json.readTree(Files.readString(Path.of("../../contracts/core/fixtures/cart.json")));
-        server.expect(requestTo("http://commerce.test/internal/v1/shop/cart/M-1001?customer_id=trusted"))
+        server.expect(requestTo("http://commerce.test/internal/v1/shop/cart/M-1001?buyer_id=trusted"))
                 .andExpect(req -> assertThat(codec.verifyAsService(
                                         req.getHeaders()
                                                 .getFirst("Authorization")
@@ -57,7 +57,7 @@ class CommerceShoppingClientTest {
                 .andExpect(
                         content()
                                 .json(
-                                        "{\"merchant_id\":\"M-1001\",\"customer_id\":\"trusted\",\"idempotency_key\":\"original\",\"request\":{\"sku_id\":\"SKU-1001-BLACK\",\"quantity\":1,\"expected_revision\":0,\"expected_sku_version\":1}}"))
+                                        "{\"merchant_id\":\"M-1001\",\"buyer_id\":\"trusted\",\"idempotency_key\":\"original\",\"request\":{\"sku_id\":\"SKU-1001-BLACK\",\"quantity\":1,\"expected_revision\":0,\"expected_sku_version\":1}}"))
                 .andRespond(withSuccess(all.get("CartReceipt").toString(), MediaType.APPLICATION_JSON));
         assertThat(json.readTree(json.writeValueAsString(client.cart("M-1001", "trusted"))))
                 .isEqualTo(all.get("CartGroup"));
@@ -108,8 +108,8 @@ class CommerceShoppingClientTest {
             String uri = name.equals("CheckoutPayment")
                     ? "/drafts/owned/payment"
                     : name.equals("CheckoutPurchase")
-                            ? "/purchases/draft%3A00000000-0000-4000-8000-000000004001?merchant_id=M-1001&customer_id=trusted"
-                            : "/drafts/owned/payment?merchant_id=M-1001&customer_id=trusted";
+                            ? "/purchases/draft%3A00000000-0000-4000-8000-000000004001?merchant_id=M-1001&buyer_id=trusted"
+                            : "/drafts/owned/payment?merchant_id=M-1001&buyer_id=trusted";
             server.expect(requestTo("http://commerce.test/internal/v1/shop" + uri))
                     .andExpect(req -> {
                         var identity = codec.verifyAsService(
@@ -199,7 +199,7 @@ class CommerceShoppingClientTest {
             "/merchant/orders?merchant_id=M-1001&status=NOT_SHIPPED&limit=1",
             "/merchant/orders/order?merchant_id=M-1001",
             "/merchant/orders/order/simulated-shipment",
-            "/shop/orders/order/fulfillment?merchant_id=M-1001&customer_id=trusted"
+            "/shop/orders/order/fulfillment?merchant_id=M-1001&buyer_id=trusted"
         };
         var results = new String[] {"MerchantTrades", "MerchantTrade", "OrderFulfillment", "OrderFulfillment"};
         for (int i = 0; i < urls.length; i++) {

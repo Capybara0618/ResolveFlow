@@ -14,7 +14,7 @@ class SupportInput(Closed):
     conversation_id: str = Field(pattern=r"^[0-9a-f-]{36}$")
     input_version: int = Field(ge=1, strict=True)
     merchant_id: str = Field(min_length=1, max_length=64)
-    customer_id: str = Field(min_length=1, max_length=64)
+    buyer_id: str = Field(min_length=1, max_length=64)
     line_id: str = Field(min_length=1, max_length=64)
     deadline_at: AwareDatetime
     context: dict[str, Any]
@@ -214,7 +214,7 @@ class ConversationUpdate(Closed):
     conversation_id: str
     input_version: int = Field(ge=1, strict=True)
     merchant_id: str
-    customer_id: str
+    buyer_id: str
     line_id: str
     task_state: dict[str, Any]
     customer_memory: dict[str, Any]

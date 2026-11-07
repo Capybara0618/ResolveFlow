@@ -65,7 +65,7 @@ public class ProductReviewController {
     @GetMapping("/api/v1/shop/orders/lines/{line_id}/review")
     public Own own(
             @RequestHeader(name = "Authorization", required = false) String auth, @PathVariable("line_id") String id) {
-        return owned(buyer(auth), s -> commerce.ownReview(id, s.merchantId(), s.customerId()));
+        return owned(buyer(auth), s -> commerce.ownReview(id, s.merchantId(), s.buyerId()));
     }
 
     @PostMapping("/api/v1/shop/orders/lines/{line_id}/review")
@@ -75,7 +75,7 @@ public class ProductReviewController {
             @RequestBody Write request) {
         var p = buyer(auth);
         limiter.check(p, ReviewWriteLimiter.Action.WRITE);
-        return owned(p, s -> commerce.saveReview(id, new Command(s.merchantId(), s.customerId(), request)));
+        return owned(p, s -> commerce.saveReview(id, new Command(s.merchantId(), s.buyerId(), request)));
     }
 
     @GetMapping("/api/v1/merchant/reviews")

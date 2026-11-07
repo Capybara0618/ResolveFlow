@@ -27,15 +27,13 @@ class IdentityAccessApiTest extends CaseDatabaseTest {
 
     static final String PATH = "/internal/v1/identity/resolve";
     final AuthenticatedPrincipal buyer =
-            new AuthenticatedPrincipal("boundary-buyer", null, Role.CUSTOMER, null, "boundary-buyer");
+            new AuthenticatedPrincipal("boundary-buyer", null, Role.CUSTOMER, "boundary-buyer");
 
     @BeforeEach
     void buyer() {
         jdbc.update("INSERT IGNORE INTO platform_buyer(buyer_id) VALUES ('boundary-buyer')");
         jdbc.update(
                 "INSERT INTO identity_account(username,role,buyer_id,display_name,password_hash,identity_version) VALUES ('boundary-buyer','CUSTOMER','boundary-buyer','边界测试','unused',1) ON DUPLICATE KEY UPDATE enabled=TRUE,identity_version=1");
-        jdbc.update(
-                "INSERT IGNORE INTO buyer_customer_binding(buyer_id,merchant_id,customer_id) VALUES ('boundary-buyer','M-1001','BOUNDARY-CUSTOMER')");
     }
 
     String user() {
@@ -87,8 +85,8 @@ class IdentityAccessApiTest extends CaseDatabaseTest {
                 .isEqualTo(1)
                 .jsonPath("$.bindings[0].merchant_id")
                 .isEqualTo("M-1001")
-                .jsonPath("$.bindings[0].customer_id")
-                .isEqualTo("BOUNDARY-CUSTOMER")
+                .jsonPath("$.bindings[0].buyer_id")
+                .isEqualTo("boundary-buyer")
                 .jsonPath("$.password_hash")
                 .doesNotExist();
     }
@@ -151,7 +149,7 @@ class IdentityAccessApiTest extends CaseDatabaseTest {
         jdbc.update("INSERT IGNORE INTO platform_buyer(buyer_id) VALUES ('boundary-other')");
         jdbc.update(
                 "INSERT INTO identity_account(username,role,buyer_id,display_name,password_hash,identity_version) VALUES ('boundary-other','CUSTOMER','boundary-other','另一买家','unused',1) ON DUPLICATE KEY UPDATE enabled=TRUE,identity_version=1");
-        var other = new AuthenticatedPrincipal("boundary-other", null, Role.CUSTOMER, null, "boundary-other");
+        var other = new AuthenticatedPrincipal("boundary-other", null, Role.CUSTOMER, "boundary-other");
         rest.post()
                 .uri(PATH)
                 .header("Authorization", service("commerce-service", "identity:resolve"))

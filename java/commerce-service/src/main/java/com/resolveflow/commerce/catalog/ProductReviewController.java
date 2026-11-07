@@ -27,7 +27,7 @@ public class ProductReviewController {
     public Own own(
             @PathVariable("line_id") String id,
             @RequestParam("merchant_id") String merchant,
-            @RequestParam("customer_id") String customer) {
+            @RequestParam("buyer_id") String customer) {
         return reviews.own(id, merchant, customer);
     }
 

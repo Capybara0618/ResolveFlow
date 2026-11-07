@@ -73,7 +73,7 @@ class ShopApiTest extends CaseDatabaseTest {
         when(commerce.create(any())).thenAnswer(inv -> {
             DraftCommand c = inv.getArgument(0);
             if (!c.merchantId().equals("M-1002")) throw new CommerceShoppingClient.Refused(404, "NOT_FOUND", "missing");
-            org.assertj.core.api.Assertions.assertThat(c.customerId()).isEqualTo("C-B3001-M1002");
+            org.assertj.core.api.Assertions.assertThat(c.buyerId()).isEqualTo("B-3001");
             if (c.shippingSnapshot() == null)
                 throw new CommerceShoppingClient.Refused(404, "SHIPPING_NOT_CAPTURED", "missing");
             org.assertj.core.api.Assertions.assertThat(c.shippingSnapshot().recipient())
@@ -101,8 +101,7 @@ class ShopApiTest extends CaseDatabaseTest {
                 .exchange()
                 .expectStatus()
                 .isUnauthorized();
-        for (var credentials : List.of(
-                new String[] {"demo-customer", "demo-pass-1001"}, new String[] {"demo-admin", "demo-pass-1100"}))
+        for (var credentials : List.<String[]>of(new String[] {"demo-admin", "demo-pass-1100"}))
             rest.post()
                     .uri("/api/v1/shop/drafts")
                     .header("Authorization", "Bearer " + login(credentials[0], credentials[1]))
@@ -147,7 +146,7 @@ class ShopApiTest extends CaseDatabaseTest {
                 address.get("address_id").asString(), address.get("version").asLong());
 
         rest.post()
-                .uri("/api/v1/shop/drafts?merchant_id=M-evil&customer_id=C-evil")
+                .uri("/api/v1/shop/drafts?merchant_id=M-evil&buyer_id=C-evil")
                 .header("Authorization", "Bearer " + token)
                 .header("Idempotency-Key", "test-key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -158,13 +157,13 @@ class ShopApiTest extends CaseDatabaseTest {
                 .expectBody()
                 .jsonPath("$.total_amount")
                 .isEqualTo(25800)
-                .jsonPath("$.customer_id")
+                .jsonPath("$.buyer_id")
                 .doesNotExist()
                 .jsonPath("$.idempotency_key")
                 .doesNotExist();
         verify(commerce)
                 .create(new DraftCommand(
-                        "M-1002", "C-B3001-M1002", "test-key", new DraftRequest("SKU-2001-CREAM", 2, 1L, choice)));
+                        "M-1002", "B-3001", "test-key", new DraftRequest("SKU-2001-CREAM", 2, 1L, choice)));
     }
 
     @Test
@@ -199,7 +198,7 @@ class ShopApiTest extends CaseDatabaseTest {
                 .exchange()
                 .expectStatus()
                 .isNotFound();
-        verify(commerce).read("foreign", "M-1001", "C-B3001-M1001");
-        verify(commerce).read("foreign", "M-1002", "C-B3001-M1002");
+        verify(commerce).read("foreign", "M-1001", "B-3001");
+        verify(commerce).read("foreign", "M-1002", "B-3001");
     }
 }

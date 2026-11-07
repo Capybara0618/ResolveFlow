@@ -8,8 +8,8 @@ import com.resolveflow.shared.security.Role;
  * The login response body (core OpenAPI {@code LoginResponse}).
  *
  * <p>Required by the schema: {@code access_token}, {@code token_type}, {@code expires_in},
- * {@code role}; the exclusive identity is either merchant/customer for legacy customers,
- * merchant for staff, or buyer_id for platform customers. Null identity members are omitted.
+ * {@code role}; customers carry a global buyer_id, and merchant staff carry merchant_id.
+ * Null identity members are omitted.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record LoginResponse(
@@ -18,36 +18,10 @@ public record LoginResponse(
         @JsonProperty("expires_in") long expiresIn,
         Role role,
         @JsonProperty("merchant_id") String merchantId,
-        @JsonProperty("customer_id") String customerId,
         @JsonProperty("display_name") String displayName,
         @JsonProperty("merchant_name") String merchantName,
         @JsonProperty("buyer_id") String buyerId,
         @JsonProperty("single_operator") Boolean singleOperator) {
-
-    public LoginResponse(
-            String accessToken,
-            String tokenType,
-            long expiresIn,
-            Role role,
-            String merchantId,
-            String customerId,
-            String displayName,
-            String merchantName,
-            String buyerId) {
-        this(accessToken, tokenType, expiresIn, role, merchantId, customerId, displayName, merchantName, buyerId, null);
-    }
-
-    public LoginResponse(
-            String accessToken,
-            String tokenType,
-            long expiresIn,
-            Role role,
-            String merchantId,
-            String customerId,
-            String displayName,
-            String merchantName) {
-        this(accessToken, tokenType, expiresIn, role, merchantId, customerId, displayName, merchantName, null);
-    }
 
     public static LoginResponse from(com.resolveflow.shared.security.DemoAccounts.Login login) {
         return new LoginResponse(
@@ -56,8 +30,9 @@ public record LoginResponse(
                 login.expiresIn(),
                 login.role(),
                 login.merchantId(),
-                login.customerId(),
                 null,
+                null,
+                login.buyerId(),
                 null);
     }
 }

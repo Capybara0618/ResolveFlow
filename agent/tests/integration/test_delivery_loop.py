@@ -49,7 +49,7 @@ CASE_DISPATCHER = VerifiedCaller(
     service="case-service",
     scope="run:dispatch",
     merchant_id="M-1001",
-    customer_id="C-2002",
+    buyer_id="C-2002",
 )
 
 
@@ -59,7 +59,7 @@ def a_run() -> RunRequest:
         case_id=CASE_ID,
         input_revision=1,
         merchant_id="M-1001",
-        customer_id="C-2002",
+        buyer_id="C-2002",
         order_id=ORDER_ID,
         line_id="7001",
         description="包裹丢了，希望退款",

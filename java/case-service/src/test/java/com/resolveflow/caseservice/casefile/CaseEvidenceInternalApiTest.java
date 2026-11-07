@@ -84,7 +84,9 @@ class CaseEvidenceInternalApiTest extends CaseDatabaseTest {
 
     private String customer() {
         return jwtCodec.issue(
-                new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002"), Instant.now());
+                new AuthenticatedPrincipal(
+                        "demo-customer", null, Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"),
+                Instant.now());
     }
 
     /** The service token the Agent presents on the internal surface. */

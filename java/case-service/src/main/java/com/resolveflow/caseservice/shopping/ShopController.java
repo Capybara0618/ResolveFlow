@@ -82,13 +82,12 @@ public class ShopController {
         // The command probes only trusted scopes and Commerce never creates for a different store.
         for (var s : owned) {
             try {
-                return commerce.create(new DraftCommand(s.merchantId(), s.customerId(), key, request));
+                return commerce.create(new DraftCommand(s.merchantId(), s.buyerId(), key, request));
             } catch (CommerceShoppingClient.Refused e) {
                 if (e.code.equals("SHIPPING_NOT_CAPTURED")) {
                     var snapshot = accounts.shipping(principals.session(authorization), request.shipping());
                     try {
-                        return commerce.create(
-                                new DraftCommand(s.merchantId(), s.customerId(), key, request, snapshot));
+                        return commerce.create(new DraftCommand(s.merchantId(), s.buyerId(), key, request, snapshot));
                     } catch (CommerceShoppingClient.Refused retry) {
                         if (retry.status != 404) throw retry;
                     }
@@ -105,7 +104,7 @@ public class ShopController {
         var p = buyer(authorization);
         for (var s : scopes.list(p)) {
             try {
-                return commerce.read(id, s.merchantId(), s.customerId());
+                return commerce.read(id, s.merchantId(), s.buyerId());
             } catch (CommerceShoppingClient.Refused e) {
                 if (e.status != 404) throw e;
             }

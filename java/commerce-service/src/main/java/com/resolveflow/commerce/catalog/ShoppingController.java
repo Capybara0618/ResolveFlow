@@ -54,7 +54,7 @@ public class ShoppingController {
     public Draft read(
             @PathVariable("draft_id") String id,
             @RequestParam("merchant_id") String merchant,
-            @RequestParam("customer_id") String customer) {
+            @RequestParam("buyer_id") String customer) {
         return service.read(id, merchant, customer);
     }
 

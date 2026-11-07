@@ -21,15 +21,15 @@ import org.apache.ibatis.annotations.Update;
 public interface CaseRepository {
 
     @Insert("""
-            INSERT INTO aftersale_case (case_id, merchant_id, customer_id, order_id, line_id, description,
+            INSERT INTO aftersale_case (case_id, merchant_id, buyer_id, order_id, line_id, description,
                                         status, input_revision, version, expires_at, created_at, updated_at)
-            VALUES (#{caseId}, #{merchantId}, #{customerId}, #{orderId}, #{lineId}, #{description},
+            VALUES (#{caseId}, #{merchantId}, #{buyerId}, #{orderId}, #{lineId}, #{description},
                     #{status}, #{inputRevision}, #{version}, #{expiresAt}, #{createdAt}, #{updatedAt})
             """)
     void insertCase(
             @Param("caseId") String caseId,
             @Param("merchantId") String merchantId,
-            @Param("customerId") String customerId,
+            @Param("buyerId") String buyerId,
             @Param("orderId") String orderId,
             @Param("lineId") String lineId,
             @Param("description") String description,
@@ -152,7 +152,7 @@ public interface CaseRepository {
     @Select("""
             SELECT case_id        AS caseId,
                    merchant_id    AS merchantId,
-                   customer_id    AS customerId,
+                   buyer_id    AS buyerId,
                    order_id       AS orderId,
                    line_id        AS lineId,
                    description    AS description,
@@ -177,7 +177,7 @@ public interface CaseRepository {
     @Select("""
             SELECT case_id        AS caseId,
                    merchant_id    AS merchantId,
-                   customer_id    AS customerId,
+                   buyer_id    AS buyerId,
                    line_id        AS lineId,
                    description    AS description,
                    order_id       AS orderId,

@@ -47,7 +47,7 @@ def test_group_correction_is_persisted_and_rebuilt_without_model_or_network(agen
                          migrate=False, jwt_secret=SECRET, support_runtime=runtime)
         with TestClient(app) as api:
             token = mint_service_token('case-service', SECRET, scope='support:run',
-                                       merchant_id=req.merchant_id, customer_id=req.customer_id)
+                                       merchant_id=req.merchant_id, buyer_id=req.buyer_id)
             headers = {'Authorization': 'Bearer ' + token}
             body = {**req.model_dump(mode='json'), 'tool_token': 'synthetic-read-token'}
             response = api.post('/internal/v1/support-runs', json=body, headers=headers)

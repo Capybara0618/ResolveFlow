@@ -56,7 +56,11 @@ class MerchantSingleAccountTest extends CaseDatabaseTest {
 
     private String create() {
         return service.create(
-                        new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002"),
+                        new AuthenticatedPrincipal(
+                                "demo-customer",
+                                "M-1001",
+                                Role.CUSTOMER,
+                                "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"),
                         UUID.randomUUID().toString(),
                         new CaseCreateRequest("7001", "合成未发货退款申请", List.of("REFUND")))
                 .body()

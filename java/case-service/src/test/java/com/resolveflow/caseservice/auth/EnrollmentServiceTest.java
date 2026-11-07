@@ -30,8 +30,7 @@ class EnrollmentServiceTest extends CaseDatabaseTest {
         var receipt = service.register(new EnrollmentService.Register(user, "测试改账号", "password-test"), peer);
         service.register(new EnrollmentService.Register(other, "其他买家", "password-test"), peer);
         String buyer = dbBuyer(user);
-        var principal =
-                new com.resolveflow.shared.security.AuthenticatedPrincipal(user, null, Role.CUSTOMER, null, buyer);
+        var principal = new com.resolveflow.shared.security.AuthenticatedPrincipal(user, null, Role.CUSTOMER, buyer);
         long identityVersion =
                 jdbc.queryForObject("SELECT identity_version FROM identity_account WHERE username=?", Long.class, user);
         var session = new Session(principal, identityVersion);
@@ -70,7 +69,7 @@ class EnrollmentServiceTest extends CaseDatabaseTest {
     }
 
     @Test
-    void buyerRegistrationBindsStoresAndRecoveryRotatesTheKeyAndInvalidatesOldLogin() {
+    void buyerRegistrationCreatesGlobalIdentityAndRecoveryInvalidatesOldLogin() {
         String user = name(), peer = UUID.randomUUID().toString();
         var result = service.register(new EnrollmentService.Register(user, "测试新买家", "password-test"), peer);
         var login = accounts.login(user, "password-test", java.time.Instant.now());
@@ -78,7 +77,9 @@ class EnrollmentServiceTest extends CaseDatabaseTest {
         assertThat(result.recovery_key()).hasSize(64);
         var buyer = dbBuyer(user);
         assertThat(jdbc.queryForObject(
-                        "SELECT COUNT(*) FROM buyer_customer_binding WHERE buyer_id=?", Integer.class, buyer))
+                        "SELECT COUNT(*) FROM identity_account WHERE buyer_id=? AND merchant_id IS NULL",
+                        Integer.class,
+                        buyer))
                 .isGreaterThan(0);
         var stored =
                 jdbc.queryForObject("SELECT token_hash FROM account_recovery WHERE username=?", String.class, user);
@@ -124,8 +125,8 @@ class EnrollmentServiceTest extends CaseDatabaseTest {
     void recoveryKeyRotationRequiresCurrentPasswordAndRevokedSessionsCannotRotate() {
         String user = name(), peer = UUID.randomUUID().toString();
         var receipt = service.register(new EnrollmentService.Register(user, "测试买家", "password-test"), peer);
-        var principal = new com.resolveflow.shared.security.AuthenticatedPrincipal(
-                user, null, Role.CUSTOMER, null, dbBuyer(user));
+        var principal =
+                new com.resolveflow.shared.security.AuthenticatedPrincipal(user, null, Role.CUSTOMER, dbBuyer(user));
         long version =
                 jdbc.queryForObject("SELECT identity_version FROM identity_account WHERE username=?", Long.class, user);
         var session = new Session(principal, version);

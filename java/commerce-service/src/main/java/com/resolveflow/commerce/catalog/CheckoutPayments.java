@@ -59,7 +59,7 @@ public class CheckoutPayments {
         if (merchant == null || merchant.isBlank() || customer == null || customer.isBlank())
             throw new IllegalArgumentException("需要可信买家归属");
         var rows = jdbc.queryForList(
-                "SELECT * FROM checkout_draft WHERE draft_id=? AND merchant_id=? AND customer_id=?"
+                "SELECT * FROM checkout_draft WHERE draft_id=? AND merchant_id=? AND buyer_id=?"
                         + (lock ? " FOR UPDATE" : ""),
                 id,
                 merchant,
@@ -103,7 +103,7 @@ public class CheckoutPayments {
         if (c == null || c.idempotencyKey() == null || !c.idempotencyKey().matches("[A-Za-z0-9_-]{1,128}"))
             throw new IllegalArgumentException("需要有效的付款请求标识");
         return tx.execute(status -> {
-            var d = draft(id, c.merchantId(), c.customerId(), true);
+            var d = draft(id, c.merchantId(), c.buyerId(), true);
             var old = jdbc.query(
                     "SELECT * FROM checkout_payment_attempt WHERE draft_id=? AND idempotency_key=?",
                     (rs, n) -> payment(rs),
@@ -150,7 +150,7 @@ public class CheckoutPayments {
             return settle(
                     id,
                     command.merchantId(),
-                    command.customerId(),
+                    command.buyerId(),
                     provider.charge(attempt.attemptId(), attempt.totalAmount()));
         } catch (SimulatedCheckoutProvider.Uncertain e) {
             return current(attempt.attemptId());
@@ -192,7 +192,7 @@ public class CheckoutPayments {
                 String order = (String) a.get("order_id"), line = (String) a.get("line_id");
                 Timestamp paid = Timestamp.from(receipt.finishedAt());
                 jdbc.update(
-                        "INSERT INTO orders(order_id,merchant_id,customer_id,order_status,currency,paid_at,created_at) VALUES(?,?,?,'PAID','CNY',?,?)",
+                        "INSERT INTO orders(order_id,merchant_id,buyer_id,order_status,currency,paid_at,created_at) VALUES(?,?,?,'PAID','CNY',?,?)",
                         order,
                         merchant,
                         customer,
@@ -201,7 +201,7 @@ public class CheckoutPayments {
                 for (var snapshot : lines.read(d)) {
                     String lineId = lines.publishedId(d, receipt.attemptId(), snapshot.skuId(), line);
                     jdbc.update(
-                            "INSERT INTO order_line(line_id,order_id,merchant_id,customer_id,sku,product_name,variant_text,category,quantity,line_paid_amount,currency,paid_at,order_status,version) VALUES(?,?,?,?,?,?,?,?,?,?,'CNY',?,'PAID',1)",
+                            "INSERT INTO order_line(line_id,order_id,merchant_id,buyer_id,sku,product_name,variant_text,category,quantity,line_paid_amount,currency,paid_at,order_status,version) VALUES(?,?,?,?,?,?,?,?,?,?,'CNY',?,'PAID',1)",
                             lineId,
                             order,
                             merchant,
@@ -258,12 +258,12 @@ public class CheckoutPayments {
     public Draft cancel(String id, ScopeCommand command) {
         if (command == null) throw new IllegalArgumentException("需要可信买家归属");
         return tx.execute(status -> {
-            var d = draft(id, command.merchantId(), command.customerId(), true);
-            if ("CANCELLED".equals(d.get("status"))) return shop.read(id, command.merchantId(), command.customerId());
+            var d = draft(id, command.merchantId(), command.buyerId(), true);
+            if ("CANCELLED".equals(d.get("status"))) return shop.read(id, command.merchantId(), command.buyerId());
             if (!"WAITING_PAYMENT".equals(d.get("status")) || !now().isBefore(instant(d, "expires_at")))
                 throw conflict();
             jdbc.update("UPDATE checkout_draft SET status='CANCELLED' WHERE draft_id=?", id);
-            return shop.read(id, command.merchantId(), command.customerId());
+            return shop.read(id, command.merchantId(), command.buyerId());
         });
     }
 }

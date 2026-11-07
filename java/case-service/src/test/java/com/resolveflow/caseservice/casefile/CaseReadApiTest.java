@@ -70,7 +70,9 @@ class CaseReadApiTest extends CaseDatabaseTest {
     }
 
     private String token(String user, String merchant, Role role, String customer) {
-        return jwtCodec.issue(new AuthenticatedPrincipal(user, merchant, role, customer), Instant.now());
+        return jwtCodec.issue(
+                new AuthenticatedPrincipal(user, role == Role.CUSTOMER ? null : merchant, role, customer),
+                Instant.now());
     }
 
     private JsonNode openCase() {
@@ -78,7 +80,12 @@ class CaseReadApiTest extends CaseDatabaseTest {
                 .uri("/api/v1/cases")
                 .header(
                         HttpHeaders.AUTHORIZATION,
-                        "Bearer " + token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002"))
+                        "Bearer "
+                                + token(
+                                        "demo-customer",
+                                        "M-1001",
+                                        Role.CUSTOMER,
+                                        "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"))
                 .header("Idempotency-Key", "read-key-1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Map.of("line_id", LINE, "description", "包裹疑似丢失", "requested_actions", List.of("REFUND")))
@@ -104,7 +111,13 @@ class CaseReadApiTest extends CaseDatabaseTest {
     void theCustomerReadsTheirOwnCase() {
         String caseId = openCase().get("case_id").stringValue();
 
-        String body = read(caseId, token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002"))
+        String body = read(
+                        caseId,
+                        token(
+                                "demo-customer",
+                                "M-1001",
+                                Role.CUSTOMER,
+                                "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"))
                 .expectStatus()
                 .isOk()
                 .expectBody(String.class)
@@ -171,11 +184,19 @@ class CaseReadApiTest extends CaseDatabaseTest {
         for (Caller caller : List.of(
                 new Caller(
                         "same merchant, different customer",
-                        token("demo-customer-2", "M-1001", Role.CUSTOMER, "C-2003"),
+                        token(
+                                "demo-customer-2",
+                                "M-1001",
+                                Role.CUSTOMER,
+                                "B-legacy-085a244f8f8acaf20c76a2191b6ebde0ea6d70df"),
                         false),
                 new Caller(
                         "another merchant customer",
-                        token("demo-customer-m2", "M-1002", Role.CUSTOMER, "C-2004"),
+                        token(
+                                "demo-customer-m2",
+                                "M-1002",
+                                Role.CUSTOMER,
+                                "B-legacy-6f808772ade9cc75fd3896626db511b718eebaa2"),
                         false),
                 new Caller(
                         "another merchant reviewer", token("demo-reviewer-m2", "M-1002", Role.REVIEWER, null), false),
@@ -198,14 +219,24 @@ class CaseReadApiTest extends CaseDatabaseTest {
 
         String notMine = read(
                         openCase().get("case_id").stringValue(),
-                        token("demo-customer-m2", "M-1002", Role.CUSTOMER, "C-2004"))
+                        token(
+                                "demo-customer-m2",
+                                "M-1002",
+                                Role.CUSTOMER,
+                                "B-legacy-6f808772ade9cc75fd3896626db511b718eebaa2"))
                 .expectStatus()
                 .isNotFound()
                 .expectBody(String.class)
                 .returnResult()
                 .getResponseBody();
 
-        String absent = read(missing, token("demo-customer-m2", "M-1002", Role.CUSTOMER, "C-2004"))
+        String absent = read(
+                        missing,
+                        token(
+                                "demo-customer-m2",
+                                "M-1002",
+                                Role.CUSTOMER,
+                                "B-legacy-6f808772ade9cc75fd3896626db511b718eebaa2"))
                 .expectStatus()
                 .isNotFound()
                 .expectBody(String.class)
@@ -228,7 +259,8 @@ class CaseReadApiTest extends CaseDatabaseTest {
                 .value(body -> assertThat(MAPPER.readTree(body).get("code").stringValue())
                         .isEqualTo("UNAUTHENTICATED"));
 
-        String customer = token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        String customer =
+                token("demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         String first = read(caseId, customer)
                 .expectStatus()
                 .isOk()

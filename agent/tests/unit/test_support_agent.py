@@ -16,7 +16,7 @@ def request(**updates):
             "conversation_id": "00000000-0000-4000-8000-000000000002",
             "input_version": 2,
             "merchant_id": "M-A",
-            "customer_id": "C-A",
+            "buyer_id": "C-A",
             "line_id": "line-A",
             "deadline_at": (dt.datetime.now(dt.UTC) + dt.timedelta(seconds=120)).isoformat(),
             "context": {

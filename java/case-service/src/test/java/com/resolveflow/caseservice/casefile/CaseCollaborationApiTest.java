@@ -53,8 +53,8 @@ class CaseCollaborationApiTest extends CaseDatabaseTest {
         caseId = UUID.randomUUID().toString();
         jdbc.update("""
                 INSERT INTO aftersale_case
-                    (case_id,merchant_id,customer_id,order_id,line_id,description,status,input_revision,version,created_at,updated_at)
-                VALUES (?,'M-1001','C-2002',?,'collaboration-test','合成协作申请','PENDING_REVIEW',3,7,NOW(6),NOW(6))
+                    (case_id,merchant_id,buyer_id,order_id,line_id,description,status,input_revision,version,created_at,updated_at)
+                VALUES (?,'M-1001','B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80',?,'collaboration-test','合成协作申请','PENDING_REVIEW',3,7,NOW(6),NOW(6))
                 """, caseId, UUID.randomUUID().toString());
     }
 
@@ -64,7 +64,11 @@ class CaseCollaborationApiTest extends CaseDatabaseTest {
                 : username.contains("customer") ? Role.CUSTOMER : Role.REVIEWER;
         String merchant = username.endsWith("m2") ? "M-1002" : "M-1001";
         return codec.issue(
-                new AuthenticatedPrincipal(username, merchant, role, role == Role.CUSTOMER ? "C-2002" : null),
+                new AuthenticatedPrincipal(
+                        username,
+                        role == Role.CUSTOMER ? null : merchant,
+                        role,
+                        role == Role.CUSTOMER ? "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80" : null),
                 Instant.now());
     }
 

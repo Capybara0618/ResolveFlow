@@ -160,11 +160,11 @@ def create_demo_line(amount_minor: int, report: "base.Report", slot: bool = True
     # line that has no slot row is exactly the state that reads as "no order line in this service".
     base.mysql_rows(
         "START TRANSACTION;"
-        " INSERT INTO commerce_db.orders (order_id, merchant_id, customer_id, order_status, currency, paid_at,"
-        f" created_at) VALUES ('{order_id}', 'M-1001', 'C-2002', 'PAID', 'CNY', '{now}', '{now}');"
-        " INSERT INTO commerce_db.order_line (line_id, order_id, merchant_id, customer_id, sku, category, quantity,"
+        " INSERT INTO commerce_db.orders (order_id, merchant_id, buyer_id, order_status, currency, paid_at,"
+        f" created_at) VALUES ('{order_id}', 'M-1001', 'B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80', 'PAID', 'CNY', '{now}', '{now}');"
+        " INSERT INTO commerce_db.order_line (line_id, order_id, merchant_id, buyer_id, sku, category, quantity,"
         " line_paid_amount, currency, paid_at, order_status, version) VALUES"
-        f" ('{line_id}', '{order_id}', 'M-1001', 'C-2002', '{sku}-DRV-{line_id}', '{category}', 1, {amount_minor},"
+        f" ('{line_id}', '{order_id}', 'M-1001', 'B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80', '{sku}-DRV-{line_id}', '{category}', 1, {amount_minor},"
         f" 'CNY', '{now}', 'PAID', 1);"
         " INSERT INTO commerce_db.payment_ledger (order_id, paid_amount, refunded_amount, reserved_refund_amount,"
         f" version) VALUES ('{order_id}', {amount_minor}, 0, 0, 1);"
@@ -181,7 +181,7 @@ def create_demo_line(amount_minor: int, report: "base.Report", slot: bool = True
         + "COMMIT;")
     report.note(f"minted order {order_id} line {line_id} for {amount_minor} minor (sku {sku}-DRV-{line_id},"
                 f" category {category}{'' if slot else ', deliberately WITHOUT its line_refund slot row'})")
-    return line_id, "M-1001", "C-2002"
+    return line_id, "M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"
 
 
 def java_ports_available(report: base.Report) -> bool:

@@ -51,21 +51,14 @@ class AuthControllerTest extends com.resolveflow.caseservice.CaseDatabaseTest {
         JsonNode json = MAPPER.readTree(body);
         assertThat(json.get("token_type").stringValue()).isEqualTo("Bearer");
         assertThat(json.get("role").stringValue()).isEqualTo("CUSTOMER");
-        assertThat(json.get("merchant_id").stringValue()).isEqualTo("M-1001");
-        assertThat(json.get("customer_id").stringValue()).isEqualTo("C-2002");
+        assertThat(json.has("merchant_id")).isFalse();
+        assertThat(json.get("buyer_id").stringValue()).isEqualTo("B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         assertThat(json.get("expires_in").asInt()).isBetween(1, 86400);
         assertThat(json.get("access_token").stringValue()).isNotBlank();
         assertThat(json.properties().stream().map(Map.Entry::getKey))
                 .as("no extra members: the schema is additionalProperties: false")
                 .containsExactlyInAnyOrder(
-                        "access_token",
-                        "token_type",
-                        "expires_in",
-                        "role",
-                        "merchant_id",
-                        "customer_id",
-                        "display_name",
-                        "merchant_name");
+                        "access_token", "token_type", "expires_in", "role", "buyer_id", "display_name");
     }
 
     @Test
@@ -80,7 +73,7 @@ class AuthControllerTest extends com.resolveflow.caseservice.CaseDatabaseTest {
                 .header("X-User", "demo-customer-m2")
                 .header("X-Role", "OPERATOR")
                 .header("X-Merchant", "M-1002")
-                .header("X-Customer", "C-2004")
+                .header("X-Customer", "B-legacy-6f808772ade9cc75fd3896626db511b718eebaa2")
                 .body(Map.of("username", "demo-customer", "password", "demo-pass-1001"))
                 .exchange()
                 .expectStatus()
@@ -90,8 +83,8 @@ class AuthControllerTest extends com.resolveflow.caseservice.CaseDatabaseTest {
                 .getResponseBody();
 
         JsonNode json = MAPPER.readTree(body);
-        assertThat(json.get("merchant_id").stringValue()).isEqualTo("M-1001");
-        assertThat(json.get("customer_id").stringValue()).isEqualTo("C-2002");
+        assertThat(json.has("merchant_id")).isFalse();
+        assertThat(json.get("buyer_id").stringValue()).isEqualTo("B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         assertThat(json.get("role").stringValue()).isEqualTo("CUSTOMER");
     }
 

@@ -112,7 +112,7 @@ def test_supplied_invalid_annotations_still_block_the_whole_action_atomically():
 
 @pytest.mark.parametrize('bad', [
     {'kind': 'READ_TOOL', 'tool_name': 'refund', 'arguments': {}},
-    {'kind': 'READ_TOOL', 'tool_name': 'get_order_context', 'arguments': {'customer_id': 'OTHER'}},
+    {'kind': 'READ_TOOL', 'tool_name': 'get_order_context', 'arguments': {'buyer_id': 'OTHER'}},
 ])
 def test_tool_permission_and_identity_arguments_remain_closed_without_annotations(bad):
     source = Reads()

@@ -52,7 +52,7 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
     private static final String BUNDLE = "policy-logistics-2026.09";
     private static final String VERSION = "2026.09";
     private static final String MERCHANT = "M-1001";
-    private static final String CUSTOMER = "C-2002";
+    private static final String CUSTOMER = "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80";
     private static final long AMOUNT = 2599L;
 
     @Test
@@ -75,25 +75,31 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
                         1L,
                         java.util.List.of(
                                 new com.resolveflow.shared.shopping.FulfillmentWire.Event("ORDER_PAID", time, 1)))));
-        org.mockito.Mockito.doReturn(original).when(shopping).fulfillment(StubCommerce.ORDER, "M-1001", "C-2002");
+        org.mockito.Mockito.doReturn(original)
+                .when(shopping)
+                .fulfillment(StubCommerce.ORDER, "M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         deliverProposal(caseId, 1, "unshipped-approval");
         var view = view(caseId, reviewer());
         String authorizationId =
                 view.get("authorization").get("authorization_id").stringValue();
         String match = "\"" + view.get("case").get("version").asLong() + "\"";
-        org.mockito.Mockito.when(shopping.fulfillment(StubCommerce.ORDER, "M-1001", "C-2002"))
+        org.mockito.Mockito.when(shopping.fulfillment(
+                        StubCommerce.ORDER, "M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"))
                 .thenReturn(new com.resolveflow.shared.shopping.FulfillmentWire.Fulfillment(
                         StubCommerce.ORDER, "IN_TRANSIT", true, 2L, time, original.lines()));
         assertThat(decideStatus(caseId, reviewer(), match, authorizationId, 1, "APPROVE", "核验未发货退款"))
                 .isEqualTo(409);
         assertThat(authorizationColumn(caseId, "status")).isEqualTo("PENDING_REVIEW");
-        org.mockito.Mockito.when(shopping.fulfillment(StubCommerce.ORDER, "M-1001", "C-2002"))
+        org.mockito.Mockito.when(shopping.fulfillment(
+                        StubCommerce.ORDER, "M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"))
                 .thenThrow(new com.resolveflow.caseservice.order.CommerceOrderLineClient.CommerceUnavailableException(
                         "offline", null));
         assertThat(decideStatus(caseId, reviewer(), match, authorizationId, 1, "APPROVE", "核验未发货退款"))
                 .isEqualTo(503);
         assertThat(timelineCount(caseId, "AUTHORIZATION_DECIDED")).isZero();
-        org.mockito.Mockito.doReturn(original).when(shopping).fulfillment(StubCommerce.ORDER, "M-1001", "C-2002");
+        org.mockito.Mockito.doReturn(original)
+                .when(shopping)
+                .fulfillment(StubCommerce.ORDER, "M-1001", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         assertThat(decide(caseId, reviewer(), match, authorizationId, 1, "APPROVE", "核验未发货退款")
                         .get("status")
                         .stringValue())
@@ -157,9 +163,11 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
         throw new IllegalStateException("fixtures/policies/bundles not found");
     }
 
-    private String token(String subject, Role role, String customerId) {
+    private String token(String subject, Role role, String buyerId) {
         return new JwtCodec(secret, Duration.ofHours(1))
-                .issue(new AuthenticatedPrincipal(subject, MERCHANT, role, customerId), Instant.now());
+                .issue(
+                        new AuthenticatedPrincipal(subject, role == Role.CUSTOMER ? null : MERCHANT, role, buyerId),
+                        Instant.now());
     }
 
     private String serviceToken() {

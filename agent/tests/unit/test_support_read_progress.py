@@ -4,7 +4,7 @@ from pathlib import Path
 
 from resolveflow.harness.model import MockModelClient
 from resolveflow.support.engine import SYSTEM, SupportAgent
-from resolveflow.support.protocol import SupportInput
+from tests.recorded_sources import ProjectedSupportInput as SupportInput
 from tests.unit.test_support_agent import Reads, answer, read, request
 
 

@@ -5,7 +5,8 @@ from pathlib import Path
 import pytest
 
 from resolveflow.support.memory import CustomerMemory, MemoryStateError, customer_source
-from resolveflow.support.protocol import DialogueEvent, MemoryUpdate, SupportInput
+from resolveflow.support.protocol import DialogueEvent, MemoryUpdate
+from tests.recorded_sources import ProjectedSupportInput as SupportInput
 from tests.unit.test_support_agent import request
 from tests.unit.test_support_context import message
 

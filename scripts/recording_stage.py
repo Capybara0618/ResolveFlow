@@ -31,7 +31,7 @@ CASE_TABLES = (
     "identity_merchant",
     "platform_buyer",
     "identity_account",
-    "buyer_customer_binding",
+    "buyer_identity_legacy",
     "buyer_address",
     "policy_bundle",
     "policy_rule",
@@ -200,7 +200,7 @@ def capture_source(source: runtime.Settings) -> None:
                 extra = [
                     "--where=username IN ('demo_showcase','admin01','admin02','admin03','platform')"
                 ]
-            elif table in ("platform_buyer", "buyer_customer_binding"):
+            elif table in ("platform_buyer", "buyer_identity_legacy"):
                 extra = [f"--where=buyer_id='{buyer_id}'"]
             elif table == "buyer_address":
                 extra = [

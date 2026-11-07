@@ -58,7 +58,7 @@ class CommerceOrderLineClientTest {
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess("""
                     {"order_id":"00000000-0000-4000-8000-0000000000aa","line_id":"7001",
-                     "merchant_id":"M-1001","customer_id":"C-2002","sku":"SKU-RED-M","category":"apparel",
+                     "merchant_id":"M-1001","buyer_id":"B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80","sku":"SKU-RED-M","category":"apparel",
                      "quantity":2,"line_paid_amount":2599,"refunded_amount":0,"reserved_refund_amount":0,
                      "currency":"CNY","paid_at":"2026-09-10T08:15:00Z","order_status":"PAID","version":3,
                      "order_paid_amount":2599,"line_refund_state":"FREE","payment_version":2,
@@ -93,12 +93,15 @@ class CommerceOrderLineClientTest {
     @Test
     @DisplayName("a customer's token decides the scope, and the user token is never forwarded")
     void theScopeComesFromTheTokenAndTheServiceTokenIsUsed() {
-        AuthenticatedPrincipal customer =
-                new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
-        server.expect(requestTo(COMMERCE + "/internal/v1/order-lines?merchant_id=M-1001&customer_id=C-2002"))
+        AuthenticatedPrincipal customer = new AuthenticatedPrincipal(
+                "demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
+        server.expect(
+                        requestTo(
+                                COMMERCE
+                                        + "/internal/v1/order-lines?merchant_id=M-1001&buyer_id=B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"))
                 .andExpect(method(HttpMethod.GET))
                 .andExpect(queryParam("merchant_id", "M-1001"))
-                .andExpect(queryParam("customer_id", "C-2002"))
+                .andExpect(queryParam("buyer_id", "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"))
                 .andExpect(header("Authorization", org.hamcrest.Matchers.startsWith("Bearer ")))
                 .andRespond(withSuccess(pageJson("7001"), MediaType.APPLICATION_JSON));
 
@@ -127,7 +130,7 @@ class CommerceOrderLineClientTest {
     @DisplayName("a merchant-scoped principal is not given a customer scope")
     void aReviewerSeesTheWholeMerchant() {
         AuthenticatedPrincipal reviewer = new AuthenticatedPrincipal("demo-reviewer", "M-1001", Role.REVIEWER, null);
-        // The exact URI is the assertion: no customer_id is sent at all, rather than sent empty.
+        // The exact URI is the assertion: no buyer_id is sent at all, rather than sent empty.
         server.expect(requestTo(COMMERCE + "/internal/v1/order-lines?merchant_id=M-1001"))
                 .andRespond(withSuccess(pageJson("7001"), MediaType.APPLICATION_JSON));
 
@@ -139,10 +142,11 @@ class CommerceOrderLineClientTest {
     @Test
     @DisplayName("an order read narrows the same scope instead of replacing it")
     void readingOneOrderKeepsTheScope() {
-        AuthenticatedPrincipal customer =
-                new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
-        server.expect(requestTo(
-                        COMMERCE + "/internal/v1/order-lines?merchant_id=M-1001&customer_id=C-2002&order_id=" + ORDER))
+        AuthenticatedPrincipal customer = new AuthenticatedPrincipal(
+                "demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
+        server.expect(requestTo(COMMERCE
+                        + "/internal/v1/order-lines?merchant_id=M-1001&buyer_id=B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80&order_id="
+                        + ORDER))
                 .andRespond(withSuccess(pageJson("7001"), MediaType.APPLICATION_JSON));
 
         CommerceOrderLineClient.OrderLinePage page = client.readOrder(customer, ORDER);
@@ -154,9 +158,12 @@ class CommerceOrderLineClientTest {
     @Test
     @DisplayName("Commerce being down is an availability failure, not an empty result")
     void commerceFailureIsNotAnEmptyPage() {
-        AuthenticatedPrincipal customer =
-                new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
-        server.expect(requestTo(COMMERCE + "/internal/v1/order-lines?merchant_id=M-1001&customer_id=C-2002"))
+        AuthenticatedPrincipal customer = new AuthenticatedPrincipal(
+                "demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
+        server.expect(
+                        requestTo(
+                                COMMERCE
+                                        + "/internal/v1/order-lines?merchant_id=M-1001&buyer_id=B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"))
                 .andRespond(withServerError());
 
         org.assertj.core.api.Assertions.assertThatThrownBy(() -> client.list(customer, null, null, null))
@@ -170,10 +177,12 @@ class CommerceOrderLineClientTest {
         // Commerce answering 400 is the only way this service learns the page was never issued. Turning that
         // into CommerceUnavailableException made the public API answer 503 — "try again later" for a request
         // that can never succeed, and the caller never learns which part of their request was wrong.
-        AuthenticatedPrincipal customer =
-                new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
-        server.expect(requestTo(
-                        COMMERCE + "/internal/v1/order-lines?merchant_id=M-1001&customer_id=C-2002&cursor=not-a-page"))
+        AuthenticatedPrincipal customer = new AuthenticatedPrincipal(
+                "demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
+        server.expect(
+                        requestTo(
+                                COMMERCE
+                                        + "/internal/v1/order-lines?merchant_id=M-1001&buyer_id=B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80&cursor=not-a-page"))
                 .andRespond(org.springframework.test.web.client.response.MockRestResponseCreators.withStatus(
                         org.springframework.http.HttpStatus.BAD_REQUEST));
 
@@ -189,7 +198,7 @@ class CommerceOrderLineClientTest {
                 .andExpect(method(HttpMethod.GET))
                 .andExpect(header("Authorization", org.hamcrest.Matchers.startsWith("Bearer ")))
                 .andRespond(withSuccess("""
-                        {"order_id":"%s","line_id":"7001","merchant_id":"M-1001","customer_id":"C-2002",
+                        {"order_id":"%s","line_id":"7001","merchant_id":"M-1001","buyer_id":"B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80",
                          "sku":"SKU-RED-M","category":"apparel","quantity":2,"line_paid_amount":2599,
                          "refunded_amount":500,"reserved_refund_amount":100,"currency":"CNY",
                          "paid_at":"2026-09-10T08:15:00Z","order_status":"PAID","version":4}
@@ -200,7 +209,7 @@ class CommerceOrderLineClientTest {
 
         server.verify();
         assertThat(context.merchantId()).isEqualTo("M-1001");
-        assertThat(context.customerId()).isEqualTo("C-2002");
+        assertThat(context.buyerId()).isEqualTo("B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         assertThat(context.linePaidAmount()).isEqualTo(2599L);
         assertThat(context.refundableAmountMinor())
                 .as("what is left is paid minus refunded minus reserved, and never below zero")
@@ -212,7 +221,7 @@ class CommerceOrderLineClientTest {
         for (String state : java.util.List.of("FREE", "RESERVED", "CONSUMED")) {
             server.expect(requestTo(COMMERCE + "/internal/v1/order-lines/7002/context"))
                     .andRespond(withSuccess("""
-                        {"order_id":"%s","line_id":"7002","merchant_id":"M-1001","customer_id":"C-2002",
+                        {"order_id":"%s","line_id":"7002","merchant_id":"M-1001","buyer_id":"B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80",
                          "sku":"SKU","category":"electronics","quantity":1,"line_paid_amount":39800,
                          "refunded_amount":32900,"reserved_refund_amount":0,"currency":"CNY",
                          "paid_at":"2026-10-03T04:00:00Z","order_status":"PAID","version":1,
@@ -233,7 +242,7 @@ class CommerceOrderLineClientTest {
                 "\"line_refund_state\":\"RESERVED\"")) {
             server.expect(requestTo(COMMERCE + "/internal/v1/order-lines/7002/context"))
                     .andRespond(withSuccess("""
-                        {"order_id":"%s","line_id":"7002","merchant_id":"M-1001","customer_id":"C-2002",
+                        {"order_id":"%s","line_id":"7002","merchant_id":"M-1001","buyer_id":"B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80",
                          "sku":"SKU","category":"electronics","quantity":1,"line_paid_amount":39800,
                          "refunded_amount":32900,"reserved_refund_amount":0,"currency":"CNY",
                          "paid_at":"2026-10-03T04:00:00Z","order_status":"PAID","version":1,%s}
@@ -268,9 +277,12 @@ class CommerceOrderLineClientTest {
     @Test
     @DisplayName("the public payload keeps the documented member names and instant format")
     void thePublicPayloadMatchesTheCoreContract() throws Exception {
-        AuthenticatedPrincipal customer =
-                new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
-        server.expect(requestTo(COMMERCE + "/internal/v1/order-lines?merchant_id=M-1001&customer_id=C-2002"))
+        AuthenticatedPrincipal customer = new AuthenticatedPrincipal(
+                "demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
+        server.expect(
+                        requestTo(
+                                COMMERCE
+                                        + "/internal/v1/order-lines?merchant_id=M-1001&buyer_id=B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"))
                 .andRespond(withSuccess(pageJson("7001"), MediaType.APPLICATION_JSON));
         CommerceOrderLineClient.OrderLinePage page = client.list(customer, null, null, null);
 
@@ -299,12 +311,15 @@ class CommerceOrderLineClientTest {
     @Test
     @DisplayName("a named line carries the display members, and an unnamed one omits them")
     void theDisplayMembersFollowTheLineRatherThanThePage() throws Exception {
-        AuthenticatedPrincipal customer =
-                new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        AuthenticatedPrincipal customer = new AuthenticatedPrincipal(
+                "demo-customer", "M-1001", Role.CUSTOMER, "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
 
         // Historical line: the two optional members are absent, not null, so the public view
         // answers exactly as it did before V7 and the member set above stays true.
-        server.expect(requestTo(COMMERCE + "/internal/v1/order-lines?merchant_id=M-1001&customer_id=C-2002"))
+        server.expect(
+                        requestTo(
+                                COMMERCE
+                                        + "/internal/v1/order-lines?merchant_id=M-1001&buyer_id=B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"))
                 .andRespond(withSuccess(pageJson("7001"), MediaType.APPLICATION_JSON));
         JsonNode unnamed = MAPPER.readTree(MAPPER.writeValueAsString(
                 OrderController.OrderLinePageResponse.from(client.list(customer, null, null, null))));
@@ -313,7 +328,10 @@ class CommerceOrderLineClientTest {
         assertThat(unnamed.get("items").get(0).has("asset_key")).isFalse();
 
         server.reset();
-        server.expect(requestTo(COMMERCE + "/internal/v1/order-lines?merchant_id=M-1001&customer_id=C-2002"))
+        server.expect(
+                        requestTo(
+                                COMMERCE
+                                        + "/internal/v1/order-lines?merchant_id=M-1001&buyer_id=B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"))
                 .andRespond(withSuccess(namedPageJson("7001"), MediaType.APPLICATION_JSON));
         JsonNode named = MAPPER.readTree(MAPPER.writeValueAsString(
                 OrderController.OrderLinePageResponse.from(client.list(customer, null, null, null))));

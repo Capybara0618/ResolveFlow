@@ -136,7 +136,7 @@ IDENTITY_MEMBERS: Final[frozenset[str]] = frozenset(
         "line_id",
         "order_id",
         "merchant_id",
-        "customer_id",
+        "buyer_id",
         "tenant",
         "tenant_id",
         "principal",

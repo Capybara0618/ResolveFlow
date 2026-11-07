@@ -38,7 +38,7 @@ class BuyerPurchaseHttpFanoutTest {
                     RestClient.builder(),
                     codec,
                     "http://127.0.0.1:" + server.getAddress().getPort());
-            var buyer = new AuthenticatedPrincipal("D3-buyer", null, Role.CUSTOMER, null, "D3-platform");
+            var buyer = new AuthenticatedPrincipal("D3-buyer", null, Role.CUSTOMER, "D3-platform");
             var scopes = mock(BuyerScopes.class);
             var service = new BuyerPurchaseService(scopes, client);
             var measurements = new ArrayList<Map<String, Object>>();
@@ -57,9 +57,7 @@ class BuyerPurchaseHttpFanoutTest {
                             assertThat(observed)
                                     .anySatisfy(query -> assertThat(query)
                                             .contains(
-                                                    "merchant_id=M-" + index,
-                                                    "customer_id=C-" + index,
-                                                    "limit=" + size));
+                                                    "merchant_id=M-" + index, "buyer_id=C-" + index, "limit=" + size));
                         }
                         measurements.add(Map.of(
                                 "stores",
@@ -76,7 +74,7 @@ class BuyerPurchaseHttpFanoutTest {
                         assertThat(service.list(buyer, "M-1", null, null, size).items())
                                 .isEmpty();
                         assertThat(observed).hasSize(1);
-                        assertThat(observed.getFirst()).contains("merchant_id=M-1", "customer_id=C-1");
+                        assertThat(observed.getFirst()).contains("merchant_id=M-1", "buyer_id=C-1");
                         measurements.add(Map.of(
                                 "stores",
                                 stores,

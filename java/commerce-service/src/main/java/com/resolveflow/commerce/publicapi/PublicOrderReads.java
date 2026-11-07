@@ -35,7 +35,7 @@ public class PublicOrderReads {
         if (bindings.size() > 20)
             throw new ShoppingService.Refused(503, "UPSTREAM_UNAVAILABLE", "too many buyer stores");
         String bindingKey = bindings.stream()
-                .map(s -> s.merchantId() + ":" + s.customerId())
+                .map(s -> s.merchantId() + ":" + s.buyerId())
                 .collect(java.util.stream.Collectors.joining("|"));
         var after = new LinkedHashMap<String, String>();
         if (cursor != null)
@@ -124,7 +124,7 @@ public class PublicOrderReads {
     private Page scoped(AuthenticatedPrincipal principal, String order, String line, String cursor, Integer limit) {
         var page = commerce.list(
                 principal.merchantId(),
-                principal.role() == Role.CUSTOMER ? principal.customerId() : null,
+                principal.role() == Role.CUSTOMER ? principal.buyerId() : null,
                 order,
                 line,
                 cursor,

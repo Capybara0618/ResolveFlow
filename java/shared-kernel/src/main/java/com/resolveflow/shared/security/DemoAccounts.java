@@ -30,7 +30,7 @@ public final class DemoAccounts {
     private static final int KEY_LENGTH_BITS = 256;
 
     /** A seed account. The hash is what gets stored; the password is never held here. */
-    public record Account(String username, String merchantId, Role role, String customerId, String passwordHash) {
+    public record Account(String username, String merchantId, Role role, String buyerId, String passwordHash) {
 
         public Account {
             if (username == null || username.isBlank()) {
@@ -42,15 +42,15 @@ public final class DemoAccounts {
             if (role == null) {
                 throw new IllegalArgumentException("an account needs a role");
             }
-            if (role.isCustomerScoped() == (customerId == null)) {
-                throw new IllegalArgumentException("customer_id is present exactly for a CUSTOMER account");
+            if (role.isCustomerScoped() == (buyerId == null)) {
+                throw new IllegalArgumentException("buyer_id is present exactly for a CUSTOMER account");
             }
         }
     }
 
     /** What a successful login returns; the field names match the core OpenAPI LoginResponse. */
     public record Login(
-            String accessToken, String tokenType, long expiresIn, Role role, String merchantId, String customerId) {}
+            String accessToken, String tokenType, long expiresIn, Role role, String merchantId, String buyerId) {}
 
     /** Raised for both a wrong password and an unknown account, with one identical message. */
     public static class CredentialsRejectedException extends RuntimeException {
@@ -67,13 +67,13 @@ public final class DemoAccounts {
                     "demo-customer",
                     "M-1001",
                     Role.CUSTOMER,
-                    "C-2002",
+                    "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80",
                     "pbkdf2-sha256$120000$cmYtZGVtby1zYWx0LTEwMDE=$G5MeWCydEhAhLpYYPBP4JgezXRYer9cvRwsSBJu/SbU="),
             new Account(
                     "demo-customer-2",
                     "M-1001",
                     Role.CUSTOMER,
-                    "C-2003",
+                    "B-legacy-085a244f8f8acaf20c76a2191b6ebde0ea6d70df",
                     "pbkdf2-sha256$120000$cmYtZGVtby1zYWx0LTEwMDI=$8ZZCK8echvJI6B6vt4SXlZ9c/2FzjNv7g8xyLO3QXIg="),
             new Account(
                     "demo-reviewer",
@@ -85,7 +85,7 @@ public final class DemoAccounts {
                     "demo-customer-m2",
                     "M-1002",
                     Role.CUSTOMER,
-                    "C-2004",
+                    "B-legacy-6f808772ade9cc75fd3896626db511b718eebaa2",
                     "pbkdf2-sha256$120000$cmYtZGVtby1zYWx0LTIwMDE=$WhNrU7h45lXeVMNJoDYbj2bhfJiqzuHg2wO3BI/UbJ4="),
             new Account(
                     "demo-reviewer-m2",
@@ -139,15 +139,18 @@ public final class DemoAccounts {
             throw new CredentialsRejectedException();
         }
         AuthenticatedPrincipal principal = new AuthenticatedPrincipal(
-                account.username(), account.merchantId(), account.role(), account.customerId());
+                account.username(),
+                account.role() == Role.CUSTOMER ? null : account.merchantId(),
+                account.role(),
+                account.buyerId());
         String token = codec.issue(principal, now);
         return new Login(
                 token,
                 "Bearer",
                 codec.timeToLive().getSeconds(),
                 account.role(),
-                account.merchantId(),
-                account.customerId());
+                principal.merchantId(),
+                account.buyerId());
     }
 
     /** Verify a stored {@code pbkdf2-sha256$iterations$salt$hash} value in constant time. */

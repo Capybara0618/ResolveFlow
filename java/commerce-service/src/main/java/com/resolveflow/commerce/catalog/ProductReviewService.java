@@ -50,7 +50,7 @@ public class ProductReviewService {
     private Map<String, Object> owned(String line, String merchant, String customer, boolean lock) {
         scope(merchant, customer);
         var rows = jdbc.queryForList(
-                "SELECT l.*,p.product_id FROM order_line l LEFT JOIN catalog_sku k ON k.sku_id=l.sku LEFT JOIN catalog_product p ON p.product_id=k.product_id AND p.store_id=l.merchant_id WHERE l.line_id=? AND l.merchant_id=? AND l.customer_id=?"
+                "SELECT l.*,p.product_id FROM order_line l LEFT JOIN catalog_sku k ON k.sku_id=l.sku LEFT JOIN catalog_product p ON p.product_id=k.product_id AND p.store_id=l.merchant_id WHERE l.line_id=? AND l.merchant_id=? AND l.buyer_id=?"
                         + (lock ? " FOR UPDATE" : ""),
                 line,
                 merchant,
@@ -114,7 +114,7 @@ public class ProductReviewService {
         version(request.expectedVersion());
         if (request.rating() == null || request.rating() < 1 || request.rating() > 5)
             throw new IllegalArgumentException("评分须为1–5整数");
-        var order = owned(line, command.merchantId(), command.customerId(), true);
+        var order = owned(line, command.merchantId(), command.buyerId(), true);
         var existing = forLine(line);
         // Serialize with merchant replies as well as competing edits of this same order line.
         if (existing != null) {
@@ -131,12 +131,12 @@ public class ProductReviewService {
         var now = Timestamp.from(Instant.now(clock));
         if (existing == null)
             jdbc.update(
-                    "INSERT INTO product_review(line_id,product_id,product_name,merchant_id,customer_id,variant,rating,body,version,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,1,?,?)",
+                    "INSERT INTO product_review(line_id,product_id,product_name,merchant_id,buyer_id,variant,rating,body,version,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,1,?,?)",
                     line,
                     order.get("product_id"),
                     order.get("product_name"),
                     command.merchantId(),
-                    command.customerId(),
+                    command.buyerId(),
                     order.get("variant_text"),
                     request.rating(),
                     body,

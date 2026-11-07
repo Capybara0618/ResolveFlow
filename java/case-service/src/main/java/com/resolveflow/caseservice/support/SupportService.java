@@ -86,14 +86,13 @@ public class SupportService {
     private void actor(Session s) {
         var p = s.principal();
         var rows = db.queryForList(
-                "SELECT username FROM identity_account WHERE username=? AND enabled=TRUE AND identity_version=? AND role=? AND buyer_id <=> ? AND merchant_id <=> ? AND customer_id <=> ? FOR UPDATE",
+                "SELECT username FROM identity_account WHERE username=? AND enabled=TRUE AND identity_version=? AND role=? AND buyer_id <=> ? AND merchant_id <=> ? FOR UPDATE",
                 String.class,
                 p.subject(),
                 s.identityVersion(),
                 p.role().name(),
                 p.buyerId(),
-                p.merchantId(),
-                p.customerId());
+                p.merchantId());
         if (rows.isEmpty()) throw new Refused(401, "UNAUTHENTICATED", "登录状态已变化，请重新登录");
     }
 
@@ -102,13 +101,7 @@ public class SupportService {
                 "SELECT merchant_id FROM identity_merchant WHERE merchant_id=? AND enabled=TRUE FOR SHARE",
                 String.class,
                 r.merchant);
-        var bindings = db.queryForList(
-                "SELECT buyer_id FROM buyer_customer_binding WHERE buyer_id=? AND merchant_id=? AND customer_id=? FOR SHARE",
-                String.class,
-                r.buyer,
-                r.merchant,
-                r.customer);
-        if (stores.isEmpty() || bindings.isEmpty()) throw missing();
+        if (stores.isEmpty()) throw missing();
     }
 
     private record Row(
@@ -116,7 +109,6 @@ public class SupportService {
             long sort,
             String buyer,
             String merchant,
-            String customer,
             String order,
             String line,
             String store,
@@ -129,7 +121,6 @@ public class SupportService {
                 rs.getLong("sort_id"),
                 rs.getString("buyer_id"),
                 rs.getString("merchant_id"),
-                rs.getString("customer_id"),
                 rs.getString("order_id"),
                 rs.getString("line_id"),
                 rs.getString("store_name"),
@@ -269,7 +260,6 @@ public class SupportService {
                     0,
                     s.principal().buyerId(),
                     scope.merchantId(),
-                    scope.customerId(),
                     line.orderId(),
                     line.lineId(),
                     store,
@@ -277,11 +267,10 @@ public class SupportService {
                     1);
             binding(proposed);
             db.update(
-                    "INSERT INTO support_conversation(conversation_id,buyer_id,merchant_id,customer_id,order_id,line_id,store_name,product_json) VALUES(?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE conversation_id=conversation_id",
+                    "INSERT INTO support_conversation(conversation_id,buyer_id,merchant_id,order_id,line_id,store_name,product_json) VALUES(?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE conversation_id=conversation_id",
                     proposed.id,
                     proposed.buyer,
                     proposed.merchant,
-                    proposed.customer,
                     proposed.order,
                     proposed.line,
                     proposed.store,

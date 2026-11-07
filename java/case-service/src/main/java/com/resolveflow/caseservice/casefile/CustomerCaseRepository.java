@@ -8,15 +8,13 @@ import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface CustomerCaseRepository {
-    String COLUMNS = "case_id AS caseId,merchant_id AS merchantId,customer_id AS customerId,"
+    String COLUMNS = "case_id AS caseId,merchant_id AS merchantId,buyer_id AS buyerId,"
             + "order_id AS orderId,line_id AS lineId,description,status,input_revision AS inputRevision,"
             + "version,expires_at AS expiresAt,created_at AS createdAt,updated_at AS updatedAt";
 
     @Select("<script>SELECT " + COLUMNS
-            + " FROM aftersale_case WHERE EXISTS (SELECT 1 FROM buyer_customer_binding b "
-            + "JOIN identity_merchant m ON m.merchant_id=b.merchant_id AND m.enabled=TRUE "
-            + "WHERE b.buyer_id=#{buyer} AND b.merchant_id=aftersale_case.merchant_id "
-            + "AND b.customer_id=aftersale_case.customer_id) "
+            + " FROM aftersale_case WHERE buyer_id=#{buyer} AND EXISTS (SELECT 1 FROM identity_merchant m "
+            + "WHERE m.merchant_id=aftersale_case.merchant_id AND m.enabled=TRUE) "
             + "<if test='line != null'>AND line_id=#{line} </if>"
             + "<if test='view == \"WAITING\"'>AND status='WAITING_CUSTOMER' </if>"
             + "<if test='view == \"REVIEW\"'>AND status='PENDING_REVIEW' </if>"
@@ -33,7 +31,7 @@ public interface CustomerCaseRepository {
             @Param("limit") int limit);
 
     @Select("<script>SELECT " + COLUMNS
-            + " FROM aftersale_case WHERE merchant_id=#{merchant} AND customer_id=#{customer} "
+            + " FROM aftersale_case WHERE merchant_id=#{merchant} AND buyer_id=#{customer} "
             + "<if test='line != null'>AND line_id=#{line} </if>"
             + "<if test='view == \"WAITING\"'>AND status='WAITING_CUSTOMER' </if>"
             + "<if test='view == \"REVIEW\"'>AND status='PENDING_REVIEW' </if>"
@@ -51,7 +49,7 @@ public interface CustomerCaseRepository {
             @Param("limit") int limit);
 
     @Select("SELECT " + COLUMNS
-            + " FROM aftersale_case WHERE merchant_id=#{merchant} AND customer_id=#{customer} AND line_id=#{line} "
+            + " FROM aftersale_case WHERE merchant_id=#{merchant} AND buyer_id=#{customer} AND line_id=#{line} "
             + "ORDER BY CASE WHEN status NOT IN ('CLOSED_SUCCESS','CLOSED_REJECTED','CANCELLED') THEN 0 "
             + "WHEN status='CLOSED_SUCCESS' THEN 1 ELSE 2 END,updated_at DESC,case_id DESC LIMIT 1")
     CaseRow related(@Param("merchant") String merchant, @Param("customer") String customer, @Param("line") String line);

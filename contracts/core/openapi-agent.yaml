@@ -194,7 +194,7 @@ paths:
               input_revision: 1
               context:
                 merchant_id: M-1001
-                customer_id: C-2002
+                buyer_id: C-2002
                 order_id: 00000000-0000-4000-8000-0000000000aa
                 line_id: '7001'
               request:
@@ -450,7 +450,7 @@ components:
           minLength: 1
           title: Merchant Id
           type: string
-        customer_id:
+        buyer_id:
           maxLength: 64
           minLength: 1
           title: Customer Id
@@ -485,7 +485,7 @@ components:
       - conversation_id
       - input_version
       - merchant_id
-      - customer_id
+      - buyer_id
       - line_id
       - deadline_at
       - context
@@ -569,7 +569,7 @@ components:
         merchant_id:
           title: Merchant Id
           type: string
-        customer_id:
+        buyer_id:
           title: Customer Id
           type: string
         line_id:
@@ -600,7 +600,7 @@ components:
       - conversation_id
       - input_version
       - merchant_id
-      - customer_id
+      - buyer_id
       - line_id
       - task_state
       - customer_memory
@@ -793,14 +793,14 @@ components:
     RunRequestContext:
       type: object
       additionalProperties: false
-      required: [merchant_id, customer_id, order_id, line_id]
+      required: [merchant_id, buyer_id, order_id, line_id]
       description: Supplied by case-service; the model may not choose or widen it.
       properties:
         merchant_id:
           type: string
           minLength: 1
           maxLength: 64
-        customer_id:
+        buyer_id:
           type: string
           minLength: 1
           maxLength: 64

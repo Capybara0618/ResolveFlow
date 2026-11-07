@@ -74,7 +74,7 @@ COMMERCE_PORT = 8081
 CUSTOMER = "demo-customer"
 CUSTOMER_PASSWORD = "demo-pass-1001"
 MERCHANT_ID = "M-1001"
-CUSTOMER_ID = "C-2002"
+BUYER_ID = "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"
 
 #: The demonstration identity secret the three services share (case-service application.yml).
 JWT_SECRET = "resolveflow-core-demo-identity-secret"
@@ -229,11 +229,11 @@ def create_demo_line(amount_minor: int, report: "base.Report") -> str:
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
     base.mysql_rows(
         "START TRANSACTION;"
-        " INSERT INTO commerce_db.orders (order_id, merchant_id, customer_id, order_status, currency, paid_at,"
-        f" created_at) VALUES ('{order_id}', '{MERCHANT_ID}', '{CUSTOMER_ID}', 'PAID', 'CNY', '{now}', '{now}');"
-        " INSERT INTO commerce_db.order_line (line_id, order_id, merchant_id, customer_id, sku, category, quantity,"
+        " INSERT INTO commerce_db.orders (order_id, merchant_id, buyer_id, order_status, currency, paid_at,"
+        f" created_at) VALUES ('{order_id}', '{MERCHANT_ID}', '{BUYER_ID}', 'PAID', 'CNY', '{now}', '{now}');"
+        " INSERT INTO commerce_db.order_line (line_id, order_id, merchant_id, buyer_id, sku, category, quantity,"
         " line_paid_amount, currency, paid_at, order_status, version) VALUES"
-        f" ('{line_id}', '{order_id}', '{MERCHANT_ID}', '{CUSTOMER_ID}', '{sku}-H5-{line_id}', '{category}', 1,"
+        f" ('{line_id}', '{order_id}', '{MERCHANT_ID}', '{BUYER_ID}', '{sku}-H5-{line_id}', '{category}', 1,"
         f" {amount_minor}, 'CNY', '{now}', 'PAID', 1);"
         " INSERT INTO commerce_db.payment_ledger (order_id, paid_amount, refunded_amount, reserved_refund_amount,"
         f" version) VALUES ('{order_id}', {amount_minor}, 0, 0, 1);"
@@ -348,7 +348,7 @@ def main() -> int:
             report.finish("FAILED: login")
             return 1
         access = login["access_token"]
-        report.note(f"login: role={login['role']} merchant={login['merchant_id']} customer={login['customer_id']}")
+        report.note(f"login: role={login['role']} buyer={login['buyer_id']}")
 
         status, created = request_json(
             f"http://127.0.0.1:{CASE_PORT}/api/v1/cases",
@@ -554,7 +554,7 @@ def drive_harness(report: "base.Report", case_id: str, input_revision: int, run_
     facts = RunFacts(
         run_id=run_id, case_id=case_id, input_revision=input_revision, line_id=line_id,
         description="包裹显示已揽收但多日无新物流，疑似丢失，希望退款",
-        merchant_id=MERCHANT_ID, customer_id=CUSTOMER_ID,
+        merchant_id=MERCHANT_ID, buyer_id=BUYER_ID,
     )
     started = time.time()
     try:

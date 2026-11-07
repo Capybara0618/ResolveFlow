@@ -32,11 +32,13 @@ public final class ReviewLimiterLabProcess {
         int port = ((org.springframework.boot.web.server.context.WebServerApplicationContext) context)
                 .getWebServer()
                 .getPort();
+        Path pending = directory.resolve(node + ".ready.tmp");
         Files.writeString(
-                directory.resolve(node + ".ready"),
+                pending,
                 new ObjectMapper()
                         .writeValueAsString(Map.of(
                                 "port", port, "pid", ProcessHandle.current().pid())),
                 StandardOpenOption.CREATE_NEW);
+        Files.move(pending, directory.resolve(node + ".ready"), StandardCopyOption.ATOMIC_MOVE);
     }
 }

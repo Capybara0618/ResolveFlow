@@ -60,7 +60,10 @@ class OrderLineContextControllerTest extends CommerceDatabaseTest {
         return new JwtCodec(secret, Duration.ofHours(1))
                 .issue(
                         new com.resolveflow.shared.security.AuthenticatedPrincipal(
-                                "demo-customer", "M-1001", com.resolveflow.shared.security.Role.CUSTOMER, "C-2002"),
+                                "demo-customer",
+                                null,
+                                com.resolveflow.shared.security.Role.CUSTOMER,
+                                "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"),
                         Instant.now());
     }
 
@@ -86,7 +89,7 @@ class OrderLineContextControllerTest extends CommerceDatabaseTest {
                         "order_id",
                         "line_id",
                         "merchant_id",
-                        "customer_id",
+                        "buyer_id",
                         "sku",
                         "category",
                         "quantity",
@@ -105,7 +108,7 @@ class OrderLineContextControllerTest extends CommerceDatabaseTest {
         assertThat(json.get("merchant_id").stringValue())
                 .as("a service re-checking a case needs to confirm the line belongs to that case")
                 .isEqualTo("M-1001");
-        assertThat(json.get("customer_id").stringValue()).isEqualTo("C-2002");
+        assertThat(json.get("buyer_id").stringValue()).isEqualTo("B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80");
         assertThat(json.get("line_paid_amount").asLong()).isEqualTo(2599);
         assertThat(json.get("order_paid_amount").asLong()).isEqualTo(4598);
         assertThat(json.get("line_refund_state").stringValue()).isEqualTo("FREE");
@@ -134,7 +137,8 @@ class OrderLineContextControllerTest extends CommerceDatabaseTest {
 
         // And the listing is a different view of the same line: it carries no money that has moved.
         JsonNode listing = MAPPER.readTree(rest.get()
-                .uri("/internal/v1/order-lines?merchant_id=M-1001&customer_id=C-2002")
+                .uri(
+                        "/internal/v1/order-lines?merchant_id=M-1001&buyer_id=B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80")
                 .header("Authorization", "Bearer " + serviceToken())
                 .exchange()
                 .expectStatus()

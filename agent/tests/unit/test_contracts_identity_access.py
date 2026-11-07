@@ -8,7 +8,7 @@ def test_identity_protocol_accepts_minimal_fixtures_and_rejects_client_scopes():
     for schema, value in fixtures.items():
         assert component_validator("case", schema, "contracts/core").accepts(value)
     validator = component_validator("case", "IdentityResolveRequest", "contracts/core")
-    for name in ["merchant_id", "customer_id", "buyer_id", "role", "identity_version", "bindings"]:
+    for name in ["merchant_id", "buyer_id", "buyer_id", "role", "identity_version", "bindings"]:
         assert not validator.accepts({**fixtures["IdentityResolveRequest"], name: "forged"})
 
 

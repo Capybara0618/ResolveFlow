@@ -11,7 +11,7 @@ from resolveflow.harness.budget import RunBudget
 from resolveflow.support.engine import SupportAgent
 from resolveflow.support.orchestration import Orchestration, Response, TurnPlan
 from resolveflow.support.progress import ProgressReporter
-from resolveflow.support.protocol import SupportInput
+from tests.recorded_sources import ProjectedSupportInput as SupportInput
 from tests.integration.test_support_dialogue_api import TokenizedScript
 from tests.unit.test_support_agent import request
 from tests.unit.test_support_orchestrated_engine import Sources

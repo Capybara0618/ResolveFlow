@@ -75,7 +75,10 @@ class OrderLineRefundStatusControllerTest extends CommerceDatabaseTest {
         return new JwtCodec(secret, Duration.ofHours(1))
                 .issue(
                         new com.resolveflow.shared.security.AuthenticatedPrincipal(
-                                "demo-customer", "M-1001", com.resolveflow.shared.security.Role.CUSTOMER, "C-2002"),
+                                "demo-customer",
+                                null,
+                                com.resolveflow.shared.security.Role.CUSTOMER,
+                                "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"),
                         Instant.now());
     }
 

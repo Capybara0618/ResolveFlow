@@ -44,7 +44,7 @@ CASE_DISPATCHER = VerifiedCaller(
     service="case-service",
     scope="run:dispatch",
     merchant_id="M-1001",
-    customer_id="C-2002",
+    buyer_id="C-2002",
 )
 
 
@@ -55,7 +55,7 @@ def a_request(**overrides: Any) -> RunRequest:
         "case_id": CASE_ID,
         "input_revision": 1,
         "merchant_id": "M-1001",
-        "customer_id": "C-2002",
+        "buyer_id": "C-2002",
         "order_id": ORDER_ID,
         "line_id": "7001",
         "description": "包裹丢了，希望退款",
@@ -280,7 +280,7 @@ def test_the_stored_row_carries_the_typed_columns_not_only_a_json_blob(agent_db:
     with agent_db.connection() as connection:
         row = connection.execute(
             """
-            SELECT merchant_id, customer_id, order_id, line_id, requested_actions, evidence_refs,
+            SELECT merchant_id, buyer_id, order_id, line_id, requested_actions, evidence_refs,
                    policy_manifest, traceparent, request_hash
             FROM agent_run
             """
@@ -288,7 +288,7 @@ def test_the_stored_row_carries_the_typed_columns_not_only_a_json_blob(agent_db:
 
     assert row is not None
     assert row["merchant_id"] == "M-1001"
-    assert row["customer_id"] == "C-2002"
+    assert row["buyer_id"] == "C-2002"
     assert str(row["order_id"]) == ORDER_ID
     assert row["line_id"] == "7001"
     assert list(row["requested_actions"]) == ["REFUND"]

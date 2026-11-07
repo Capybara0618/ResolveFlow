@@ -83,7 +83,8 @@ class PolicyManifestApiTest extends CaseDatabaseTest {
 
     @BeforeEach
     void prepare() {
-        registerTestAccount("test-customer-m2002", "M-2002", "CUSTOMER", "C-2002");
+        commerce.reset();
+        registerTestAccount("test-customer-m2002", "M-2002", "CUSTOMER", "B-policy-m2002");
         // The two shipped versions, with their windows, are what selection is about; a test that left the
         // bundle set to something else would be testing a different question.
         jdbc.execute("DELETE FROM case_policy_bundle");
@@ -123,7 +124,15 @@ class PolicyManifestApiTest extends CaseDatabaseTest {
     private String userToken(String merchantId) {
         String username = merchantId.equals("M-2002") ? "test-customer-m2002" : "demo-customer";
         return new JwtCodec(secret, Duration.ofHours(1))
-                .issue(new AuthenticatedPrincipal(username, merchantId, Role.CUSTOMER, "C-2002"), Instant.now());
+                .issue(
+                        new AuthenticatedPrincipal(
+                                username,
+                                null,
+                                Role.CUSTOMER,
+                                merchantId.equals("M-2002")
+                                        ? "B-policy-m2002"
+                                        : "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80"),
+                        Instant.now());
     }
 
     /** Opens a case and returns the response body, so a test can assert on what the caller was told. */
@@ -335,7 +344,7 @@ class PolicyManifestApiTest extends CaseDatabaseTest {
         // Before C07.1 the second merchant could not exist at all: the choice was over every bundle in the
         // table, so a second merchant's September version would have decided the first merchant's payment.
         commerce.lineMerchant = "M-2002";
-        commerce.lineCustomer = "C-2002";
+        commerce.lineCustomer = "B-policy-m2002";
         commerce.paidAt = PAID_IN_SEPTEMBER;
         String body = rest.post()
                 .uri("/api/v1/cases")

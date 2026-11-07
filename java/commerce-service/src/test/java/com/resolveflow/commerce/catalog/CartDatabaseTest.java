@@ -43,7 +43,7 @@ class CartDatabaseTest extends CommerceDatabaseTest {
         assertThat(cart.read("M-1001", buyer).items().getFirst().quantity()).isEqualTo(3);
         assertThatThrownBy(() -> cart.write(new Command(
                         c.merchantId(),
-                        c.customerId(),
+                        c.buyerId(),
                         c.idempotencyKey(),
                         new Request(c.request().skuId(), 4, 2L, 1L))))
                 .isInstanceOf(ShoppingService.Refused.class)
@@ -136,7 +136,7 @@ class CartDatabaseTest extends CommerceDatabaseTest {
             cart.write(command("M-1001", buyer, "CART-LIMIT-0", 2, 20, 1L));
             assertThat(cart.read("M-1001", buyer).items()).hasSize(20);
         } finally {
-            jdbc.update("DELETE FROM shopping_cart_item WHERE customer_id=?", buyer);
+            jdbc.update("DELETE FROM shopping_cart_item WHERE buyer_id=?", buyer);
             jdbc.update("DELETE FROM catalog_sku WHERE sku_id LIKE 'CART-LIMIT-%'");
         }
     }

@@ -18,7 +18,7 @@ class IdentityAccessClientTest {
     final ObjectMapper json = new ObjectMapper();
     final Instant now = Instant.now();
     final JwtCodec codec = new JwtCodec("boundary-synthetic-identity-secret", Duration.ofHours(1));
-    final AuthenticatedPrincipal buyer = new AuthenticatedPrincipal("buyer", null, Role.CUSTOMER, null, "BUYER");
+    final AuthenticatedPrincipal buyer = new AuthenticatedPrincipal("buyer", null, Role.CUSTOMER, "BUYER");
     final AtomicReference<String> response = new AtomicReference<>();
     final AtomicReference<String> forwarded = new AtomicReference<>();
     final AtomicInteger status = new AtomicInteger(200);
@@ -50,7 +50,7 @@ class IdentityAccessClientTest {
                 codec,
                 Clock.fixed(now, ZoneOffset.UTC),
                 "http://127.0.0.1:" + server.getAddress().getPort());
-        response.set(json.writeValueAsString(context(1, List.of(new Binding("M-1", "C-1", "store")))));
+        response.set(json.writeValueAsString(context(1, List.of(new Binding("M-1", "BUYER", "store")))));
     }
 
     @AfterEach
@@ -63,14 +63,14 @@ class IdentityAccessClientTest {
     }
 
     Context context(long version, List<Binding> bindings) {
-        return new Context(buyer.subject(), null, Role.CUSTOMER, null, buyer.buyerId(), version, bindings, null);
+        return new Context(buyer.subject(), null, Role.CUSTOMER, buyer.buyerId(), version, bindings, null);
     }
 
     @Test
     void carriesUserTokenOnlyInBodyAndUsesSeparateScopedServiceIdentity() {
         var result = client.resolve(user());
         assertThat(result.principal()).isEqualTo(buyer);
-        assertThat(result.bindings().getFirst().customerId()).isEqualTo("C-1");
+        assertThat(result.bindings().getFirst().buyerId()).isEqualTo("BUYER");
         assertThat(json.readTree(forwarded.get()).path("user_authorization").asString())
                 .isEqualTo(user());
         assertThat(json.readTree(forwarded.get()).has("merchant_id")).isFalse();
@@ -113,8 +113,8 @@ class IdentityAccessClientTest {
     void mismatchedVersionPrincipalAndDuplicateBindingsAreProtocolFailures() {
         for (Context value : List.of(
                 context(2, List.of()),
-                new Context("other", null, Role.CUSTOMER, null, "BUYER", 1, List.of(), null),
-                context(1, List.of(new Binding("M-1", "C-1", "a"), new Binding("M-1", "C-2", "b"))))) {
+                new Context("other", null, Role.CUSTOMER, "BUYER", 1, List.of(), null),
+                context(1, List.of(new Binding("M-1", "BUYER", "a"), new Binding("M-1", "C-2", "b"))))) {
             response.set(json.writeValueAsString(value));
             assertThatThrownBy(() -> client.resolve(user()))
                     .isInstanceOfSatisfying(

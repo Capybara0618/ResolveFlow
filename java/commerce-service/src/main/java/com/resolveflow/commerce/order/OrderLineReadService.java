@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
  *
  * <p>The scope is a parameter, never a request body or a header: the caller (Case) derives it from
  * the verified user token and passes it, and Commerce trusts the service token rather than the user
- * (docs/core-contracts.md:15). A customer-scoped caller passes a {@code customerId}; a merchant-scoped
+ * (docs/core-contracts.md:15). A customer-scoped caller passes a {@code buyerId}; a merchant-scoped
  * one does not and sees the whole merchant.
  *
- * <p>When {@code customerId} is present it is combined with the merchant, so the two together are the
+ * <p>When {@code buyerId} is present it is combined with the merchant, so the two together are the
  * scope. There is no code path that reads by customer alone: customer identifiers are only unique
  * within a merchant, and a scope that could be satisfied by guessing a customer id would be a way to
  * read across merchants.
@@ -35,18 +35,18 @@ public class OrderLineReadService {
         this.repository = repository;
     }
 
-    public Page list(String merchantId, String customerId, String cursor, Integer requestedLimit) {
-        return list(merchantId, customerId, null, null, cursor, requestedLimit);
+    public Page list(String merchantId, String buyerId, String cursor, Integer requestedLimit) {
+        return list(merchantId, buyerId, null, null, cursor, requestedLimit);
     }
 
     /** The same listing narrowed to one order (Case public single-order read). */
-    public Page listByOrder(String merchantId, String customerId, String orderId, String cursor, Integer limit) {
-        return list(merchantId, customerId, orderId, null, cursor, limit);
+    public Page listByOrder(String merchantId, String buyerId, String orderId, String cursor, Integer limit) {
+        return list(merchantId, buyerId, orderId, null, cursor, limit);
     }
 
     /** The same listing narrowed to one line; Case asks this before opening a case. */
-    public Page listByLine(String merchantId, String customerId, String lineId) {
-        return list(merchantId, customerId, null, lineId, null, 1);
+    public Page listByLine(String merchantId, String buyerId, String lineId) {
+        return list(merchantId, buyerId, null, lineId, null, 1);
     }
 
     /**
@@ -59,12 +59,7 @@ public class OrderLineReadService {
      * (docs/core-contracts.md:27).
      */
     public Page list(
-            String merchantId,
-            String customerId,
-            String orderId,
-            String lineId,
-            String cursor,
-            Integer requestedLimit) {
+            String merchantId, String buyerId, String orderId, String lineId, String cursor, Integer requestedLimit) {
         if (merchantId == null || merchantId.isBlank()) {
             throw new IllegalArgumentException("a listing needs a merchant scope");
         }
@@ -72,7 +67,7 @@ public class OrderLineReadService {
         OrderLineCursor after = OrderLineCursor.decode(cursor);
         List<OrderLineRow> rows = repository.findVisible(
                 merchantId,
-                blankToNull(customerId),
+                blankToNull(buyerId),
                 blankToNull(orderId),
                 blankToNull(lineId),
                 after == null ? null : after.paidAt(),

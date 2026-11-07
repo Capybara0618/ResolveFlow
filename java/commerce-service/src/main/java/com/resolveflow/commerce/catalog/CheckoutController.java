@@ -24,7 +24,7 @@ public class CheckoutController {
     public com.resolveflow.shared.shopping.ShippingWire.View shipping(
             @PathVariable String purchase,
             @RequestParam("merchant_id") String merchant,
-            @RequestParam("customer_id") String customer) {
+            @RequestParam("buyer_id") String customer) {
         return shipping.buyer(purchase, merchant, customer);
     }
 
@@ -43,7 +43,7 @@ public class CheckoutController {
     public Lookup payment(
             @PathVariable("draft_id") String id,
             @RequestParam("merchant_id") String merchant,
-            @RequestParam("customer_id") String customer) {
+            @RequestParam("buyer_id") String customer) {
         return new Lookup(payments.inspect(id, merchant, customer));
     }
 
@@ -55,7 +55,7 @@ public class CheckoutController {
     @GetMapping("/purchases")
     public Purchases list(
             @RequestParam("merchant_id") String merchant,
-            @RequestParam("customer_id") String customer,
+            @RequestParam("buyer_id") String customer,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false) Integer limit) {
@@ -66,7 +66,7 @@ public class CheckoutController {
     public Purchase read(
             @PathVariable("purchase_id") String id,
             @RequestParam("merchant_id") String merchant,
-            @RequestParam("customer_id") String customer) {
+            @RequestParam("buyer_id") String customer) {
         return purchases.read(id, merchant, customer);
     }
 

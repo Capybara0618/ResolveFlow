@@ -85,7 +85,6 @@ public class SupportAgentTurns {
             String conversation,
             String buyer,
             String merchant,
-            String customer,
             String order,
             String line,
             String actor,
@@ -111,7 +110,6 @@ public class SupportAgentTurns {
                 r.getString("conversation_id"),
                 r.getString("buyer_id"),
                 r.getString("merchant_id"),
-                r.getString("customer_id"),
                 r.getString("order_id"),
                 r.getString("line_id"),
                 r.getString("actor"),
@@ -129,7 +127,7 @@ public class SupportAgentTurns {
 
     private Turn find(String id) {
         var rows = db.query(
-                "SELECT t.*,c.buyer_id,c.merchant_id,c.customer_id,c.order_id,c.line_id,c.product_json,c.version AS conversation_version FROM support_agent_turn t JOIN support_conversation c ON c.conversation_id=t.conversation_id WHERE t.run_id=?",
+                "SELECT t.*,c.buyer_id,c.merchant_id,c.order_id,c.line_id,c.product_json,c.version AS conversation_version FROM support_agent_turn t JOIN support_conversation c ON c.conversation_id=t.conversation_id WHERE t.run_id=?",
                 this::row,
                 id);
         if (rows.isEmpty()) throw stale();
@@ -184,14 +182,7 @@ public class SupportAgentTurns {
                 "SELECT merchant_id FROM identity_merchant WHERE merchant_id=? AND enabled=TRUE" + suffix,
                 String.class,
                 t.merchant);
-        var binding = db.queryForList(
-                "SELECT buyer_id FROM buyer_customer_binding WHERE buyer_id=? AND merchant_id=? AND customer_id=?"
-                        + suffix,
-                String.class,
-                t.buyer,
-                t.merchant,
-                t.customer);
-        return !account.isEmpty() && !store.isEmpty() && !binding.isEmpty();
+        return !account.isEmpty() && !store.isEmpty();
     }
 
     private Turn lock(String id) {
@@ -253,7 +244,7 @@ public class SupportAgentTurns {
     }
 
     private AuthenticatedPrincipal principal(Turn t) {
-        return new AuthenticatedPrincipal("support-agent", t.merchant, Role.CUSTOMER, t.customer);
+        return new AuthenticatedPrincipal("support-agent", t.merchant, Role.CUSTOMER, t.buyer);
     }
 
     private Map<String, Object> manifest(Turn t, Instant paidAt) {
@@ -360,6 +351,7 @@ public class SupportAgentTurns {
                 }
                 var memory = previousAnswer.get("customer_memory");
                 if (memory != null && !memory.isNull()) {
+                    memory = projectLegacyMemory(t, memory);
                     long version = ((Number) row.get("input_version")).longValue();
                     if (!validCustomerMemory(t, memory, version))
                         throw new IllegalStateException("invalid persisted customer memory");
@@ -394,21 +386,21 @@ public class SupportAgentTurns {
         try {
             t = freeze(t);
             if (t == null) return;
-            var bound = new JwtCodec.SupportCredential(
-                    t.id, t.conversation, t.input, t.fence, t.merchant, t.customer, t.line);
+            var bound =
+                    new JwtCodec.SupportCredential(t.id, t.conversation, t.input, t.fence, t.merchant, t.buyer, t.line);
             Map<String, Object> body = new LinkedHashMap<>();
             body.put("run_id", t.id);
             body.put("conversation_id", t.conversation);
             body.put("input_version", t.input);
             body.put("merchant_id", t.merchant);
-            body.put("customer_id", t.customer);
+            body.put("buyer_id", t.buyer);
             body.put("line_id", t.line);
             body.put("deadline_at", t.deadline.toString());
             body.put("context", json.readTree(t.context));
             body.put("tool_token", codec.issueSupportCredential(bound, clock.instant()));
             body.put("progress_token", codec.issueSupportProgressCredential(bound, clock.instant()));
             String identity =
-                    codec.issueServiceToken("case-service", t.merchant, t.customer, "support:run", clock.instant());
+                    codec.issueServiceToken("case-service", t.merchant, t.buyer, "support:run", clock.instant());
             publish(t, agent.execute(identity, body));
         } catch (RestClientResponseException e) {
             retry(
@@ -448,6 +440,22 @@ public class SupportAgentTurns {
         });
     }
 
+    private JsonNode projectLegacyMemory(Turn t, JsonNode memory) {
+        if (!memory.isObject() || memory.has("buyer_id") || !memory.hasNonNull("customer_id")) return memory;
+        var owners = db.queryForList(
+                "SELECT buyer_id FROM buyer_identity_legacy WHERE merchant_id=? AND customer_id=?",
+                String.class,
+                t.merchant,
+                memory.path("customer_id").asString());
+        if (owners.size() != 1 || !owners.getFirst().equals(t.buyer))
+            throw new IllegalStateException("invalid legacy customer memory owner");
+        // Project only the next input. The archived result and its source hashes stay untouched.
+        var projected = (tools.jackson.databind.node.ObjectNode) memory.deepCopy();
+        projected.remove("customer_id");
+        projected.put("buyer_id", t.buyer);
+        return projected;
+    }
+
     private boolean validCustomerMemory(Turn t, JsonNode memory, long inputVersion) {
         if (!memory.isObject()
                 || memory.toString().length() > 24000
@@ -455,7 +463,7 @@ public class SupportAgentTurns {
                 || !memory.path("origin").asString().equals("GROUNDED_CUSTOMER_CLAIMS")
                 || !memory.path("conversation_id").asString().equals(t.conversation)
                 || !memory.path("merchant_id").asString().equals(t.merchant)
-                || !memory.path("customer_id").asString().equals(t.customer)
+                || !memory.path("buyer_id").asString().equals(t.buyer)
                 || !memory.path("line_id").asString().equals(t.line)
                 || memory.path("input_version").asLong(-1) != inputVersion
                 || !memory.path("entries").isArray()
@@ -502,7 +510,7 @@ public class SupportAgentTurns {
                 || !update.path("run_id").asString().equals(t.id)
                 || !update.path("conversation_id").asString().equals(t.conversation)
                 || !update.path("merchant_id").asString().equals(t.merchant)
-                || !update.path("customer_id").asString().equals(t.customer)
+                || !update.path("buyer_id").asString().equals(t.buyer)
                 || !update.path("line_id").asString().equals(t.line)
                 || update.path("input_version").asLong(-1) != t.input
                 || !validCustomerMemory(t, update.path("customer_memory"), t.input)) return false;
@@ -701,7 +709,7 @@ public class SupportAgentTurns {
         Turn t = find(token.runId());
         if (!t.conversation.equals(token.conversationId())
                 || !t.merchant.equals(token.merchantId())
-                || !t.customer.equals(token.customerId())
+                || !t.buyer.equals(token.buyerId())
                 || !t.line.equals(token.lineId()))
             throw new SupportService.Refused(403, "FORBIDDEN_SCOPE", "咨询读取身份不匹配");
         if (!t.status.equals("RUNNING")
@@ -730,7 +738,7 @@ public class SupportAgentTurns {
             if (lines.size() != 1) throw stale();
             // The independent inquiry ticket says nothing about a refund application.
             // Reuse the buyer projection, scoped to this credential's merchant/customer/line.
-            var related = customerCases.related(t.merchant, t.customer, t.line);
+            var related = customerCases.related(t.merchant, t.buyer, t.line);
             Map<String, Object> application = new LinkedHashMap<>();
             application.put("present", related != null);
             application.put("status", "NONE");
@@ -762,7 +770,7 @@ public class SupportAgentTurns {
                     application);
         }
         if (kind.equals("shipment")) {
-            var result = shopping.fulfillment(t.order, t.merchant, t.customer);
+            var result = shopping.fulfillment(t.order, t.merchant, t.buyer);
             return Map.of(
                     "order_id",
                     t.order,

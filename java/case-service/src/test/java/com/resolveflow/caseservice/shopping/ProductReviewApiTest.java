@@ -61,8 +61,12 @@ class ProductReviewApiTest extends CaseDatabaseTest {
                 .thenReturn(new Page(List.of(review), new Summary(1, 5.0, List.of(1L, 0L, 0L, 0L, 0L)), null));
         when(commerce.ownReview(anyString(), anyString(), anyString()))
                 .thenThrow(new CommerceShoppingClient.Refused(404, "NOT_FOUND", "missing"));
-        doReturn(new Own(true, null, review)).when(commerce).ownReview("owned", "M-1001", "C-B3001-M1001");
-        when(commerce.saveReview(eq("owned"), any())).thenReturn(review);
+        doReturn(new Own(true, null, review)).when(commerce).ownReview("owned", "M-1001", "B-3001");
+        when(commerce.saveReview(eq("owned"), any())).thenAnswer(inv -> {
+            Command c = inv.getArgument(1);
+            if (c.merchantId().equals("M-1001") && c.buyerId().equals("B-3001")) return review;
+            throw new CommerceShoppingClient.Refused(404, "NOT_FOUND", "missing");
+        });
         when(commerce.merchantReviews(eq("M-1001"), any(), any())).thenReturn(new Page(List.of(review), null, null));
         when(commerce.replyReview(eq(1L), any())).thenAnswer(i -> {
             var c = (ReplyCommand) i.getArgument(1);
@@ -150,19 +154,19 @@ class ProductReviewApiTest extends CaseDatabaseTest {
                 .header("Authorization", legacy)
                 .exchange()
                 .expectStatus()
-                .isForbidden();
+                .isNotFound();
     }
 
     @Test
     void trustedBuyerMappingAndStrictBodyNeverAcceptSelfReportedIdentity() {
         var buyer = auth("demo-buyer", "demo-pass-4001");
         rest.get()
-                .uri("/api/v1/shop/orders/lines/owned/review?merchant_id=M-1002&customer_id=OTHER")
+                .uri("/api/v1/shop/orders/lines/owned/review?merchant_id=M-1002&buyer_id=OTHER")
                 .header("Authorization", buyer)
                 .exchange()
                 .expectStatus()
                 .isOk();
-        verify(commerce).ownReview("owned", "M-1001", "C-B3001-M1001");
+        verify(commerce).ownReview("owned", "M-1001", "B-3001");
         rest.get()
                 .uri("/api/v1/shop/orders/lines/other/review")
                 .header("Authorization", buyer)
@@ -173,7 +177,7 @@ class ProductReviewApiTest extends CaseDatabaseTest {
                 .uri("/api/v1/shop/orders/lines/owned/review")
                 .header("Authorization", buyer)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of("rating", 5, "body", "text", "expected_version", 0, "customer_id", "OTHER"))
+                .body(Map.of("rating", 5, "body", "text", "expected_version", 0, "buyer_id", "OTHER"))
                 .exchange()
                 .expectStatus()
                 .isBadRequest();
@@ -185,7 +189,7 @@ class ProductReviewApiTest extends CaseDatabaseTest {
                 .exchange()
                 .expectStatus()
                 .isOk();
-        verify(commerce).saveReview("owned", new Command("M-1001", "C-B3001-M1001", new Write(5L, "text", 0L)));
+        verify(commerce).saveReview("owned", new Command("M-1001", "B-3001", new Write(5L, "text", 0L)));
     }
 
     @Test

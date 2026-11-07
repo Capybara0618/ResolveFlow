@@ -95,7 +95,7 @@ class WorkspaceSqlPlanDatabaseTest extends CaseDatabaseTest {
                 at
             });
         jdbc.batchUpdate(
-                "INSERT INTO aftersale_case(case_id,merchant_id,customer_id,order_id,line_id,description,status,input_revision,version,created_at,updated_at) VALUES(?,?,?,?,?,?,?,1,1,?,?)",
+                "INSERT INTO aftersale_case(case_id,merchant_id,buyer_id,order_id,line_id,description,status,input_revision,version,created_at,updated_at) VALUES(?,?,?,?,?,?,?,1,1,?,?)",
                 values);
         jdbc.update(
                 "INSERT INTO case_requested_action SELECT case_id,'REFUND' FROM aftersale_case WHERE merchant_id IN ('D4-WS1','D4-WS2')");

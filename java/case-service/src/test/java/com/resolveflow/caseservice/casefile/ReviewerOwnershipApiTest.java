@@ -75,7 +75,11 @@ class ReviewerOwnershipApiTest extends CaseDatabaseTest {
                 ? Role.MERCHANT_ADMIN
                 : username.contains("customer") ? Role.CUSTOMER : Role.REVIEWER;
         return codec.issue(
-                new AuthenticatedPrincipal(username, "M-1001", role, role == Role.CUSTOMER ? "C-2002" : null),
+                new AuthenticatedPrincipal(
+                        username,
+                        role == Role.CUSTOMER ? null : "M-1001",
+                        role,
+                        role == Role.CUSTOMER ? "B-legacy-60865438438feefa1dfbc0ce3d07ba2cb1b09a80" : null),
                 Instant.now());
     }
 
