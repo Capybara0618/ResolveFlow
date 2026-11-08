@@ -20,11 +20,25 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.GenericContainer;
 import tools.jackson.databind.ObjectMapper;
 
+@org.springframework.boot.test.context.SpringBootTest(
+        properties = {
+            "resolveflow.product-reviews.cache-enabled=true",
+            "resolveflow.catalog.cache-enabled=false",
+            "resolveflow.product-reviews.rebuild-lock-enabled=false"
+        })
+@org.springframework.test.annotation.DirtiesContext(
+        classMode = org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS)
 class ProductReviewCacheIntegrationTest extends CommerceDatabaseTest {
     private static final GenericContainer<?> REDIS = new GenericContainer<>("redis:7.4-alpine").withExposedPorts(6379);
 
     static {
         REDIS.start();
+    }
+
+    @org.springframework.test.context.DynamicPropertySource
+    static void redisProperties(org.springframework.test.context.DynamicPropertyRegistry registry) {
+        registry.add("spring.data.redis.host", REDIS::getHost);
+        registry.add("spring.data.redis.port", () -> REDIS.getMappedPort(6379));
     }
 
     @AfterAll
@@ -62,7 +76,7 @@ class ProductReviewCacheIntegrationTest extends CommerceDatabaseTest {
     }
 
     @Test
-    void committedEpochPreventsLateOldCachePopulationFromOverwritingNewRating() {
+    void committedInvalidationPreventsLateOldCachePopulationFromOverwritingNewRating() {
         var connection = connection(REDIS.getMappedPort(6379));
         try {
             var redis = template(connection);
@@ -79,16 +93,14 @@ class ProductReviewCacheIntegrationTest extends CommerceDatabaseTest {
                     "UPDATE shipment SET status='DELIVERED',carrier_conclusion='DELIVERED',source_version=2 WHERE line_id=?",
                     p.lineId());
             var r = reviews.save(p.lineId(), new Command("M-1001", customer, new Write(5L, "original", 0L)));
-            long oldEpoch = reviews.publicEpoch("P-1001");
             var old = cache.read("P-1001", null, 10);
+            var values = new PublicCatalogCacheStore(redis, json, "rf:reviews:first:v1");
+            var oldSnapshot = values.read(values.reviewKey("P-1001"), "P-1001");
             assertThat(cache.read("P-1001", null, 10)).isEqualTo(old);
             reviews.save(p.lineId(), new Command("M-1001", customer, new Write(1L, "updated", r.version())));
             var updated = cache.read("P-1001", null, 10);
-            redis.opsForValue()
-                    .set(
-                            "rf:reviews:first:v1:P-1001:" + oldEpoch,
-                            json.writeValueAsString(old),
-                            Duration.ofSeconds(30));
+            assertThat(values.publish(values.reviewKey("P-1001"), "P-1001", oldSnapshot, old, Duration.ofSeconds(30)))
+                    .isFalse();
             assertThat(cache.read("P-1001", null, 10)).isEqualTo(updated);
             assertThat(updated.items())
                     .anyMatch(i -> i.reviewId() == r.reviewId()
@@ -97,8 +109,7 @@ class ProductReviewCacheIntegrationTest extends CommerceDatabaseTest {
             assertThat(metrics.counter("resolveflow.product_reviews.cache", "outcome", "hit")
                             .count())
                     .isEqualTo(2);
-            assertThat(redis.getExpire("rf:reviews:first:v1:P-1001:" + oldEpoch))
-                    .isBetween(1L, 30L);
+            assertThat(redis.getExpire(values.reviewKey("P-1001"))).isBetween(1L, 30L);
         } finally {
             connection.destroy();
         }
@@ -134,11 +145,7 @@ class ProductReviewCacheIntegrationTest extends CommerceDatabaseTest {
         try {
             var redis = template(connection);
             var metrics = new SimpleMeterRegistry();
-            redis.opsForValue()
-                    .set(
-                            "rf:reviews:first:v1:P-2002:" + reviews.publicEpoch("P-2002"),
-                            "not-json",
-                            Duration.ofSeconds(30));
+            redis.opsForValue().set("rf:reviews:first:v1:aside-v2:reviews:P-2002", "not-json", Duration.ofSeconds(30));
             var cache = new ProductReviewReadCache(reviews, redis, new ObjectMapper(), metrics, true);
             assertThat(cache.read("P-2002", null, 10).items()).isEmpty();
             assertThat(metrics.counter("resolveflow.product_reviews.cache", "outcome", "error")

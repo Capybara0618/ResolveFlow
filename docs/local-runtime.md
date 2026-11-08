@@ -65,6 +65,14 @@ $env:RESOLVEFLOW_MODEL_API_KEY = '你的模型密钥'
 
 PostgreSQL 使用 `127.0.0.1:55533`，避开 Windows 保留的旧端口55433；普通启动沿用原 `demo-postgres-data` 卷，现有记录与政策索引保持。
 
+## 公开商品缓存
+
+日常启动器已开启评价缓存，商品详情缓存默认沿用该开关。公开商品详情及图片/参数资料先读 Redis，未命中回源，TTL 为60秒；评价默认10条首页独立缓存30秒。其他评价分页继续查库。命中时不读取 MySQL 评价版本，公开展示以外的报价、结算和权限校验使用原领域服务。
+
+商品资料、规格价格、上下架、店铺名称/启用状态、评价及回复修改，在业务事务中记录待失效项，提交后立即清理对应缓存。新增 Commerce V23 保存待失效记录；后台每2秒处理一批20条，再次失效并条件清理记录，失败项保留重试，缓存自身按 TTL 到期。提交回调只访问 Redis，不再申请数据库连接；后台的 Redis 调用也放在数据库事务之外。Redis 内的代次标记及条件回填拒绝失效前开始加载的旧结果。更新至失效完成之间及故障时允许短暂展示旧数据，成交金额由结算重新核验。
+
+`CATALOG_CACHE_ENABLED` 可单独控制商品展示缓存，未设置时跟随 `PRODUCT_REVIEW_CACHE_ENABLED`。`PRODUCT_REVIEW_REBUILD_LOCK_ENABLED` 控制重建协调，缓存异常使用有限回源。普通启动会执行 V23；已有数据无需 reset。本批只验证功能正确性，旧性能实验对应其原冻结版本。
+
 ## 独立拍摄数据
 
 2026-10-31已准备 `resolveflow-recording-v1`：独立MySQL、PostgreSQL、Redis、RocketMQ、图片目录及退款provider文件，沿用相同应用与端口。选择记录在忽略文件 `tmp/active-recording-stage.json`；存在时，正常start/status/stop以及物流模拟器均使用拍摄环境。两套环境轮流占用这些端口，原验收卷完整保留。

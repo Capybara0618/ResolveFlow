@@ -11,9 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CatalogManagementService {
+    private final PublicCatalogCacheInvalidation invalidations;
     private final JdbcTemplate jdbc;
 
-    public CatalogManagementService(JdbcTemplate jdbc) {
+    public CatalogManagementService(JdbcTemplate jdbc, PublicCatalogCacheInvalidation invalidations) {
+        this.invalidations = invalidations;
         this.jdbc = jdbc;
     }
 
@@ -69,6 +71,7 @@ public class CatalogManagementService {
                 request.enabled(),
                 request.version(),
                 request.storeId());
+        invalidations.storeChanged(request.storeId());
         return request;
     }
 
@@ -233,6 +236,7 @@ public class CatalogManagementService {
                 command.actor(),
                 create ? "CREATED" : "UPDATED",
                 result.version());
+        invalidations.productChanged(id);
         return result;
     }
 }

@@ -12,15 +12,20 @@ import org.redisson.api.RedissonClient;
 final class ReviewRebuildLock {
     private final RedissonClient client;
     private final MeterRegistry metrics;
+    private final String metric;
 
     ReviewRebuildLock(RedissonClient client, MeterRegistry metrics) {
+        this(client, metrics, "resolveflow.product_reviews.rebuild");
+    }
+
+    ReviewRebuildLock(RedissonClient client, MeterRegistry metrics, String metric) {
         this.client = client;
         this.metrics = metrics;
+        this.metric = metric;
     }
 
     private void count(String outcome) {
-        metrics.counter("resolveflow.product_reviews.rebuild.lock", "outcome", outcome)
-                .increment();
+        metrics.counter(metric + ".lock", "outcome", outcome).increment();
     }
 
     <T> T rebuild(String key, Function<BooleanSupplier, T> owner, Supplier<T> waiter, Supplier<T> fallback) {
@@ -38,8 +43,7 @@ final class ReviewRebuildLock {
             count("unavailable");
             return fallback.get();
         } finally {
-            metrics.timer("resolveflow.product_reviews.rebuild.wait")
-                    .record(System.nanoTime() - started, TimeUnit.NANOSECONDS);
+            metrics.timer(metric + ".wait").record(System.nanoTime() - started, TimeUnit.NANOSECONDS);
         }
         if (!acquired) {
             count("rejected");

@@ -321,8 +321,8 @@ class ReviewCacheDualProcessTest extends CommerceDatabaseTest {
                 paused = false;
                 ungate("a", id);
                 assertThat(old.get(5, TimeUnit.SECONDS).get("status")).isEqualTo(200);
-                var key = "d4:" + directory.getFileName() + ":" + condition + ":" + f.product() + ":"
-                        + reviews.publicEpoch(f.product()) + ":rebuild";
+                var key = "d4:" + directory.getFileName() + ":" + condition + ":aside-v2:reviews:" + f.product()
+                        + ":rebuild";
                 String exists = redis.execInContainer("redis-cli", "EXISTS", key)
                         .getStdout()
                         .trim();
@@ -356,7 +356,18 @@ class ReviewCacheDualProcessTest extends CommerceDatabaseTest {
         try (var pool = Executors.newSingleThreadExecutor()) {
             var old = pool.submit(() -> request("a", f.product()));
             entered("a", id);
-            reviews.reply(f.review(), new ReplyCommand("M-1001", new Reply("committed-new-reply", 1L)));
+            String token = new JwtCodec(SECRET, Duration.ofMinutes(10))
+                    .issueServiceToken("case-service", null, null, ServiceScopes.COMMERCE_READ, Instant.now());
+            var response = http.send(
+                    HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + ports.get("b")
+                                    + "/internal/v1/merchant/reviews/" + f.review() + "/reply"))
+                            .header("Authorization", "Bearer " + token)
+                            .header("Content-Type", "application/json")
+                            .POST(HttpRequest.BodyPublishers.ofString(JSON.writeValueAsString(
+                                    new ReplyCommand("M-1001", new Reply("committed-new-reply", 1L)))))
+                            .build(),
+                    HttpResponse.BodyHandlers.ofString());
+            assertThat(response.statusCode()).isEqualTo(200);
             assertThat(reviews.publicEpoch(f.product())).isEqualTo(before + 1);
             ungate("b", id);
             var fresh = request("b", f.product());
@@ -570,8 +581,7 @@ class ReviewCacheDualProcessTest extends CommerceDatabaseTest {
                 start("b", locking);
                 Fixture f = fixture("ttl-" + condition), other = fixture("other-" + condition);
                 assertThat(request("a", f.product()).get("status")).isEqualTo(200);
-                String key = "d4:" + directory.getFileName() + ":" + condition + ":" + f.product() + ":"
-                        + reviews.publicEpoch(f.product());
+                String key = "d4:" + directory.getFileName() + ":" + condition + ":aside-v2:reviews:" + f.product();
                 assertThat(Integer.parseInt(redis.execInContainer("redis-cli", "TTL", key)
                                 .getStdout()
                                 .trim()))
@@ -656,8 +666,8 @@ class ReviewCacheDualProcessTest extends CommerceDatabaseTest {
                             }
                         },
                         5);
-                String freshKey = "d4:" + directory.getFileName() + ":" + condition + ":" + unplugged.product() + ":"
-                        + reviews.publicEpoch(unplugged.product());
+                String freshKey =
+                        "d4:" + directory.getFileName() + ":" + condition + ":aside-v2:reviews:" + unplugged.product();
                 var restored = new ArrayList<Map<String, Object>>();
                 long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
                 while (System.nanoTime() < deadline) {

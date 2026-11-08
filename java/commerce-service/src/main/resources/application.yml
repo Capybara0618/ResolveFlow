@@ -35,6 +35,9 @@ spring:
 # deployment key: it must match case-service's for a service token to verify, and the boundary that
 # separates the two surfaces is the audience, not the key. A deployment overrides it.
 resolveflow:
+  catalog:
+    cache-enabled: ${CATALOG_CACHE_ENABLED:${PRODUCT_REVIEW_CACHE_ENABLED:false}}
+    invalidation-poll-ms: 2000
   checkout:
     recovery-enabled: ${CHECKOUT_RECOVERY_ENABLED:false}
     recovery-batch-size: 20

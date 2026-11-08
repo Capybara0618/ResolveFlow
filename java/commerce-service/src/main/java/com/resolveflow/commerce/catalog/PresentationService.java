@@ -9,10 +9,12 @@ import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class PresentationService {
+    private final PublicCatalogCacheInvalidation invalidations;
     private final JdbcTemplate db;
     private final ObjectMapper json = new ObjectMapper();
 
-    public PresentationService(JdbcTemplate db) {
+    public PresentationService(JdbcTemplate db, PublicCatalogCacheInvalidation invalidations) {
+        this.invalidations = invalidations;
         this.db = db;
     }
 
@@ -122,6 +124,7 @@ public class PresentationService {
                 r.shipping_note(),
                 r.aftercare_note(),
                 json.writeValueAsString(mapping));
+        invalidations.presentationChanged(id);
         return product(id, command.merchant_id());
     }
 

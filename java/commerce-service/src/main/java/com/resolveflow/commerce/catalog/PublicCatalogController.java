@@ -11,12 +11,17 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/shop")
 public class PublicCatalogController {
+    private final PublicProductReadCache products;
     private final ShoppingService shopping;
     private final PresentationService presentation;
     private final ProductReviewReadCache reviews;
 
     public PublicCatalogController(
-            ShoppingService shopping, PresentationService presentation, ProductReviewReadCache reviews) {
+            ShoppingService shopping,
+            PresentationService presentation,
+            ProductReviewReadCache reviews,
+            PublicProductReadCache products) {
+        this.products = products;
         this.shopping = shopping;
         this.presentation = presentation;
         this.reviews = reviews;
@@ -44,7 +49,7 @@ public class PublicCatalogController {
 
     @GetMapping("/products/{product_id}")
     public Product product(@PathVariable("product_id") String id) {
-        return shopping.product(id);
+        return products.product(id);
     }
 
     @PostMapping("/quote")
@@ -54,7 +59,7 @@ public class PublicCatalogController {
 
     @GetMapping("/products/{id}/presentation")
     public com.resolveflow.shared.shopping.PresentationWire.Product productPresentation(@PathVariable String id) {
-        return presentation.product(id, null);
+        return products.presentation(id);
     }
 
     @GetMapping("/stores/{id}/presentation")

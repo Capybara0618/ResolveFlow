@@ -7,7 +7,7 @@ import org.redisson.client.codec.StringCodec;
 import org.redisson.config.Config;
 import org.redisson.config.EqualJitterDelay;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,10 +15,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 public class ReviewRebuildConfiguration {
     @Bean(destroyMethod = "shutdown")
-    @ConditionalOnProperty(
-            prefix = "resolveflow.product-reviews",
-            name = {"cache-enabled", "rebuild-lock-enabled"},
-            havingValue = "true")
+    @ConditionalOnExpression(
+            "(${resolveflow.product-reviews.cache-enabled:false} or ${resolveflow.catalog.cache-enabled:false}) and ${resolveflow.product-reviews.rebuild-lock-enabled:true}")
     RedissonClient reviewRebuildClient(
             @Value("${spring.data.redis.host:127.0.0.1}") String host,
             @Value("${spring.data.redis.port:6379}") int port,

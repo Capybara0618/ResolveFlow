@@ -12,6 +12,10 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import tools.jackson.databind.ObjectMapper;
 
 class ProductReviewReadCacheTest {
+    private static String snapshot(String value) {
+        return new ObjectMapper().writeValueAsString(new PublicCatalogCacheStore.Snapshot("generation-1", value));
+    }
+
     @Test
     void databaseFallbackIsBoundedWhenCacheIsUnavailable() throws Exception {
         var service = mock(ProductReviewService.class);
@@ -57,15 +61,17 @@ class ProductReviewReadCacheTest {
     }
 
     @Test
-    void firstPageCacheHitStillChecksAuthoritativeEpochButSkipsHeavySnapshot() {
+    void firstPageCacheHitDoesNotQueryDatabase() {
         var service = mock(ProductReviewService.class);
         var redis = mock(StringRedisTemplate.class, RETURNS_DEEP_STUBS);
+        when(redis.execute(any(org.springframework.data.redis.core.script.RedisScript.class), anyList(), anyString()))
+                .thenReturn(snapshot(null));
         var page = new Page(List.of(), new Summary(0, null, List.of(0L, 0L, 0L, 0L, 0L)), null);
-        when(service.publicEpoch("P-1")).thenReturn(4L);
-        when(redis.opsForValue().get(anyString())).thenReturn(new ObjectMapper().writeValueAsString(page));
+        when(redis.execute(any(org.springframework.data.redis.core.script.RedisScript.class), anyList(), anyString()))
+                .thenReturn(snapshot(new ObjectMapper().writeValueAsString(page)));
         var cache = new ProductReviewReadCache(service, redis, new ObjectMapper(), new SimpleMeterRegistry(), true);
         assertThat(cache.read("P-1", null, 10)).isEqualTo(page);
-        verify(service).publicEpoch("P-1");
+        verify(service, never()).publicEpoch(anyString());
         verify(service, never()).publicPage(anyString(), any(), any());
     }
 
@@ -73,24 +79,27 @@ class ProductReviewReadCacheTest {
     void redisFailureFallsBackWithoutChangingAuthorityAndInvalidPagingDoesNotReadRedis() {
         var service = mock(ProductReviewService.class);
         var redis = mock(StringRedisTemplate.class, RETURNS_DEEP_STUBS);
+        when(redis.execute(any(org.springframework.data.redis.core.script.RedisScript.class), anyList(), anyString()))
+                .thenReturn(snapshot(null));
         var page = new Page(List.of(), new Summary(0, null, List.of(0L, 0L, 0L, 0L, 0L)), null);
-        when(service.publicEpoch("P-1")).thenReturn(1L);
         when(service.publicPage("P-1", null, 10)).thenReturn(page);
-        when(redis.opsForValue().get(anyString())).thenThrow(new IllegalStateException("offline"));
+        when(redis.execute(any(org.springframework.data.redis.core.script.RedisScript.class), anyList(), anyString()))
+                .thenThrow(new IllegalStateException("offline"));
         var cache = new ProductReviewReadCache(service, redis, new ObjectMapper(), new SimpleMeterRegistry(), true);
         assertThat(cache.read("P-1", null, 10)).isEqualTo(page);
         assertThatThrownBy(() -> cache.read("P-1", null, 21)).isInstanceOf(IllegalArgumentException.class);
-        verify(service, times(1)).publicEpoch("P-1");
+        verify(service, never()).publicEpoch(anyString());
     }
 
     @Test
     void waiterCannotBypassRebuildOwnerToLoadDatabase() throws Exception {
         var service = mock(ProductReviewService.class);
         var redis = mock(StringRedisTemplate.class, RETURNS_DEEP_STUBS);
+        when(redis.execute(any(org.springframework.data.redis.core.script.RedisScript.class), anyList(), anyString()))
+                .thenReturn(snapshot(null));
         var client = mock(org.redisson.api.RedissonClient.class);
         var lock = mock(org.redisson.api.RLock.class);
-        when(service.publicEpoch("P-1")).thenReturn(3L);
-        when(client.getLock("test:P-1:3:rebuild")).thenReturn(lock);
+        when(client.getLock("test:aside-v2:reviews:P-1:rebuild")).thenReturn(lock);
         when(lock.tryLock(100, 2000, java.util.concurrent.TimeUnit.MILLISECONDS))
                 .thenReturn(false);
         var metrics = new SimpleMeterRegistry();
@@ -110,22 +119,25 @@ class ProductReviewReadCacheTest {
     void lockedDoubleCheckSkipsLoadAndBusinessFailureIsNotRedisFallback() throws Exception {
         var service = mock(ProductReviewService.class);
         var redis = mock(StringRedisTemplate.class, RETURNS_DEEP_STUBS);
+        when(redis.execute(any(org.springframework.data.redis.core.script.RedisScript.class), anyList(), anyString()))
+                .thenReturn(snapshot(null));
         var client = mock(org.redisson.api.RedissonClient.class);
         var lock = mock(org.redisson.api.RLock.class);
-        when(service.publicEpoch("P-1")).thenReturn(4L);
         when(client.getLock(anyString())).thenReturn(lock);
         when(lock.tryLock(100, 2000, java.util.concurrent.TimeUnit.MILLISECONDS))
                 .thenReturn(true);
         when(lock.isHeldByCurrentThread()).thenReturn(true);
         var page = new Page(List.of(), new Summary(0, null, List.of(0L, 0L, 0L, 0L, 0L)), null);
-        when(redis.opsForValue().get(anyString())).thenReturn(null, new ObjectMapper().writeValueAsString(page));
+        when(redis.execute(any(org.springframework.data.redis.core.script.RedisScript.class), anyList(), anyString()))
+                .thenReturn(snapshot(null), snapshot(new ObjectMapper().writeValueAsString(page)));
         var metrics = new SimpleMeterRegistry();
         var cache = new ProductReviewReadCache(
                 service, redis, new ObjectMapper(), metrics, true, new ReviewRebuildLock(client, metrics), "test");
         assertThat(cache.read("P-1", null, 10)).isEqualTo(page);
         verify(service, never()).publicPage(anyString(), any(), any());
         verify(lock).unlock();
-        when(redis.opsForValue().get(anyString())).thenReturn(null);
+        when(redis.execute(any(org.springframework.data.redis.core.script.RedisScript.class), anyList(), anyString()))
+                .thenReturn(snapshot(null));
         when(service.publicPage("P-1", null, 10)).thenThrow(new ShoppingService.Refused(404, "NOT_FOUND", "missing"));
         assertThatThrownBy(() -> cache.read("P-1", null, 10)).isInstanceOf(ShoppingService.Refused.class);
         verify(service, times(1)).publicPage("P-1", null, 10);
@@ -139,10 +151,11 @@ class ProductReviewReadCacheTest {
     void expiredOwnerReturnsFreshDatabaseValueWithoutPublishingOrUnlockingNewOwner() throws Exception {
         var service = mock(ProductReviewService.class);
         var redis = mock(StringRedisTemplate.class, RETURNS_DEEP_STUBS);
+        when(redis.execute(any(org.springframework.data.redis.core.script.RedisScript.class), anyList(), anyString()))
+                .thenReturn(snapshot(null));
         var client = mock(org.redisson.api.RedissonClient.class);
         var lock = mock(org.redisson.api.RLock.class);
         var metrics = new SimpleMeterRegistry();
-        when(service.publicEpoch("P-1")).thenReturn(9L);
         when(client.getLock(anyString())).thenReturn(lock);
         when(lock.tryLock(100, 2000, java.util.concurrent.TimeUnit.MILLISECONDS))
                 .thenReturn(true);
@@ -152,7 +165,13 @@ class ProductReviewReadCacheTest {
         var cache = new ProductReviewReadCache(
                 service, redis, new ObjectMapper(), metrics, true, new ReviewRebuildLock(client, metrics), "test");
         assertThat(cache.read("P-1", null, 10)).isEqualTo(page);
-        verify(redis.opsForValue(), never()).set(anyString(), anyString(), any(java.time.Duration.class));
+        verify(redis, never())
+                .execute(
+                        any(org.springframework.data.redis.core.script.RedisScript.class),
+                        anyList(),
+                        anyString(),
+                        anyString(),
+                        anyString());
         verify(lock, never()).unlock();
         assertThat(metrics.get("resolveflow.product_reviews.database.inflight")
                         .gauge()

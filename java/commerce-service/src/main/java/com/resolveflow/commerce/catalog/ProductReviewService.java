@@ -16,10 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductReviewService {
+    private final PublicCatalogCacheInvalidation invalidations;
     private final JdbcTemplate jdbc;
     private final Clock clock;
 
-    public ProductReviewService(JdbcTemplate jdbc, Clock clock) {
+    public ProductReviewService(JdbcTemplate jdbc, Clock clock, PublicCatalogCacheInvalidation invalidations) {
+        this.invalidations = invalidations;
         this.jdbc = jdbc;
         this.clock = clock;
     }
@@ -96,6 +98,7 @@ public class ProductReviewService {
         jdbc.update(
                 "INSERT INTO product_review_epoch(product_id,version) VALUES(?,1) ON DUPLICATE KEY UPDATE version=version+1",
                 product);
+        invalidations.reviewsChanged(product);
     }
 
     @Transactional(readOnly = true)

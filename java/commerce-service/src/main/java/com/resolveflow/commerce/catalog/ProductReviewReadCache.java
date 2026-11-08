@@ -24,12 +24,11 @@ import tools.jackson.databind.ObjectMapper;
 public class ProductReviewReadCache {
     private static final Logger LOG = LoggerFactory.getLogger(ProductReviewReadCache.class);
     private final ProductReviewService reviews;
-    private final StringRedisTemplate redis;
+    private final PublicCatalogCacheStore cache;
     private final ObjectMapper json;
     private final MeterRegistry metrics;
     private final boolean enabled;
     private final ReviewRebuildLock lock;
-    private final String namespace;
     private final Semaphore databasePermits = new Semaphore(8, true);
     private final AtomicInteger inflight = new AtomicInteger(), peak = new AtomicInteger();
     private final AtomicInteger rebuilding = new AtomicInteger(), rebuildPeak = new AtomicInteger();
@@ -73,12 +72,11 @@ public class ProductReviewReadCache {
         if (namespace == null || !namespace.matches("[A-Za-z0-9:_-]{1,120}"))
             throw new IllegalArgumentException("invalid review cache namespace");
         this.reviews = reviews;
-        this.redis = redis;
+        this.cache = new PublicCatalogCacheStore(redis, json, namespace);
         this.json = json;
         this.metrics = metrics;
         this.enabled = enabled;
         this.lock = lock;
-        this.namespace = namespace;
         metrics.gauge("resolveflow.product_reviews.database.inflight", inflight);
         metrics.gauge("resolveflow.product_reviews.database.peak", peak);
         metrics.gauge("resolveflow.product_reviews.rebuild.inflight", rebuilding);
@@ -111,9 +109,19 @@ public class ProductReviewReadCache {
         }
     }
 
-    private Page cached(String key, String product, String outcome) {
+    private PublicCatalogCacheStore.Snapshot snapshot(String key, String product) {
         try {
-            String value = redis.opsForValue().get(key);
+            return cache.read(key, product);
+        } catch (RuntimeException unavailable) {
+            metrics.counter("resolveflow.product_reviews.cache", "outcome", "error")
+                    .increment();
+            throw new CacheUnavailable();
+        }
+    }
+
+    private Page cached(PublicCatalogCacheStore.Snapshot snapshot, String product, String outcome) {
+        try {
+            String value = snapshot.value();
             if (value == null) return null;
             var page = json.readValue(value, Page.class);
             if (page.summary() == null || page.items().stream().anyMatch(row -> !product.equals(row.productId())))
@@ -128,7 +136,8 @@ public class ProductReviewReadCache {
         }
     }
 
-    private Page load(String key, String product, int size, BooleanSupplier owns) {
+    private Page load(
+            String key, String product, int size, BooleanSupplier owns, PublicCatalogCacheStore.Snapshot snapshot) {
         String trace = UUID.randomUUID().toString();
         Page result = database("page", () -> {
             int active = rebuilding.incrementAndGet();
@@ -150,8 +159,8 @@ public class ProductReviewReadCache {
         // Both the read transaction and local DB permit are released before Redis I/O.
         try {
             if (owns.getAsBoolean()) {
-                redis.opsForValue().set(key, json.writeValueAsString(result), Duration.ofSeconds(30));
-                metrics.counter("resolveflow.product_reviews.cache.write", "outcome", "stored")
+                boolean stored = cache.publish(key, product, snapshot, result, Duration.ofSeconds(30));
+                metrics.counter("resolveflow.product_reviews.cache.write", "outcome", stored ? "stored" : "invalidated")
                         .increment();
             } else
                 metrics.counter("resolveflow.product_reviews.cache.write", "outcome", "lease_lost")
@@ -167,22 +176,23 @@ public class ProductReviewReadCache {
         int size = ProductReviewService.limit(before, limit);
         if (!enabled || before != null || size != 10)
             return database("page", () -> reviews.publicPage(product, before, size));
-        long epoch = database("epoch", () -> reviews.publicEpoch(product));
-        String key = namespace + ":" + product + ":" + epoch;
+        String key = cache.reviewKey(product);
         try {
-            Page hit = cached(key, product, "hit");
+            var snapshot = snapshot(key, product);
+            Page hit = cached(snapshot, product, "hit");
             if (hit != null) return hit;
             metrics.counter("resolveflow.product_reviews.cache", "outcome", "miss")
                     .increment();
-            if (lock == null) return load(key, product, size, () -> true);
+            if (lock == null) return load(key, product, size, () -> true, snapshot);
             return lock.rebuild(
                     key,
                     owns -> {
-                        Page second = cached(key, product, "double_check_hit");
-                        return second != null ? second : load(key, product, size, owns);
+                        var current = snapshot(key, product);
+                        Page second = cached(current, product, "double_check_hit");
+                        return second != null ? second : load(key, product, size, owns, current);
                     },
                     () -> {
-                        Page second = cached(key, product, "waiter_hit");
+                        Page second = cached(snapshot(key, product), product, "waiter_hit");
                         if (second != null) return second;
                         throw new ReadBusy();
                     },
