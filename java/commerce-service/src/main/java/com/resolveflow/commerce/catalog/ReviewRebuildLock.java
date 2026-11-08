@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 
-/** Coordinates presentation work only. Lease loss permits overlap and never authorizes a money write. */
+/** Coordinates presentation work with watchdog renewal. Ownership loss never authorizes a money write. */
 final class ReviewRebuildLock {
     private final RedissonClient client;
     private final MeterRegistry metrics;
@@ -34,7 +34,8 @@ final class ReviewRebuildLock {
         long started = System.nanoTime();
         try {
             lock = client.getLock(key + ":rebuild");
-            acquired = lock.tryLock(100, 2000, TimeUnit.MILLISECONDS);
+            // No explicit lease: Redisson renews the default 30s watchdog window while held.
+            acquired = lock.tryLock(100, TimeUnit.MILLISECONDS);
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();
             count("interrupted");

@@ -248,7 +248,9 @@ class ReviewCacheDualProcessTest extends CommerceDatabaseTest {
             }
             Map<String, Object> result = null;
             var attempts = new ArrayList<Map<String, Object>>();
-            while (System.nanoTime() - started < TimeUnit.SECONDS.toNanos(5)) {
+            // A killed renewer can leave up to the default 30s watchdog window on the lock.
+            int recoveryBudgetSeconds = locking ? 35 : 5;
+            while (System.nanoTime() - started < TimeUnit.SECONDS.toNanos(recoveryBudgetSeconds)) {
                 result = request("b", f.product());
                 attempts.add(result);
                 if (result.get("status").equals(200)) break;
@@ -271,6 +273,8 @@ class ReviewCacheDualProcessTest extends CommerceDatabaseTest {
                             ownerFailure,
                             "recovery_ms",
                             recovery,
+                            "recovery_budget_ms",
+                            recoveryBudgetSeconds * 1000,
                             "attempts",
                             attempts));
         }
@@ -304,7 +308,7 @@ class ReviewCacheDualProcessTest extends CommerceDatabaseTest {
         assertThat(control.exitValue()).isZero();
     }
 
-    void expiredOwner(boolean locking) throws Exception {
+    void lostRenewalOwner(boolean locking) throws Exception {
         Fixture f = fixture("lease-" + condition);
         String id = "lease-" + condition;
         gate(id, f.product(), "hold");
@@ -314,6 +318,15 @@ class ReviewCacheDualProcessTest extends CommerceDatabaseTest {
             suspend("a", true);
             boolean paused = true;
             try {
+                var key = "d4:" + directory.getFileName() + ":" + condition + ":aside-v2:reviews:" + f.product()
+                        + ":rebuild";
+                // Explicit lab fault: shorten this lock only while its renewer process is suspended.
+                // Normal production now renews a 30s watchdog window rather than a fixed 2s lease.
+                if (locking)
+                    assertThat(redis.execInContainer("redis-cli", "PEXPIRE", key, "1500")
+                                    .getStdout()
+                                    .trim())
+                            .isEqualTo("1");
                 Thread.sleep(2100);
                 var next = pool.submit(() -> request("b", f.product()));
                 entered("b", id);
@@ -321,8 +334,6 @@ class ReviewCacheDualProcessTest extends CommerceDatabaseTest {
                 paused = false;
                 ungate("a", id);
                 assertThat(old.get(5, TimeUnit.SECONDS).get("status")).isEqualTo(200);
-                var key = "d4:" + directory.getFileName() + ":" + condition + ":aside-v2:reviews:" + f.product()
-                        + ":rebuild";
                 String exists = redis.execInContainer("redis-cli", "EXISTS", key)
                         .getStdout()
                         .trim();
@@ -338,6 +349,8 @@ class ReviewCacheDualProcessTest extends CommerceDatabaseTest {
                                 true,
                                 "pause_ms",
                                 2100,
+                                "forced_lock_ttl_ms",
+                                locking ? 1500 : 0,
                                 "new_owner_lock_after_old_return",
                                 exists));
             } finally {
@@ -531,7 +544,7 @@ class ReviewCacheDualProcessTest extends CommerceDatabaseTest {
                 }
                 failureRecovery(locking);
                 killedOwner(locking);
-                expiredOwner(locking);
+                lostRenewalOwner(locking);
                 changedEpoch(locking);
                 redisTimeout(locking);
                 stop("a");

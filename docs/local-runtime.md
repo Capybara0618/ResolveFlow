@@ -73,6 +73,8 @@ PostgreSQL 使用 `127.0.0.1:55533`，避开 Windows 保留的旧端口55433；�
 
 `CATALOG_CACHE_ENABLED` 可单独控制商品展示缓存，未设置时跟随 `PRODUCT_REVIEW_CACHE_ENABLED`。`PRODUCT_REVIEW_REBUILD_LOCK_ENABLED` 控制重建协调，缓存异常使用有限回源。普通启动会执行 V23；已有数据无需 reset。本批只验证功能正确性，旧性能实验对应其原冻结版本。
 
+商品展示和评价的缓存重建锁均最多等100毫秒，不再设置固定2秒租约，采用 Redisson 默认30秒看门狗窗口自动续期。正常或异常结束均在 finally 中按所有权解锁；客户端停止后续期停止，锁按剩余 TTL 到期释放。看门狗不是业务超时机制，续期失败仍依靠所有权检查及代次校验限制旧执行者回填，旧固定租约实验不直接代表当前实现。
+
 ## 独立拍摄数据
 
 2026-10-31已准备 `resolveflow-recording-v1`：独立MySQL、PostgreSQL、Redis、RocketMQ、图片目录及退款provider文件，沿用相同应用与端口。选择记录在忽略文件 `tmp/active-recording-stage.json`；存在时，正常start/status/stop以及物流模拟器均使用拍摄环境。两套环境轮流占用这些端口，原验收卷完整保留。

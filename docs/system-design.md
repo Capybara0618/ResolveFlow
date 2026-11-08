@@ -33,8 +33,8 @@ Case 按需查询 Commerce 的订单与物流事实，调度 Agent 调查并接�
 
 订单页按页批量读取并限制商家/客户范围，在只读RR事务固定本页now；Case跨店归并不是全局数据库快照。
 
-工作台展示缓存TTL2秒。公开商品详情和展示资料缓存60秒，评价默认10条首页/摘要独立缓存30秒，均先读Redis，命中不查MySQL版本。商品、评价写事务记录V23待失效项，提交后清理，失败定时重试；Redis代次及Lua条件回填拦截晚到旧结果。展示允许短暂滞后，报价与结算仍查数据库。Redisson协调重建，100ms等待、显式2秒租约、锁内二查，失去所有权不回填或误解锁。
+工作台展示缓存TTL2秒。公开商品详情和展示资料缓存60秒，评价默认10条首页/摘要独立缓存30秒，均先读Redis，命中不查MySQL版本。商品、评价写事务记录V23待失效项，提交后清理，失败定时重试；Redis代次及Lua条件回填拦截晚到旧结果。展示允许短暂滞后，报价与结算仍查数据库。Redisson协调重建，100ms等待，不指定固定租约，使用默认30秒看门狗窗口自动续期；锁内二查，失去所有权不回填或误解锁。
 
-Lua按账号/动作限写频率；Redis故障写入503。商品展示和评价各有本机8许可/100ms的回源上限，两个池分别计数，跨进程并不共享许可。超租约/Redis故障可能重叠，不能称所有故障始终互斥。
+Lua按账号/动作限写频率；Redis故障写入503。商品展示和评价各有本机8许可/100ms的回源上限，两个池分别计数，跨进程并不共享许可。长暂停或Redis故障导致续期失败时仍可能重叠；客户端存活且续期正常时，业务卡住也可能继续持锁，因此看门狗不等于业务超时，也不能称所有故障始终互斥。
 
 源码：[交易与缓存](../java/commerce-service/src/main/java/com/resolveflow/commerce/catalog)、[工单授权](../java/case-service/src/main/java/com/resolveflow/caseservice/casefile)、[退款](../java/commerce-service/src/main/java/com/resolveflow/commerce/refund)、[Harness](../agent/src/resolveflow/harness)、[客服上下文](../agent/src/resolveflow/support)、[核心契约](../contracts/core)。

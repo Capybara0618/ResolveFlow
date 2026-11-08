@@ -100,8 +100,7 @@ class ProductReviewReadCacheTest {
         var client = mock(org.redisson.api.RedissonClient.class);
         var lock = mock(org.redisson.api.RLock.class);
         when(client.getLock("test:aside-v2:reviews:P-1:rebuild")).thenReturn(lock);
-        when(lock.tryLock(100, 2000, java.util.concurrent.TimeUnit.MILLISECONDS))
-                .thenReturn(false);
+        when(lock.tryLock(100, java.util.concurrent.TimeUnit.MILLISECONDS)).thenReturn(false);
         var metrics = new SimpleMeterRegistry();
         var cache = new ProductReviewReadCache(
                 service, redis, new ObjectMapper(), metrics, true, new ReviewRebuildLock(client, metrics), "test");
@@ -124,8 +123,7 @@ class ProductReviewReadCacheTest {
         var client = mock(org.redisson.api.RedissonClient.class);
         var lock = mock(org.redisson.api.RLock.class);
         when(client.getLock(anyString())).thenReturn(lock);
-        when(lock.tryLock(100, 2000, java.util.concurrent.TimeUnit.MILLISECONDS))
-                .thenReturn(true);
+        when(lock.tryLock(100, java.util.concurrent.TimeUnit.MILLISECONDS)).thenReturn(true);
         when(lock.isHeldByCurrentThread()).thenReturn(true);
         var page = new Page(List.of(), new Summary(0, null, List.of(0L, 0L, 0L, 0L, 0L)), null);
         when(redis.execute(any(org.springframework.data.redis.core.script.RedisScript.class), anyList(), anyString()))
@@ -148,7 +146,7 @@ class ProductReviewReadCacheTest {
     }
 
     @Test
-    void expiredOwnerReturnsFreshDatabaseValueWithoutPublishingOrUnlockingNewOwner() throws Exception {
+    void lostOwnerReturnsFreshDatabaseValueWithoutPublishingOrUnlockingNewOwner() throws Exception {
         var service = mock(ProductReviewService.class);
         var redis = mock(StringRedisTemplate.class, RETURNS_DEEP_STUBS);
         when(redis.execute(any(org.springframework.data.redis.core.script.RedisScript.class), anyList(), anyString()))
@@ -157,8 +155,7 @@ class ProductReviewReadCacheTest {
         var lock = mock(org.redisson.api.RLock.class);
         var metrics = new SimpleMeterRegistry();
         when(client.getLock(anyString())).thenReturn(lock);
-        when(lock.tryLock(100, 2000, java.util.concurrent.TimeUnit.MILLISECONDS))
-                .thenReturn(true);
+        when(lock.tryLock(100, java.util.concurrent.TimeUnit.MILLISECONDS)).thenReturn(true);
         when(lock.isHeldByCurrentThread()).thenReturn(false);
         var page = new Page(List.of(), new Summary(0, null, List.of(0L, 0L, 0L, 0L, 0L)), null);
         when(service.publicPage("P-1", null, 10)).thenReturn(page);
