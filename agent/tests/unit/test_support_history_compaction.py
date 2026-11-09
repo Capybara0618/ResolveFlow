@@ -140,9 +140,11 @@ def test_still_oversized_summary_stops_before_business_request(monkeypatch):
     assert result["reason"] == "CONTEXT_REQUIRED_OVERFLOW" and model.calls == 1
 
 
-def test_streaming_compaction_sends_real_payload_without_emitting_internal_summary(monkeypatch):
+def test_streaming_compaction_passes_old_short_message_to_later_prompts_without_streaming_it(monkeypatch):
     monkeypatch.setattr("resolveflow.support.engine.counter_for", lambda _: HistoryCounter("compact"))
     req, script = history_case()
+    short_message = "先不退款。"
+    req.context["history"][4].update(author="CUSTOMER", recipient="ASSISTANT", text=short_message)
     sent = []
     streamed = []
 
@@ -152,7 +154,10 @@ def test_streaming_compaction_sends_real_payload_without_emitting_internal_summa
         sent.append(packet)
         if packet.get("kind") == "HISTORY_COMPACTION":
             assert body["max_tokens"] == 384
-            decision = {"items": [{"read_ref": "H3", "quote": "我问过代收点。"}]}
+            assert [row["read_ref"] for row in packet["messages"]] == [f"H{n}" for n in range(1, 6)]
+            assert packet["messages"][-1]["text"] == short_message
+            decision = {"items": [{"read_ref": "H1", "quote": "头" * 25},
+                                  {"read_ref": "H5", "quote": short_message}]}
         else:
             decision = script[0 if packet["phase"] == "UNDERSTAND" else 1]
         chunk = {"choices": [{"index": 0, "delta": {"content": json.dumps(decision, ensure_ascii=False)},
@@ -165,4 +170,12 @@ def test_streaming_compaction_sends_real_payload_without_emitting_internal_summa
     result = SupportAgent(req, model, Sources(), architecture="orchestrated-v1").run()
     assert result["status"] == "SUCCEEDED", result["reason"]
     assert sent[0]["kind"] == "HISTORY_COMPACTION" and len(sent) == 3
+    understand, compose = sent[1:]
+    assert [row["read_ref"] for row in understand["history"]["summary"]] == ["H1", "H5"]
+    assert compose["history"]["summary"] == [{
+        "read_ref": "H5", "author": "CUSTOMER", "recipient": "ASSISTANT", "authority": "CUSTOMER_STATEMENT",
+        "excerpt": short_message, "truncated": True,
+    }]
+    assert compose["history"]["messages"][0]["text"] == req.context["history"][0]["text"]
+    assert "H5" in compose["history"]["read_refs"]
     assert [json.loads(text)["kind"] for text in streamed] == ["TURN_UNDERSTANDING", "RESPOND"]
