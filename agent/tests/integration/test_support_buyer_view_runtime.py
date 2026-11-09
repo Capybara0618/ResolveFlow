@@ -68,8 +68,9 @@ def test_api_and_fenced_saved_call_recovery_keep_buyer_projection_without_new_ca
             assert 'presentation.py' in saved['manifest_json']['code']
             assert saved['manifest_json']['operation_request_check'] == 'request-check-v1'
             assert 'request_check.py' in saved['manifest_json']['code']
-            path = Path(__file__).parents[2] / 'src/resolveflow/support/request_check.py'
-            assert saved['manifest_json']['code']['request_check.py'] == hashlib.sha256(path.read_bytes()).hexdigest()
+            for name in ('request_check.py', 'state.py'):
+                path = Path(__file__).parents[2] / 'src/resolveflow/support' / name
+                assert saved['manifest_json']['code'][name] == hashlib.sha256(path.read_bytes()).hexdigest()
             calls = c.execute("SELECT response_json FROM support_agent_call WHERE run_id=%s AND kind='model' "
                               "ORDER BY position", (req.run_id,)).fetchall()
             assert calls[-1]['response_json']['decision']['parts'][0]['guidance'] == guide

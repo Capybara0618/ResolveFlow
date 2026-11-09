@@ -30,14 +30,21 @@ class DialogueState:
     def __init__(self, request: SupportInput) -> None:
         self.request = request
         hint = previous_hint(request.context, request.input_version)
-        self.before = {t["id"]: t["previous_status"] for t in (hint or {}).get("tasks", [])}
-        self.lifecycles = {t["id"]: t["previous_lifecycle"] for t in (hint or {}).get("tasks", [])}
         self.issues = {t["id"]: SupportTask.model_validate({
             "id": t["id"], "intent": t["intent"], "request": t["request"], "status": t["previous_status"],
+            "lifecycle": t["previous_lifecycle"],
             **({"blocker": t["previous_blocker"]} if "previous_blocker" in t else {}),
         }) for t in (hint or {}).get("tasks", [])}
         self.started = False
         self.events: list[dict[str, Any]] = []
+
+    @property
+    def before(self) -> dict[str, str]:
+        return {key: task.status for key, task in self.issues.items() if task.lifecycle is not None}
+
+    @property
+    def lifecycles(self) -> dict[str, str]:
+        return {key: task.lifecycle for key, task in self.issues.items() if task.lifecycle is not None}
 
     def apply(
         self, events: list[DialogueEvent], tasks: list[SupportTask], observations: list[dict[str, Any]],
@@ -46,7 +53,7 @@ class DialogueState:
         if not events and not self.started and not require:
             return  # Old scripted clients remain compatible; this does not demonstrate understanding.
         tasks = event_outcomes(tasks, events)
-        after = {t.id: t.status for t in tasks}
+        after: dict[str, str] = {t.id: t.status for t in tasks}
         # Expand only explicit targets, never guess an omitted change from a task status.
         expanded = [(event, key) for event in events for key in event.targets()]
         changes = {key: event.change for event, key in expanded}
@@ -56,14 +63,16 @@ class DialogueState:
         if not self.started and (not events or missing):
             raise DialogueStateError("首次任务声明须dialogue_events覆盖新增/继续/纠正/撤回/暂停/恢复/澄清。",
                                      missing_task_ids=missing)
-        if len(set(self.before) | set(after)) > 8:
+        before = self.before
+        previous_lifecycles = self.lifecycles
+        if len(set(before) | set(after)) > 8:
             raise DialogueStateError("会话事项最多8项，不能通过省略删除已有事项。")
         recorded = []
-        lifecycles = dict(self.lifecycles)
-        issues = deepcopy(self.issues)
+        lifecycles = dict(previous_lifecycles)
+        issues = {key: task.model_copy(deep=True) for key, task in self.issues.items() if task.lifecycle is not None}
         for event, task_id in expanded:
-            old, new = self.before.get(task_id), after.get(task_id)
-            lifecycle = self.lifecycles.get(task_id)
+            old, new = before.get(task_id), after.get(task_id)
+            lifecycle = previous_lifecycles.get(task_id)
             if new is None:
                 if old is None:
                     raise DialogueStateError("对话变化须关联已保存事项或本次声明的新事项。")
@@ -98,35 +107,37 @@ class DialogueState:
                                        event.change, lifecycle or "OPEN")
             recorded.append({"change": event.change, "task_id": task_id, "source": source})
         for key, status in after.items():
-            old = self.before.get(key)
+            old = before.get(key)
             if old is None and changes.get(key) not in {"ADD", "CLARIFY"}:
                 raise DialogueStateError("新增任务须ADD或CLARIFY，不能静默替换旧任务。", missing_task_ids=[key])
             if status == "CANCELLED" and lifecycles.get(key) != "CANCELLED":
                 raise DialogueStateError("撤回任务须CANCEL事件和客户当前原句。")
             if status == "SUSPENDED" and lifecycles.get(key) != "PAUSED":
                 raise DialogueStateError("暂停任务须PAUSE事件。")
-            if self.lifecycles.get(key) == "PAUSED" and status not in {"SUSPENDED", "CANCELLED"}:
+            if previous_lifecycles.get(key) == "PAUSED" and status not in {"SUSPENDED", "CANCELLED"}:
                 if changes.get(key) not in {"RESUME", "CORRECT", "RESOLVE"}:
                     raise DialogueStateError("恢复暂停事项须RESUME；仅CORRECT不自动恢复。")
         for task in tasks:
             if task.lifecycle is not None and task.lifecycle != lifecycles.get(task.id):
                 raise DialogueStateError("lifecycle由已验证事件更新，不能通过任务字段静默覆盖。")
         issues.update({task.id: task.model_copy(deep=True) for task in tasks})
-        self.issues = issues
-        self.before, self.started = {key: task.status for key, task in issues.items()}, True
-        self.lifecycles = lifecycles
+        self.issues = {key: task.model_copy(update={"lifecycle": lifecycles.get(key, lifecycle_for(task))})
+                       for key, task in issues.items()}
+        self.started = True
         self.events.extend(recorded)
 
     def task_snapshot(self, focus: list[SupportTask]) -> dict[str, Any]:
         """Persist all issues while citations/outcomes describe only this turn's focus."""
-        issues = {**self.issues, **{task.id: task for task in focus}}
+        issues = {key: task for key, task in self.issues.items() if task.lifecycle is not None}
+        issues.update({task.id: task for task in focus})
         values = []
         focused = {task.id for task in focus}
+        lifecycles = self.lifecycles
         for key, task in issues.items():
             value = task.model_dump()
             if key not in focused:
                 value.update(evidence_refs=[], response_excerpt=None)
-            value["lifecycle"] = self.lifecycles.get(key, lifecycle_for(task))
+            value["lifecycle"] = lifecycles.get(key, lifecycle_for(task))
             values.append(value)
         return {"origin": "MODEL", "tasks": values, "focus_ids": [task.id for task in focus]}
 

@@ -8,7 +8,7 @@ import os
 from dataclasses import asdict
 from importlib.metadata import version
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 from resolveflow.harness.budget import RunBudget
 from resolveflow.harness.live_model import LiveModelClient
@@ -151,6 +151,7 @@ class SupportRuntime:
                 name: hashlib.sha256((root / name).read_bytes()).hexdigest()
                 for name in [
                     "engine.py",
+                    "state.py",
                     "activity.py",
                     "completion.py",
                     "protocol.py",
@@ -197,7 +198,7 @@ class SupportRuntime:
         }
         journal, cached = SupportStore(self.database).claim(request, manifest)
         if cached is not None:
-            return cast(dict[str, Any], cached)
+            return cached
         assert journal is not None
         if self.sources_factory:
             sources = self.sources_factory(request, token, journal)
@@ -224,7 +225,7 @@ class SupportRuntime:
                 intent_policy=self.intent_policy,
                 intent_client=self.intent_client,
             )
-            result = cast(dict[str, Any], agent.run())
+            result = agent.run()
             audit_answer(agent, result, self.jev_config, self.jev_client)
             journal.finish(result)
             return result

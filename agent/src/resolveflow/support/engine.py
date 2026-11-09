@@ -42,6 +42,7 @@ from resolveflow.support.presentation import buyer_view
 from resolveflow.support.protocol import DECISION, Answer, AnswerParts, Read, Search, SupportFailure, SupportInput
 from resolveflow.support.recovery import SourceRecovery
 from resolveflow.support.stages import StageError, TurnStage, Understanding
+from resolveflow.support.state import SupportState
 from resolveflow.support.tasks import TaskTracker, previous_hint, render_answer
 
 LOG = logging.getLogger(__name__)
@@ -78,9 +79,7 @@ class SupportAgent:
         intent_policy: IntentPolicy | None = None,
         intent_client: JevClient | None = None,
     ) -> None:
-        self.stage = TurnStage(architecture)
-        self.buyer_view: dict[str, Any] | None = None
-        self.orchestration = Orchestration(request) if architecture == "orchestrated-v1" else None
+        self.state = SupportState.create(request, architecture)
         self.request, self.model, self.sources, self.journal = request, model, sources, journal
         self.progress = progress
         self.intent_policy, self.intent_client = intent_policy or IntentPolicy(), intent_client
@@ -89,46 +88,87 @@ class SupportAgent:
         self.guard = BudgetGuard(self.budget, active_deadline=request.deadline_at)
         if journal is not None:
             self.guard.spend = RunSpend(**journal.spend())
-        self.observations: list[dict[str, Any]] = []
-        self.citations: dict[str, dict[str, Any]] = {}
         self.step = 0
         self.tool_step = 0
-        self.final: Answer | None = None
         self.mode = "unknown"
         self.repairs = 0
         self.feedback: str | None = None
         self.last_action = ""
         self.repeats = 0
         self.last_evidence_hash = ""
-        self.read_progress: dict[str, Any] | None = None
-        self.activity = ReadActivity()
         self.failure: str | None = None
-        self.recovery = SourceRecovery()
-        self.tasks = TaskTracker()
-        self.memory = CustomerMemory(request)
-        self.initial_memory = deepcopy(self.memory.entries)
-        self.dialogue = DialogueState(request)
+
+    # Existing diagnostic callers retain read access; these views own no second copy of run state.
+    @property
+    def stage(self) -> TurnStage:
+        return self.state.turn.stage
+
+    @property
+    def orchestration(self) -> Orchestration | None:
+        return self.state.turn.orchestration
+
+    @property
+    def dialogue(self) -> DialogueState:
+        return self.state.memory.tasks
+
+    @property
+    def memory(self) -> CustomerMemory:
+        return self.state.memory.claims
+
+    @property
+    def tasks(self) -> TaskTracker:
+        tasks = TaskTracker()
+        tasks.tasks = self.state.focus_tasks
+        return tasks
+
+    @property
+    def citations(self) -> dict[str, dict[str, Any]]:
+        return self.state.turn.evidence
+
+    @property
+    def observations(self) -> list[dict[str, Any]]:
+        return self.state.turn.observations
+
+    @property
+    def recovery(self) -> SourceRecovery:
+        return self.state.turn.recovery
+
+    @property
+    def activity(self) -> ReadActivity:
+        return self.state.turn.activity
+
+    @property
+    def read_progress(self) -> dict[str, Any] | None:
+        return self.state.turn.read_progress
+
+    @property
+    def final(self) -> Answer | None:
+        return self.state.answer
+
+    @final.setter
+    def final(self, answer: Answer | None) -> None:
+        # Evaluation-only controllers may explicitly discard an answer; retain their existing hook.
+        self.state.answer = answer
 
     def run(self) -> dict[str, Any]:
         reason = None
         try:
             with (self.model.request_session() if isinstance(self.model, StreamingLiveModelClient) else nullcontext()):
                 anyio.run(self._drive)
-            if self.final is None:
+            if self.state.answer is None:
                 raise SupportFailure("NO_ANSWER")
         except (BudgetExhaustedError, SupportFailure) as error:
             reason = getattr(error, "reason_code", None) or getattr(error, "reason", "FAILED")
         except Exception as error:  # noqa: BLE001 - no fabricated answer on transport/SDK/model failure
             reason = type(error).__name__
-        final = self.final
+        final = self.state.answer
         update = None
-        if self.dialogue.events or self.memory.entries != self.initial_memory:
+        if self.state.conversation_changed:
             # Accepted meaning is independent of answer publication; no response text or stale evidence is inherited.
             update = {"version": "support-state-v1", **{
                 key: getattr(self.request, key) for key in ("run_id", "conversation_id", "input_version",
                                                           "merchant_id", "buyer_id", "line_id")},
-                "task_state": self.dialogue.task_snapshot([]), "customer_memory": self.memory.snapshot(),
-                "dialogue_state": self.dialogue.packet(), "memory_warnings": deepcopy(self.memory.warnings)}
+                **self.state.conversation_snapshot()}
         assert reason is not None or final is not None
         return {
             "run_id": self.request.run_id,
@@ -143,14 +183,11 @@ class SupportAgent:
             if reason or final is None
             else {
                 "text": final.text,
-                **({"buyer_view": self.buyer_view} if self.buyer_view is not None else {}),
+                **({"buyer_view": self.state.buyer_view} if self.state.buyer_view is not None else {}),
                 "handoff_summary": final.handoff_summary,
                 **({"refund_summary": final.refund_summary} if final.refund_summary else {}),
                 "citations": [self.citations[c] for c in dict.fromkeys(final.citations)],
-                **({"task_state": self.dialogue.task_snapshot(self.tasks.tasks)} if self.tasks.tasks else {}),
-                "customer_memory": self.memory.snapshot(),
-                "memory_warnings": deepcopy(self.memory.warnings),
-                "dialogue_state": self.dialogue.packet(),
+                **self.state.conversation_snapshot(for_answer=True),
             },
         }
 
@@ -195,7 +232,7 @@ class SupportAgent:
             "conversation_state": context.get("conversation_state"),
             "capabilities": capabilities(),
             "source_status": self.recovery.packet(),
-            "task_state": self.tasks.packet(),
+            "task_state": self.state.focus_packet(),
             "previous_tasks": previous_hint(context, self.request.input_version),
             "customer_memory": self.memory.packet(),
             "dialogue_state": self.dialogue.packet(),
@@ -240,10 +277,7 @@ class SupportAgent:
         return packet
 
     def _readiness(self) -> dict[str, Any]:
-        if self.stage.understanding is None or self.orchestration is None:
-            return {"phase": "UNDERSTAND"}
-        return self.orchestration.snapshot(self.stage.understanding, self.citations,
-                                           self.recovery.packet(), self.dialogue.lifecycles)
+        return self.state.readiness()
 
     def _prepare(self, packet: dict[str, Any]) -> tuple[dict[str, Any], list[Any]]:
         system = self.stage.system if self.stage.enabled else SYSTEM
@@ -359,21 +393,8 @@ class SupportAgent:
         try:
             if self.stage.pending:
                 plan = TurnPlan.model_validate(reply.decision) if self.orchestration is not None else None
-                if plan is not None:
-                    plan.check_operation_requests(str(self.request.context.get("current_request", "")))
                 understanding = plan.meaning() if plan is not None else Understanding.model_validate(reply.decision)
-                self.stage.check_context_refs(understanding)
-                tasks, memory, dialogue = deepcopy(self.tasks), deepcopy(self.memory), deepcopy(self.dialogue)
-                memory.apply(understanding.memory_updates, self.observations)
-                if understanding.customer_claims:
-                    memory.propose(understanding.customer_claims, self.observations)
-                tasks.accept(event_outcomes(understanding.tasks(), understanding.dialogue_events),
-                             set(self.citations), require=True)
-                dialogue.apply(understanding.dialogue_events, tasks.tasks, self.observations, require=True)
-                self.tasks, self.memory, self.dialogue = tasks, memory, dialogue
-                self.stage.accept(understanding)
-                if self.orchestration is not None and plan is not None:
-                    self.orchestration.accept(plan)
+                self.state.accept_understanding(understanding, plan=plan)
                 self.feedback = None
                 return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_stage_ready",
                                                "arguments": {}})
@@ -394,8 +415,6 @@ class SupportAgent:
                                                              self.dialogue.lifecycles)
                     self.stage.accept(updated)
                     intents = {focus.id: focus.intent for focus in updated.focus}
-                    self.tasks.tasks = [task.model_copy(update={"intent": intents[task.id]})
-                                        for task in self.tasks.tasks]
                     for key, task in self.dialogue.issues.items():
                         if key in intents:
                             self.dialogue.issues[key] = task.model_copy(update={"intent": intents[key]})
@@ -462,34 +481,37 @@ class SupportAgent:
             if isinstance(decision, Answer):
                 if any(c not in self.citations for c in decision.citations):
                     raise ValueError("citations must name this run's observed O/P references")
-            tasks, memory = deepcopy(self.tasks), deepcopy(self.memory)
-            dialogue = deepcopy(self.dialogue)
-            memory.apply(decision.memory_updates, self.observations)
-            if decision.customer_claims:
-                memory.propose(decision.customer_claims, self.observations)
-            # Unannotated reads leave accepted task/dialogue state untouched. Publication cannot bypass validation.
-            if isinstance(decision, Answer) or decision.tasks is not None or decision.dialogue_events:
-                tasks.accept(
-                    event_outcomes(decision.tasks, decision.dialogue_events) if decision.tasks is not None else None,
-                    set(self.citations),
-                    answer=decision if isinstance(decision, Answer) else None,
-                    require=reply.mode == "live",
-                )
-                dialogue.apply(decision.dialogue_events, tasks.tasks, self.observations, require=reply.mode == "live")
-            if grounded is not None:
-                check_amounts(grounded, self.request, self.citations)
-            if isinstance(decision, Answer) and reply.mode == "live":
-                relevant = (self.orchestration.failure_tools(self.stage.understanding)
-                            if self.orchestration is not None and self.stage.understanding is not None else None)
-                check_completion(decision, tasks.tasks, self.citations, self.recovery.packet(), dialogue.lifecycles,
-                                 relevant_tools=relevant)
-                if self.stage.enabled:
-                    self.stage.check_sources(decision, self.citations, dialogue.lifecycles)
-            self.tasks, self.memory = tasks, memory
-            self.dialogue = dialogue
+            # A tool choice without annotations changes evidence after execution, not conversation memory.
+            updates_tasks = isinstance(decision, Answer) or decision.tasks is not None or bool(decision.dialogue_events)
+            if updates_tasks or decision.memory_updates or decision.customer_claims:
+                tasks, memory, dialogue = self.state.annotation_candidate()
+                memory.apply(decision.memory_updates, self.observations)
+                if decision.customer_claims:
+                    memory.propose(decision.customer_claims, self.observations)
+                if updates_tasks:
+                    proposed = (event_outcomes(decision.tasks, decision.dialogue_events)
+                                if decision.tasks is not None else None)
+                    tasks.accept(
+                        proposed,
+                        set(self.citations),
+                        answer=decision if isinstance(decision, Answer) else None,
+                        require=reply.mode == "live",
+                    )
+                    dialogue.apply(decision.dialogue_events, tasks.tasks, self.observations,
+                                   require=reply.mode == "live")
+                if grounded is not None:
+                    check_amounts(grounded, self.request, self.citations)
+                if isinstance(decision, Answer) and reply.mode == "live":
+                    relevant = (self.orchestration.failure_tools(self.stage.understanding)
+                                if self.orchestration is not None and self.stage.understanding is not None else None)
+                    check_completion(decision, tasks.tasks, self.citations, self.recovery.packet(), dialogue.lifecycles,
+                                     relevant_tools=relevant)
+                    if self.stage.enabled:
+                        self.stage.check_sources(decision, self.citations, dialogue.lifecycles)
+                self.state.commit_annotations(tasks, memory, dialogue)
             if isinstance(decision, Answer):
-                self.final = decision
-                self.buyer_view = presentation
+                self.state.answer = decision
+                self.state.buyer_view = presentation
             if isinstance(decision, Search):
                 reply = replace(reply, decision={**decision.model_dump(), "arguments": {"top_k": decision.top_k}})
             return reply
@@ -650,9 +672,10 @@ class SupportAgent:
                    "NEW_EVIDENCE" if set(refs) - known_refs else "UNCHANGED")
         unchanged = (int((self.read_progress or {}).get("consecutive_unchanged", 0)) + 1
                      if outcome == "UNCHANGED" else 0)
-        self.read_progress = {"tool_name": name, "source_refs": refs, "outcome": outcome,
-                              "consecutive_unchanged": unchanged}
-        self.activity.record(request, self.read_progress, observed)
+        progress = {"tool_name": name, "source_refs": refs, "outcome": outcome,
+                    "consecutive_unchanged": unchanged}
+        self.state.turn.read_progress = progress
+        self.activity.record(request, progress, observed)
         self.observations.extend(observed)
         return observed
 
