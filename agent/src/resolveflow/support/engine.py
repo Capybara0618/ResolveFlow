@@ -21,13 +21,24 @@ from pydantic import ValidationError
 from resolveflow.harness.actions import POLICY_SEARCH_TOOL_NAME
 from resolveflow.harness.budget import BudgetExhaustedError, BudgetGuard, RunBudget, RunSpend
 from resolveflow.harness.context import canonical_json
+from resolveflow.harness.live_model import ModelRefusedError, ModelUnavailableError
 from resolveflow.harness.model import ModelReply, ModelUsage
 from resolveflow.harness.sdk_adapter import AgentScopeModelAdapter, messenger_message, raw_text_message
 from resolveflow.harness.streaming_model import StreamingLiveModelClient
-from resolveflow.harness.token_counting import counter_for
+from resolveflow.harness.token_counting import InputCounter, counter_for
 from resolveflow.support.activity import ReadActivity
 from resolveflow.support.completion import check_completion, requirements
-from resolveflow.support.context import LAYOUTS, project_model_input, read_context, render_context
+from resolveflow.support.context import (
+    HISTORY_COMPACTION_SYSTEM,
+    LAYOUTS,
+    RECENT_HISTORY,
+    history_excerpts,
+    model_history,
+    project_model_input,
+    read_context,
+    render_context,
+    trim_history,
+)
 from resolveflow.support.dialogue import DialogueState, event_outcomes
 from resolveflow.support.grounding import check_amounts, diagnostic_fact_references, ground_answer
 from resolveflow.support.guidance import CAPABILITIES, capabilities, decision_feedback, tool_schema
@@ -303,14 +314,107 @@ class SupportAgent:
                                "原因原话只放独立reason字段。"
                                "退款范围用日常说法‘退还这件商品的实付金额’，正文无需重报卡片金额。")
                 system += "\n本轮完整输出示例：\n" + canonical_json(contract["example"])
+        return self._model_request(system, packet, self.budget.step_output_tokens)
+
+    def _model_request(self, system: str, packet: dict[str, Any], ceiling: int) -> tuple[dict[str, Any], list[Any]]:
         messages = [raw_text_message(system, role="system"), messenger_message(packet)]
-        ceiling = self.budget.step_output_tokens
         prepare = getattr(self.model, "prepare_request", None)
         body = prepare(system="", messages=messages, max_output_tokens=ceiling) if prepare else {
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": canonical_json(packet)}],
             "max_output_tokens": ceiling,
         }
         return body, messages
+
+    def _compact_history(self, rows: list[dict[str, Any]], counter: InputCounter,
+                         main_tokens: int) -> list[dict[str, Any]]:
+        request = {"kind": "HISTORY_COMPACTION", "messages": rows}
+        ceiling = min(self.budget.step_output_tokens, 384)
+        body, messages = self._model_request(HISTORY_COMPACTION_SYSTEM, request, ceiling)
+        saved = self._cached("compaction", 1, body)
+        if saved is None:
+            tokens = counter.count(body) + 256
+            if tokens > self.input_cap or self.budget.model_calls - self.guard.spend.model_calls < 2:
+                raise SupportFailure("CONTEXT_REQUIRED_OVERFLOW")
+            if (self.budget.input_tokens is not None
+                    and self.guard.spend.input_tokens + tokens + main_tokens > self.budget.input_tokens):
+                raise SupportFailure("CONTEXT_REQUIRED_OVERFLOW")
+            if (self.budget.output_tokens is not None
+                    and self.guard.spend.output_tokens + ceiling >= self.budget.output_tokens):
+                raise SupportFailure("CONTEXT_REQUIRED_OVERFLOW")
+            self.guard.check_deadline()
+            check = getattr(self.sources, "check_current", None)
+            if callable(check):
+                check()
+            ceiling = self.guard.reserve_model_request(input_tokens=tokens, max_output_tokens=ceiling)
+            self._start("compaction", 1, body)
+            stream = self.model if isinstance(self.model, StreamingLiveModelClient) else None
+            callback = stream.on_content if stream else None
+            if stream:
+                stream.on_content = None
+            try:
+                reply = self.model.decide(
+                    system="", messages=messages, context=request, sent_context=request, max_output_tokens=ceiling
+                )
+            except (ModelUnavailableError, ModelRefusedError) as error:
+                self.guard.settle_model_output(None)
+                saved = {"error": type(error).__name__}
+            else:
+                self.guard.settle_model_output(reply.usage.output_tokens, estimated=reply.usage.estimated)
+                saved = {"decision": reply.decision, "usage": asdict(reply.usage)}
+            finally:
+                if stream:
+                    stream.on_content = callback
+            self._save("compaction", 1, saved)
+        if "decision" not in saved:
+            raise SupportFailure("CONTEXT_REQUIRED_OVERFLOW")
+        try:
+            return history_excerpts(saved["decision"], rows)
+        except ValueError as error:
+            raise SupportFailure("CONTEXT_REQUIRED_OVERFLOW") from error
+
+    def _fit_orchestrated_input(self, context: dict[str, Any], counter: InputCounter
+                                ) -> tuple[dict[str, Any], dict[str, Any], list[Any], int]:
+        rows = model_history(self.request, self.observations)
+        protected = {row["read_ref"] for row in rows[-RECENT_HISTORY:]}
+        if self.stage.understanding is not None:
+            protected.update(ref for focus in self.stage.understanding.focus for ref in focus.context_refs)
+        packet = project_model_input(context, self.dialogue.lifecycles, rows)
+        body, messages = self._prepare(packet)
+        tokens = counter.count(body) + 256
+        if tokens <= self.input_cap:
+            return packet, body, messages, tokens
+
+        history = packet["history"]
+        trimmed = trim_history(rows, protected)
+        history["messages"] = trimmed
+        body, messages = self._prepare(packet)
+        tokens = counter.count(body) + 256
+        if tokens <= self.input_cap:
+            return packet, body, messages, tokens
+
+        old = [row for row in trimmed if row["read_ref"] not in protected]
+        turn = self.state.turn
+        if turn.history_compaction is None:
+            refs = {row["read_ref"] for row in old}
+            if not refs:
+                raise SupportFailure("CONTEXT_REQUIRED_OVERFLOW")
+            history["messages"] = [row for row in trimmed if row["read_ref"] in protected]
+            history["read_refs"] = [row["read_ref"] for row in old]
+            main_tokens = counter.count(self._prepare(packet)[0]) + 256
+            if main_tokens >= self.input_cap:
+                raise SupportFailure("CONTEXT_REQUIRED_OVERFLOW")
+            turn.history_compaction = (refs, self._compact_history(old, counter, main_tokens))
+
+        refs, excerpts = turn.history_compaction
+        replaced = refs - protected
+        history["messages"] = [row for row in trimmed if row["read_ref"] not in replaced]
+        history["read_refs"] = [row["read_ref"] for row in old if row["read_ref"] in replaced]
+        history["summary"] = [row for row in excerpts if row["read_ref"] in replaced]
+        body, messages = self._prepare(packet)
+        tokens = counter.count(body) + 256
+        if tokens > self.input_cap:
+            raise SupportFailure("CONTEXT_REQUIRED_OVERFLOW")
+        return packet, body, messages, tokens
 
     def _cached(self, kind: str, position: int, request: dict[str, Any]) -> Any:
         return None if self.journal is None else self.journal.cached(kind, position, request)
@@ -331,18 +435,26 @@ class SupportAgent:
         phase = self._readiness()["phase"] if self.orchestration is not None else (
             "UNDERSTAND" if self.stage.pending else "INVESTIGATE_AND_ANSWER")
         counter = counter_for(self.model)
-        for recent, preview, index_limit in LAYOUTS:
-            context = self._packet(recent, preview, index_limit)
-            packet = (project_model_input(context, self.dialogue.lifecycles)
-                      if self.orchestration is not None else context)
-            body, messages = self._prepare(packet)
-            tokens = counter.count(body) + 256
-            if tokens <= self.input_cap:
-                break
+        if self.orchestration is not None:
+            context = self._packet()
+            packet, body, messages, tokens = self._fit_orchestrated_input(context, counter)
         else:
-            raise SupportFailure("CONTEXT_REQUIRED_OVERFLOW")
+            for recent, preview, index_limit in LAYOUTS:
+                context = packet = self._packet(recent, preview, index_limit)
+                body, messages = self._prepare(packet)
+                tokens = counter.count(body) + 256
+                if tokens <= self.input_cap:
+                    break
+            else:
+                raise SupportFailure("CONTEXT_REQUIRED_OVERFLOW")
         ceiling = self.budget.step_output_tokens
-        choice = (route_request_check(self, context, self.intent_client, self.intent_policy)
+        check_context = context
+        if phase == "CHECK_REQUEST":
+            history = packet["history"]
+            check_context = {**context, "recent_messages": history["messages"],
+                             "history_index": history.get("summary", []),
+                             "history_read_refs": history.get("read_refs", [])}
+        choice = (route_request_check(self, check_context, self.intent_client, self.intent_policy)
                   if self.intent_client is not None and self.journal is not None else None)
         if choice is not None:
             reply = choice

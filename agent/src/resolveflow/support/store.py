@@ -82,7 +82,8 @@ class SupportJournal:
             if row["request_hash"] != digest:
                 raise SupportFailure("CALL_MISMATCH")
             if row["status"] != "COMPLETE":
-                raise SupportFailure("UNKNOWN_MODEL_RESULT" if kind == "model" else "INTERRUPTED_TOOL_RESULT")
+                raise SupportFailure("UNKNOWN_MODEL_RESULT" if kind in {"model", "compaction"}
+                                     else "INTERRUPTED_TOOL_RESULT")
             return row["response_json"]
 
     def start(self, kind: str, position: int, request: dict[str, Any], spend: dict[str, int]) -> None:

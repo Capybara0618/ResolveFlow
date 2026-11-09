@@ -61,7 +61,7 @@ def test_early_finish_continues_with_all_gaps_without_format_repair_or_model_ui_
     assert task["id"] == "trace" and task["goal"] == "PREPARE_REFUND"
     assert task["intent"] == "APPLICATION" and task["request"]
     assert task["context_refs"] == ["H1"] and task["lifecycle"] == "OPEN"
-    assert investigating["history"]["recent"][0]["read_ref"] == "H1"
+    assert investigating["history"]["messages"][0]["read_ref"] == "H1"
     assert set(task["needs"]) >= {"ORDER", "SHIPMENT", "POLICY"}
     assert task["missing"] == ["ORDER", "POLICY"]
     assert compose["phase"] == "COMPOSE" and compose["tasks"][0]["missing"] == []

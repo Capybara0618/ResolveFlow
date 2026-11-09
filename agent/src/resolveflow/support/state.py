@@ -37,6 +37,7 @@ class TurnWork:
     recovery: SourceRecovery = field(default_factory=SourceRecovery)
     activity: ReadActivity = field(default_factory=ReadActivity)
     read_progress: dict[str, Any] | None = None
+    history_compaction: tuple[set[str], list[dict[str, Any]]] | None = None
 
 
 @dataclass(slots=True)

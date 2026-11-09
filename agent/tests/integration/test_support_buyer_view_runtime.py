@@ -16,8 +16,64 @@ from tests.integration.test_support_dialogue_api import TokenizedScript
 from tests.integration.test_support_staged_api import SECRET
 from tests.support_request_checks import checked_script
 from tests.unit.test_support_agent import read, request
+from tests.unit.test_support_history_compaction import HistoryCounter, history_case
 from tests.unit.test_support_orchestrated_engine import Sources, respond
 from tests.unit.test_support_orchestration import plan
+
+
+def test_compaction_is_journaled_and_fenced_recovery_does_not_resend(agent_db, monkeypatch):
+    monkeypatch.setattr('resolveflow.support.engine.counter_for', lambda _: HistoryCounter('compact'))
+    req, script = history_case()
+    summary = {'items': [{'read_ref': 'H3', 'quote': '我问过代收点。'}]}
+    models = [TokenizedScript(mode='live', script=[summary, *script])]
+    runtime = SupportRuntime(agent_db, DeploymentConfig(mode='mock'), architecture='orchestrated-v1',
+                             model_factory=lambda: models[-1], sources_factory=lambda *_: Sources())
+    result = runtime.run(req, 'test-bound')
+    assert result['status'] == 'SUCCEEDED', result['reason']
+    assert result['spend']['model_calls'] == 3
+    with agent_db.connection() as c:
+        calls = c.execute('SELECT kind,request_json,response_json FROM support_agent_call WHERE run_id=%s '
+                          'ORDER BY kind,position', (req.run_id,)).fetchall()
+        compaction = next(row for row in calls if row['kind'] == 'compaction')
+        assert compaction['response_json']['decision'] == summary
+        assert json.loads(compaction['request_json']['messages'][-1]['content']) == models[0].sent_contexts[0]
+        main = [json.loads(row['request_json']['messages'][-1]['content']) for row in calls if row['kind'] == 'model']
+        assert main == models[0].sent_contexts[1:]
+        c.execute("UPDATE support_agent_run SET result_json=NULL,status='RUNNING',"
+                  "lease_until=now()-interval '1 second' WHERE run_id=%s", (req.run_id,))
+    models.append(TokenizedScript(mode='live', script=[summary, *script]))
+    assert runtime.run(req, 'test-bound') == result and models[-1].calls == 0
+    with agent_db.connection() as c:
+        c.execute("UPDATE support_agent_call SET response_json=NULL,status='STARTED' "
+                  "WHERE run_id=%s AND kind='compaction'", (req.run_id,))
+        c.execute("UPDATE support_agent_run SET result_json=NULL,status='RUNNING',"
+                  "lease_until=now()-interval '1 second' WHERE run_id=%s", (req.run_id,))
+    interrupted = runtime.run(req, 'test-bound')
+    assert interrupted['reason'] == 'UNKNOWN_MODEL_RESULT'
+    assert models[-1].calls == 0 and interrupted['spend'] == result['spend']
+
+
+def test_lost_fence_stops_summary_publication_before_business_call(agent_db, monkeypatch):
+    monkeypatch.setattr('resolveflow.support.engine.counter_for', lambda _: HistoryCounter('compact'))
+    req, script = history_case()
+
+    class InterruptedModel(TokenizedScript):
+        def decide(self, **kwargs):
+            with agent_db.connection() as c:
+                c.execute("UPDATE support_agent_run SET fence=fence+1 WHERE run_id=%s", (req.run_id,))
+            return super().decide(**kwargs)
+
+    model = InterruptedModel(mode='live', script=[{'items': [{'read_ref': 'H3', 'quote': '我问过代收点。'}]}, *script])
+    runtime = SupportRuntime(agent_db, DeploymentConfig(mode='mock'), architecture='orchestrated-v1',
+                             model_factory=lambda: model, sources_factory=lambda *_: Sources())
+    with pytest.raises(SupportFailure, match='STALE_FENCE'):
+        runtime.run(req, 'test-bound')
+    assert model.calls == 1
+    with agent_db.connection() as c:
+        assert c.execute("SELECT status FROM support_agent_call WHERE kind='compaction'").fetchone() == {
+            'status': 'STARTED',
+        }
+        assert c.execute("SELECT count(*) AS n FROM support_agent_call WHERE kind='model'").fetchone()['n'] == 0
 
 
 @pytest.mark.parametrize('operation,approved', [(True, True), (False, False), (True, False)])

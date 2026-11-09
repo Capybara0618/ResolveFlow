@@ -205,13 +205,15 @@ class BudgetGuard:
         self.spend.input_tokens += input_tokens
         self.spend.output_tokens += output_tokens
 
-    def reserve_model_request(self, *, input_tokens: int) -> int:
+    def reserve_model_request(self, *, input_tokens: int, max_output_tokens: int | None = None) -> int:
         """Reserve and return the ceiling the client must enforce on this request.
 
         A prior unsettled request keeps its full charge (UNKNOWN). This in-memory guard is
         sequential; stable call IDs, durable reservations and fencing remain C09 work.
         """
         ceiling = self.budget.step_output_tokens
+        if max_output_tokens is not None:
+            ceiling = min(ceiling, max_output_tokens)
         if self.budget.output_tokens is not None:
             ceiling = min(ceiling, self.budget.output_tokens - self.spend.output_tokens)
         if ceiling <= 0:

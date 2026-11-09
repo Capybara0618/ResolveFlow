@@ -166,6 +166,7 @@ class SupportRuntime:
                     "stream_projection.py",
                     "../harness/streaming_model.py",
                     "../harness/live_model.py",
+                    "../harness/budget.py",
                     "embeddings.py",
                     "retrieval.py",
                     "guide.py",
