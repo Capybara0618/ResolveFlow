@@ -36,7 +36,9 @@ def run(script, req=None, sources=None, **kwargs):
 
 def test_early_finish_continues_with_all_gaps_without_format_repair_or_model_ui_read():
     req = request()
+    req.context["history"] = [{"sequence": 1, "author": "CUSTOMER", "text": "耳机一直没收到。"}]
     opening = plan(req, needs=["SHIPMENT"]).model_dump()
+    opening["focus"][0]["context_refs"] = ["H1"]
     result, agent, model, source = run([opening, read(), respond(), read("get_order_context"),
         read("search_policy", query="物流争议退款的核验条件"),
         respond(parts=[{"task_id": "trace", "text": "实付{{PAID_AMOUNT}}，承运记录显示{{CARRIER_CONCLUSION}}。"
@@ -47,8 +49,27 @@ def test_early_finish_continues_with_all_gaps_without_format_repair_or_model_ui_
     assert [name for name, _ in source.calls] == ["get_support_guide", "get_shipment_trace", "get_order_context",
                                                "search_policy"]
     assert result["spend"]["local_reads"] == 2 and result["spend"]["tool_attempts"] == 2
-    assert model.packets[4]["orchestration"]["tasks"][0]["missing"] == ["ORDER", "POLICY"]
-    assert model.packets[-1]["orchestration"]["phase"] == "COMPOSE"
+    understand, check = model.sent_contexts[:2]
+    investigating = model.sent_contexts[4]
+    compose = model.sent_contexts[-1]
+    assert understand["phase"] == "UNDERSTAND"
+    assert understand["tasks"] == []
+    assert check["phase"] == "CHECK_REQUEST"
+    assert set(check) == {"phase", "current_request", "history", "tasks"}
+    assert set(check["tasks"][0]) == {"task_id", "quote"}
+    task = investigating["tasks"][0]
+    assert task["id"] == "trace" and task["goal"] == "PREPARE_REFUND"
+    assert task["intent"] == "APPLICATION" and task["request"]
+    assert task["context_refs"] == ["H1"] and task["lifecycle"] == "OPEN"
+    assert investigating["history"]["recent"][0]["read_ref"] == "H1"
+    assert set(task["needs"]) >= {"ORDER", "SHIPMENT", "POLICY"}
+    assert task["missing"] == ["ORDER", "POLICY"]
+    assert compose["phase"] == "COMPOSE" and compose["tasks"][0]["missing"] == []
+    assert compose["tasks"][0]["refs_by_need"]["POLICY"] == ["P1"]
+    assert compose["evidence"]["P1"]["source_type"] == "POLICY"
+    assert not {"stage", "orchestration", "observations", "task_state", "dialogue_state"} & compose.keys()
+    assert [json.loads(messages[-1].get_content_blocks()[0].text)
+            for messages in model.conversations] == model.sent_contexts
     assert result["answer"]["refund_summary"] == req.context["current_request"]
     assert "实付123.45元，承运记录显示丢失" in result["answer"]["text"]
     order = next(c for c in result["answer"]["citations"] if c["source_type"] == "ORDER")

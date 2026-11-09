@@ -1,7 +1,8 @@
-"""Deterministic history projection and scoped, exact Unicode readback. No LLM summaries."""
+"""Deterministic model input, history projection and scoped Unicode readback."""
 
 from __future__ import annotations
 
+import json
 from copy import deepcopy
 from typing import Any
 
@@ -123,6 +124,106 @@ def render_context(
         "context_layout": {"version": CONTEXT_VERSION, "recent_full": len(full),
                            "preview_chars": preview, "indexed": len(indexed), "omitted_indices": len(omitted)},
     }
+
+
+def project_model_input(packet: dict[str, Any], lifecycles: dict[str, str]) -> dict[str, Any]:
+    """Give the main model one task list and one source table per step."""
+    flow = packet["orchestration"]
+    phase = "GOAL_REVIEW" if "goal_review" in flow else flow["phase"]
+    history = {name: packet[key] for name, key in (
+        ("recent", "recent_messages"), ("index", "history_index"), ("read_refs", "history_read_refs"),
+    ) if packet.get(key)}
+    result: dict[str, Any] = {"phase": phase, "current_request": packet["current_request"], "history": history}
+    if phase == "CHECK_REQUEST":
+        # Only candidate quotes and allowed history/feedback reach the independent check.
+        result["tasks"] = flow["request_check"]["tasks"]
+        if packet.get("feedback"):
+            result["feedback"] = packet["feedback"]
+        return result
+
+    if packet.get("history_before") is not None:
+        history["before"] = packet["history_before"]
+    if phase == "UNDERSTAND":
+        result["tasks"] = [{k: task[k] for k in ("id", "intent", "request", "status", "lifecycle", "blocker")
+                           if task.get(k) is not None} for task in packet["dialogue_state"]["issue_tasks"]]
+    else:
+        stage = packet["stage"]
+        progress = {task["task_id"]: task for task in flow["tasks"]}
+        checks = {check["task_id"]: {k: v for k, v in check.items() if k != "task_id"}
+                  for check in flow.get("request_checks", [])}
+        tasks = []
+        for focus in stage["focus"]:
+            task_id = focus["id"]
+            ready = progress[task_id]
+            refs = ready["refs_by_need"]
+            task = {**focus, "goal": ready["goal"], "needs": list(dict.fromkeys([*focus["needs"], *refs])),
+                    "state": ready["state"], "missing": ready["missing"],
+                    "refs_by_need": {need: ids for need, ids in refs.items() if ids}}
+            if task_id in stage.get("policy_scope", {}):
+                task["policy_scope"] = stage["policy_scope"][task_id]
+            if task_id in lifecycles:
+                task["lifecycle"] = lifecycles[task_id]
+            if task_id in checks:
+                task["request_check"] = checks[task_id]
+            if ready["blocked"]:
+                task["blocked_tools"] = [failure["tool_name"] for failure in ready["blocked"]]
+            tasks.append(task)
+        result["tasks"] = tasks
+        shown = {m["read_ref"] for key in ("recent", "index") for m in history.get(key, [])}
+        referenced = {message["read_ref"]: message
+                      for messages in stage.get("discussion_context", {}).values() for message in messages
+                      if message["read_ref"] not in shown and not message.get("not_loaded")}
+        if referenced:
+            history["referenced"] = referenced
+
+    memory = packet["customer_memory"]
+    claims = memory["active"]
+    if phase == "UNDERSTAND":
+        correctable = {claim["id"] for claim in memory.get("correction_targets", [])}
+        claims = [claim for claim in claims if claim["id"] in correctable]
+    result["customer_claims"] = claims
+    if memory.get("warnings"):
+        result["claim_warnings"] = memory["warnings"]
+    application = packet["application_context"]
+    conversation = packet.get("conversation_state")
+    ticket_status = conversation.get("ticket_status") if isinstance(conversation, dict) else None
+    result["application_context"] = {**application, "interaction": {
+        **application["interaction"], **({"ticket_status": ticket_status} if ticket_status is not None else {}),
+    }}
+    if packet.get("product"):
+        result["product"] = packet["product"]
+
+    facts = {item["source_id"]: item["facts"] for item in packet.get("fact_view", [])}
+    evidence = {}
+    unreferenced = []
+    for observation in packet["observations"]:
+        ref = observation.get("source_id")
+        if ref is None:
+            unreferenced.append(observation)
+            continue
+        evidence[ref] = {k: v for k, v in observation.items() if k not in {"source_id", "content_hash"}}
+        if ref in facts:
+            evidence[ref]["scoped_facts"] = facts[ref]
+    result["evidence"] = evidence
+
+    if phase != "UNDERSTAND":
+        tools = {"available": packet["capabilities"]}
+        for key in ("source_status", "read_progress", "recent_actions", "omitted_action_groups"):
+            if packet.get(key):
+                tools[key] = packet[key]
+        if unreferenced:
+            tools["unreferenced_observations"] = unreferenced
+        if packet["stage"].get("refinements"):
+            tools["refinements"] = packet["stage"]["refinements"]
+        result["tools"] = tools
+    if "summary_candidates" in packet:
+        result["summary_candidates"] = packet["summary_candidates"]
+    if phase == "GOAL_REVIEW":
+        result["goal_review"] = {k: v for k, v in flow["goal_review"].items() if k != "accepted_goals"}
+    if packet.get("feedback"):
+        feedback = json.loads(packet["feedback"])
+        result["feedback"] = {k: feedback[k] for k in ("code", "detail", "repair_note") if k in feedback}
+    return result
 
 
 def read_context(

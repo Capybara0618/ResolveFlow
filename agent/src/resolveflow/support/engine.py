@@ -27,7 +27,7 @@ from resolveflow.harness.streaming_model import StreamingLiveModelClient
 from resolveflow.harness.token_counting import counter_for
 from resolveflow.support.activity import ReadActivity
 from resolveflow.support.completion import check_completion, requirements
-from resolveflow.support.context import LAYOUTS, read_context, render_context
+from resolveflow.support.context import LAYOUTS, project_model_input, read_context, render_context
 from resolveflow.support.dialogue import DialogueState, event_outcomes
 from resolveflow.support.grounding import check_amounts, diagnostic_fact_references, ground_answer
 from resolveflow.support.guidance import CAPABILITIES, capabilities, decision_feedback, tool_schema
@@ -332,7 +332,9 @@ class SupportAgent:
             "UNDERSTAND" if self.stage.pending else "INVESTIGATE_AND_ANSWER")
         counter = counter_for(self.model)
         for recent, preview, index_limit in LAYOUTS:
-            packet = self._packet(recent, preview, index_limit)
+            context = self._packet(recent, preview, index_limit)
+            packet = (project_model_input(context, self.dialogue.lifecycles)
+                      if self.orchestration is not None else context)
             body, messages = self._prepare(packet)
             tokens = counter.count(body) + 256
             if tokens <= self.input_cap:
@@ -340,7 +342,7 @@ class SupportAgent:
         else:
             raise SupportFailure("CONTEXT_REQUIRED_OVERFLOW")
         ceiling = self.budget.step_output_tokens
-        choice = (route_request_check(self, packet, self.intent_client, self.intent_policy)
+        choice = (route_request_check(self, context, self.intent_client, self.intent_policy)
                   if self.intent_client is not None and self.journal is not None else None)
         if choice is not None:
             reply = choice
@@ -370,8 +372,9 @@ class SupportAgent:
                 provider_at = time.perf_counter()
                 outcome = "ERROR"
                 try:
+                    # Scripted clients can still inspect the internal view. Provider messages use only the projection.
                     reply = self.model.decide(
-                        system="", messages=messages, context=packet, sent_context=packet, max_output_tokens=ceiling
+                        system="", messages=messages, context=context, sent_context=packet, max_output_tokens=ceiling
                     )
                     outcome = "COMPLETE"
                 finally:

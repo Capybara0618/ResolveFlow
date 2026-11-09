@@ -1,6 +1,7 @@
 """Real API/SDK/isolated PG persistence and recovery; scripted decisions, no provider network."""
 
 import hashlib
+import json
 from pathlib import Path
 
 import pytest
@@ -68,11 +69,19 @@ def test_api_and_fenced_saved_call_recovery_keep_buyer_projection_without_new_ca
             assert 'presentation.py' in saved['manifest_json']['code']
             assert saved['manifest_json']['operation_request_check'] == 'request-check-v1'
             assert 'request_check.py' in saved['manifest_json']['code']
-            for name in ('request_check.py', 'state.py'):
+            for name in ('request_check.py', 'state.py', 'context.py', 'orchestration_prompts.py'):
                 path = Path(__file__).parents[2] / 'src/resolveflow/support' / name
                 assert saved['manifest_json']['code'][name] == hashlib.sha256(path.read_bytes()).hexdigest()
-            calls = c.execute("SELECT response_json FROM support_agent_call WHERE run_id=%s AND kind='model' "
+            calls = c.execute("SELECT request_json,response_json FROM support_agent_call "
+                              "WHERE run_id=%s AND kind='model' "
                               "ORDER BY position", (req.run_id,)).fetchall()
+            packets = [json.loads(row['request_json']['messages'][-1]['content']) for row in calls]
+            assert packets == models[0].sent_contexts
+            assert packets[0]['phase'] == 'UNDERSTAND'
+            assert packets[-1]['phase'] == 'COMPOSE' and packets[-1]['tasks'][0]['id'] == 'trace'
+            if operation:
+                assert set(packets[1]) == {'phase', 'current_request', 'history', 'tasks'}
+                assert packets[1]['phase'] == 'CHECK_REQUEST'
             assert calls[-1]['response_json']['decision']['parts'][0]['guidance'] == guide
             assert [row['response_json']['decision']['kind'] for row in calls].count('CHECK_REQUEST') == int(operation)
         sources_before = list(sources.calls)
