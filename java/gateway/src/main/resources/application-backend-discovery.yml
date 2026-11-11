@@ -1,0 +1,16 @@
+spring:
+  cloud:
+    discovery:
+      enabled: true
+    nacos:
+      discovery:
+        enabled: true
+        register-enabled: false
+        server-addr: ${BACKEND_NACOS_ADDRESS:127.0.0.1:18848}
+        group: RESOLVEFLOW_BACKEND
+    loadbalancer:
+      cache:
+        enabled: false
+resolveflow:
+  commerce:
+    catalog-url: lb://commerce-service

@@ -75,6 +75,20 @@ PostgreSQL 使用 `127.0.0.1:55533`，避开 Windows 保留的旧端口55433；�
 
 商品展示和评价的缓存重建锁均最多等100毫秒，不再设置固定2秒租约，采用 Redisson 默认30秒看门狗窗口自动续期。正常或异常结束均在 finally 中按所有权解锁；客户端停止后续期停止，锁按剩余 TTL 到期释放。看门狗不是业务超时机制，续期失败仍依靠所有权检查及代次校验限制旧执行者回填，旧固定租约实验不直接代表当前实现。
 
+## Java 后端联合验收
+
+使用独立的 Compose 项目 `resolveflow-backend-lab`，只绑定回环地址。搜索、注册发现和 JFR 采样由独立 Spring profile 启用。验收使用合成商品和订单，流程结束后停止本批应用和容器并保留专用卷。
+
+```powershell
+.\java\mvnw.cmd -f java/pom.xml -B -ntp -pl gateway,commerce-service,case-service -am -DskipTests package
+docker compose -f infra/compose.backend-lab.yaml pull
+python scripts/backend_lab.py --java-home $env:JAVA_HOME --output tmp/backend-lab/run-01
+```
+
+- `backend-search` 将有关键词的商品查询接到 Elasticsearch。商品 Outbox 与目录修改同事务，Kafka 按商品 ID 分区，ES 写入使用外部版本；目录查询批量复核 MySQL 可售状态。首次启用或从 MySQL 重建时，为一个 Commerce 实例显式设置 `BACKEND_SEARCH_BACKFILL=true`，并使用本次的目标索引；同一索引的晚到旧版本会被拒绝。使用相同消费组恢复会继续已提交的 offset。索引重建需先完成回填，再开放搜索请求。
+- `backend-discovery` 用 Nacos 和 LoadBalancer 转发公开商品 GET。验收观察双实例、强停和恢复；付款及退款路径使用原路由和执行协议。
+- `backend-profile` 在单独的本地管理端口开放 HikariCP 指标。联合验收采集订单列表的固定并发窗口和 JFR 录制，指标与结果保存在指定输出目录，录制仅用于本地分析。
+
 ## 独立拍摄数据
 
 2026-10-31已准备 `resolveflow-recording-v1`：独立MySQL、PostgreSQL、Redis、RocketMQ、图片目录及退款provider文件，沿用相同应用与端口。选择记录在忽略文件 `tmp/active-recording-stage.json`；存在时，正常start/status/stop以及物流模拟器均使用拍摄环境。两套环境轮流占用这些端口，原验收卷完整保留。

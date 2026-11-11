@@ -4,6 +4,7 @@ import com.resolveflow.shared.shopping.ManagementWire.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -13,10 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class CatalogManagementService {
     private final PublicCatalogCacheInvalidation invalidations;
     private final JdbcTemplate jdbc;
+    private final Optional<CatalogSearchEvents> search;
 
-    public CatalogManagementService(JdbcTemplate jdbc, PublicCatalogCacheInvalidation invalidations) {
+    public CatalogManagementService(
+            JdbcTemplate jdbc, PublicCatalogCacheInvalidation invalidations, Optional<CatalogSearchEvents> search) {
         this.invalidations = invalidations;
         this.jdbc = jdbc;
+        this.search = search;
     }
 
     private static ShoppingService.Refused invalid(String message) {
@@ -237,6 +241,7 @@ public class CatalogManagementService {
                 create ? "CREATED" : "UPDATED",
                 result.version());
         invalidations.productChanged(id);
+        search.ifPresent(events -> events.record(result));
         return result;
     }
 }

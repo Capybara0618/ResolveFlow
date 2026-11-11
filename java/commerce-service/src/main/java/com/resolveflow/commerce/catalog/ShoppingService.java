@@ -17,6 +17,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ShoppingService {
+    private static final String PUBLIC_PRODUCTS = """
+            SELECT p.*,s.name AS store_name,JSON_UNQUOTE(JSON_EXTRACT(presentation.images,'$[0]')) AS cover_image_id
+            FROM catalog_product p JOIN catalog_store s ON s.store_id=p.store_id
+            LEFT JOIN catalog_product_presentation presentation ON presentation.product_id=p.product_id
+            WHERE p.listed=TRUE AND s.enabled=TRUE
+            AND EXISTS(SELECT 1 FROM catalog_sku k WHERE k.product_id=p.product_id AND k.listed=TRUE)
+            """;
+
     private final JdbcTemplate jdbc;
     private final Clock clock;
 
@@ -61,8 +69,7 @@ public class ShoppingService {
                 || store != null && store.length() > 64) throw new IllegalArgumentException("查询或分页参数超出范围");
         if (category != null && !List.of("electronics", "home", "outdoor").contains(category))
             throw new IllegalArgumentException("分类无效");
-        String sql =
-                "SELECT p.*,s.name AS store_name,JSON_UNQUOTE(JSON_EXTRACT(presentation.images,'$[0]')) AS cover_image_id FROM catalog_product p JOIN catalog_store s ON s.store_id=p.store_id LEFT JOIN catalog_product_presentation presentation ON presentation.product_id=p.product_id WHERE p.listed=TRUE AND s.enabled=TRUE AND EXISTS(SELECT 1 FROM catalog_sku k WHERE k.product_id=p.product_id AND k.listed=TRUE)";
+        String sql = PUBLIC_PRODUCTS;
         List<Object> args = new ArrayList<>();
         if (query != null && !query.isBlank()) {
             sql += " AND LOCATE(?,p.name)>0";
@@ -85,7 +92,27 @@ public class ShoppingService {
         var products = jdbc.query(sql, (rs, n) -> productRow(rs), args.toArray());
         boolean more = products.size() > limit;
         var shown = products.subList(0, Math.min(limit, products.size()));
-        if (shown.isEmpty()) return new Products(List.of(), null);
+        return new Products(withPrices(shown), more ? shown.getLast().productId() : null);
+    }
+
+    @Transactional(readOnly = true, isolation = org.springframework.transaction.annotation.Isolation.REPEATABLE_READ)
+    public List<Product> searchProducts(List<String> ids, String category, String store) {
+        if (ids.isEmpty()) return List.of();
+        String placeholders = String.join(",", java.util.Collections.nCopies(ids.size(), "?"));
+        var byId = new HashMap<String, Product>();
+        for (var product : jdbc.query(
+                PUBLIC_PRODUCTS + " AND p.product_id IN (" + placeholders + ")",
+                (rs, n) -> productRow(rs),
+                ids.toArray())) {
+            if ((category == null || category.equals(product.category()))
+                    && (store == null || store.equals(product.storeId()))) byId.put(product.productId(), product);
+        }
+        return withPrices(
+                ids.stream().map(byId::get).filter(java.util.Objects::nonNull).toList());
+    }
+
+    private List<Product> withPrices(List<Product> shown) {
+        if (shown.isEmpty()) return List.of();
         var skus = new HashMap<String, List<Sku>>();
         String placeholders = String.join(",", java.util.Collections.nCopies(shown.size(), "?"));
         jdbc.query(
@@ -94,9 +121,7 @@ public class ShoppingService {
                         rs -> skus.computeIfAbsent(rs.getString("product_id"), ignored -> new ArrayList<>())
                                 .add(skuRow(rs)),
                 shown.stream().map(Product::productId).toArray());
-        return new Products(
-                shown.stream().map(p -> priced(p, skus.get(p.productId()))).toList(),
-                more ? shown.getLast().productId() : null);
+        return shown.stream().map(p -> priced(p, skus.get(p.productId()))).toList();
     }
 
     private static Product productRow(ResultSet rs) throws SQLException {

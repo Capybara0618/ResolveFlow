@@ -1662,10 +1662,11 @@ paths:
       - name: after
         in: query
         required: false
+        description: Opaque cursor from next_after. Keyword search cursors are scoped to the current filters.
         schema:
           type: string
           minLength: 1
-          maxLength: 64
+          maxLength: 192
           pattern: ^[A-Za-z0-9_-]+$
       - name: limit
         in: query
@@ -5302,7 +5303,7 @@ components:
           type:
           - string
           - 'null'
-          maxLength: 64
+          maxLength: 192
     ShopQuoteRequest:
       type: object
       additionalProperties: false

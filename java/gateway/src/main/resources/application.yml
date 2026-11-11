@@ -6,6 +6,10 @@ server:
 spring:
   application:
     name: gateway
+  cloud:
+    nacos:
+      discovery:
+        enabled: false
 
 management:
   endpoints:

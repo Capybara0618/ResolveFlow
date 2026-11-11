@@ -10,6 +10,11 @@ import java.util.Base64;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import jdk.jfr.Category;
+import jdk.jfr.Event;
+import jdk.jfr.Label;
+import jdk.jfr.Name;
+import jdk.jfr.StackTrace;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 
@@ -18,6 +23,18 @@ import tools.jackson.databind.ObjectMapper;
 public class BuyerPurchaseReads {
     private final PurchaseReads commerce;
     private final ObjectMapper json = new ObjectMapper();
+
+    @Name("resolveflow.BuyerOrderShardRead")
+    @Label("Buyer order shard read")
+    @Category({"ResolveFlow", "Commerce"})
+    @StackTrace(false)
+    static final class ShardRead extends Event {
+        @Label("Returned orders")
+        int orders;
+
+        @Label("Read completed")
+        boolean completed;
+    }
 
     public BuyerPurchaseReads(PurchaseReads commerce) {
         this.commerce = commerce;
@@ -80,10 +97,19 @@ public class BuyerPurchaseReads {
         boolean shardHasMore = false;
         for (var binding : bindings) {
             if (store != null && !store.equals(binding.merchantId())) continue;
-            var page = commerce.list(
-                    binding.merchantId(), binding.buyerId(), status, after.get(binding.merchantId()), limit);
-            shardHasMore |= page.nextCursor() != null;
-            merged.addAll(page.items());
+            var sample = new ShardRead();
+            sample.begin();
+            try {
+                var page = commerce.list(
+                        binding.merchantId(), binding.buyerId(), status, after.get(binding.merchantId()), limit);
+                shardHasMore |= page.nextCursor() != null;
+                merged.addAll(page.items());
+                sample.orders = page.items().size();
+                sample.completed = true;
+            } finally {
+                sample.end();
+                sample.commit();
+            }
         }
         // Each shard already has its native id ordering; stable ties preserve it.
         merged.sort(Comparator.comparing(Purchase::createdAt).reversed().thenComparing(Purchase::storeId));

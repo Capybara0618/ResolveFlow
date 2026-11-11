@@ -6,6 +6,10 @@ server:
 spring:
   application:
     name: commerce-service
+  cloud:
+    nacos:
+      discovery:
+        enabled: false
 
   # commerce_db is this service's own schema and it has its own MySQL account
   # (infra/mysql/init/01-databases.sql; docs/engineering.md:60). The defaults match the local

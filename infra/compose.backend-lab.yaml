@@ -1,0 +1,78 @@
+name: resolveflow-backend-lab
+
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
+    ports: ["127.0.0.1:13307:3306"]
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  kafka:
+    image: apache/kafka:4.1.1
+    ports: ["127.0.0.1:19092:19092"]
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: INTERNAL://:29092,CONTROLLER://:29093,EXTERNAL://:19092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://127.0.0.1:19092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_HEAP_OPTS: -Xms256m -Xmx512m
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "/opt/kafka/bin/kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:29092"]
+      interval: 8s
+      timeout: 6s
+      retries: 15
+
+  elasticsearch:
+    image: ${BACKEND_ES_IMAGE:-docker.elastic.co/elasticsearch/elasticsearch:8.19.4}
+    ports: ["127.0.0.1:19200:9200"]
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    volumes:
+      - elastic-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS 'http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=3s'"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+
+  nacos:
+    image: nacos/nacos-server:v3.1.0
+    environment:
+      MODE: standalone
+      NACOS_AUTH_ENABLE: "false"
+      NACOS_AUTH_TOKEN: ${BACKEND_NACOS_TOKEN:-cmVzb2x2ZWZsb3ctZGV2LW9ubHktdG9rZW4tMzJieXRlcy1sb25n}
+      NACOS_AUTH_IDENTITY_KEY: resolveflow
+      NACOS_AUTH_IDENTITY_VALUE: resolveflow-dev-only
+      JVM_XMS: 256m
+      JVM_XMX: 512m
+    ports:
+      - "127.0.0.1:18848:8848"
+      - "127.0.0.1:19848:9848"
+
+volumes:
+  mysql-data:
+  kafka-data:
+  elastic-data:

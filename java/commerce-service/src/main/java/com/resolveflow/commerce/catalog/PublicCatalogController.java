@@ -3,6 +3,7 @@ package com.resolveflow.commerce.catalog;
 import com.resolveflow.shared.error.ApiError;
 import com.resolveflow.shared.shopping.ShoppingWire.*;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,16 +16,19 @@ public class PublicCatalogController {
     private final ShoppingService shopping;
     private final PresentationService presentation;
     private final ProductReviewReadCache reviews;
+    private final Optional<CatalogSearchIndex> search;
 
     public PublicCatalogController(
             ShoppingService shopping,
             PresentationService presentation,
             ProductReviewReadCache reviews,
-            PublicProductReadCache products) {
+            PublicProductReadCache products,
+            Optional<CatalogSearchIndex> search) {
         this.products = products;
         this.shopping = shopping;
         this.presentation = presentation;
         this.reviews = reviews;
+        this.search = search;
     }
 
     @GetMapping("/stores")
@@ -44,6 +48,8 @@ public class PublicCatalogController {
             @RequestParam(name = "store_id", required = false) String store,
             @RequestParam(required = false) String after,
             @RequestParam(required = false) Integer limit) {
+        if (query != null && !query.isBlank() && search.isPresent())
+            return search.get().search(query, category, store, after, limit);
         return shopping.products(query, category, store, after, limit);
     }
 

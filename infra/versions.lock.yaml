@@ -113,6 +113,8 @@ java:
     com.alibaba.csp:sentinel-core: {version: "1.8.9", status: verified}
 
   messaging:
+    org.springframework.kafka:spring-kafka: {version: "4.0.7", status: resolved, note: "Boot BOM; opt-in backend search"}
+    org.apache.kafka:kafka-clients: {version: "4.1.2", status: resolved, note: "Boot BOM; opt-in backend search"}
     org.apache.rocketmq:rocketmq-client:
       version: "5.3.1"
       scope: "classic remoting client, SCA-managed"

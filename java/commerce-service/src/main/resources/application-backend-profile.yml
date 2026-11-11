@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: ${BACKEND_DB_POOL_SIZE:10}
+
+management:
+  server:
+    address: 127.0.0.1
+    port: ${BACKEND_METRICS_PORT:18082}
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

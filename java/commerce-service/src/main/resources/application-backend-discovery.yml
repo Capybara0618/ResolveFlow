@@ -1,0 +1,10 @@
+spring:
+  cloud:
+    discovery:
+      enabled: true
+    nacos:
+      discovery:
+        enabled: true
+        server-addr: ${BACKEND_NACOS_ADDRESS:127.0.0.1:18848}
+        group: RESOLVEFLOW_BACKEND
+        ip: ${BACKEND_INSTANCE_IP:127.0.0.1}

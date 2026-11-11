@@ -15,21 +15,25 @@ public class CoreRoutes {
     RouteLocator coreApiRoutes(
             RouteLocatorBuilder builder,
             @Value("${resolveflow.case.base-url:http://127.0.0.1:8083}") String caseBaseUrl,
-            @Value("${resolveflow.commerce.base-url:http://127.0.0.1:8081}") String commerceBaseUrl) {
+            @Value("${resolveflow.commerce.base-url:http://127.0.0.1:8081}") String commerceBaseUrl,
+            @Value("${resolveflow.commerce.catalog-url:}") String catalogUrl) {
         return builder.routes()
-                .route(
-                        "commerce-public-catalog",
-                        route -> route.method(HttpMethod.GET)
-                                .and()
-                                .path(
-                                        "/api/v1/shop/stores",
-                                        "/api/v1/shop/stores/{id}",
-                                        "/api/v1/shop/products",
-                                        "/api/v1/shop/products/{id}",
-                                        "/api/v1/shop/products/{id}/presentation",
-                                        "/api/v1/shop/stores/{id}/presentation",
-                                        "/api/v1/shop/products/{id}/reviews")
-                                .uri(commerceBaseUrl))
+                .route("commerce-public-catalog", route -> {
+                    var catalog = route.method(HttpMethod.GET)
+                            .and()
+                            .path(
+                                    "/api/v1/shop/stores",
+                                    "/api/v1/shop/stores/{id}",
+                                    "/api/v1/shop/products",
+                                    "/api/v1/shop/products/{id}",
+                                    "/api/v1/shop/products/{id}/presentation",
+                                    "/api/v1/shop/stores/{id}/presentation",
+                                    "/api/v1/shop/products/{id}/reviews");
+                    if (catalogUrl.isBlank()) return catalog.uri(commerceBaseUrl);
+                    return catalog.metadata("connect-timeout", 800)
+                            .metadata("response-timeout", 2000)
+                            .uri(catalogUrl);
+                })
                 .route(
                         "commerce-public-quote",
                         route -> route.method(HttpMethod.POST)

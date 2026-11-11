@@ -1,0 +1,27 @@
+spring:
+  kafka:
+    bootstrap-servers: ${BACKEND_KAFKA_BOOTSTRAP:127.0.0.1:19092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      properties:
+        max.block.ms: 3000
+        request.timeout.ms: 3000
+        delivery.timeout.ms: 5000
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    listener:
+      ack-mode: record
+resolveflow:
+  catalog:
+    search:
+      url: ${BACKEND_ES_URL:http://127.0.0.1:19200}
+      index: ${BACKEND_ES_INDEX:resolveflow-products-v1}
+      topic: ${BACKEND_KAFKA_TOPIC:resolveflow.catalog.search.v1}
+      consumer-group: ${BACKEND_KAFKA_GROUP:resolveflow-catalog-index-v1}
+      consumer-enabled: ${BACKEND_SEARCH_CONSUMER:true}
+      backfill: ${BACKEND_SEARCH_BACKFILL:false}
